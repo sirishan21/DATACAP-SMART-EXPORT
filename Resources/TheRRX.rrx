@@ -1,0 +1,79 @@
+﻿<rrx>
+<!-- === .NET Action Definition and Help === -->
+<!-- Licensed Materials - Property of IBM
+
+ 5725-C15
+ © Copyright IBM Corp. 1994, 2019 All Rights Reserved
+ US Government Users Restricted Rights - Use, duplication or
+ disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+ -->
+
+<net ref="SmartExportTemplates.SmartExport"> -->
+
+  <h>
+    SmartExport action library has function(s) to export template style data output files. 
+    Templates are written by DataCap developers in pre-defined syntax and the template file is passed 
+    in as an input to the functions of this action library<br/>
+  </h> 
+  <method name="ConditionalSmartExport">
+    <p name="TemplateFile" type="string" qi="Template file (full path to the file)"/>
+    <p name="OutputFilePrefix" type="string" qi="Enter the file prefix of the output file"/>
+    <h>
+      ConditionalSmartExport processes the template file against the DCO of the current document that is being exported.
+      For each document that is processed within a batch, a separate output file is generated based on the template.<br/><br/>
+
+      <b>Template structure (with sample text for reference)</b> <br/>
+      &lt;SmartExport&gt;<br/>
+      &lt;header&gt;Static text that needs to appear at the start of the file&lt;/header&gt;<br/>
+      &lt;body&gt;<br/>
+      &lt;statement name=&quot;statement1&quot; description=&quot;short description (name and description to be used for outputting logs which can help debugging&quot;&gt;<br/>
+      &lt;rules&gt;<br/>
+      &lt;rule&gt;<br/>
+      &lt;condition&gt;DCO.[pageID].[field1] &gt; 2000  and DCO.[pageID].[field2].equals(&quot;test&quot;)&lt;/condition&gt;<br/>
+      &lt;value&gt;DCO.[pageID].[field3] &lt;/value&gt;<br/>
+      &lt;/rule&gt;<br/>
+      &lt;rule&gt;<br/>
+      &lt;condition&gt;DCO.[pageID].[field5].SubString(4).equals(DCO.[pageID].[field0]) and DCO.[pageID].[field2] != Null&lt;/condition&gt;<br/>
+      &lt;value&gt;DCO.[pageID].[field4] &lt;/value&gt;<br/>
+      &lt;/rule&gt;<br/>
+      &lt;default&gt;static text or variable in case none of the condition matches&lt;/default&gt;<br/>
+      &lt;/rules&gt;<br/>
+      &lt;output&gt;static text with [value] where it needs to be&lt;/output&gt;<br/>
+      &lt;/statement&gt;<br/>
+      &lt;statement name=&quot;statement2&quot; description=&quot;short description (name and description to be used for outputting logs which can help debugging&quot;&gt;<br/>
+      &lt;rules&gt;<br/>
+      &lt;rule&gt;<br/>
+      &lt;condition&gt;DCO.[pageID].[field1] &gt; 2000  and DCO.[pageID].[field2].equals( &apos;test&apos;)&lt;/condition&gt;<br/>
+      &lt;value&gt;DCO.[pageID].[field3] &lt;/value&gt;<br/>
+      &lt;/rule&gt;<br/>
+      &lt;rule&gt;<br/>
+      &lt;condition&gt;DCO.[pageID].[field5].SubString(4).equals(&quot;Test&quot;) and DCO.[pageID].[field2] != Null&lt;/condition&gt;<br/>
+      &lt;value&gt;DCO.[pageID].[field4] &lt;/value&gt;<br/>
+      &lt;/rule&gt;<br/>
+      &lt;default&gt;static text or variable in case none of the condition matches&lt;/default&gt;<br/>
+      &lt;/rules&gt;<br/>
+      &lt;output&gt;static text with [value] where it needs to be&lt;/output&gt;<br/>
+      &lt;/statement&gt;<br/>
+      &lt;/body&gt;<br/>
+      &lt;footer&gt;Static text that needs to appear at the end of the file&lt;/footer&gt;<br/>
+      &lt;/SmartExport&gt;
+
+      Sample call below
+      <e>
+        <b>ConditionalSmartExport</b><br/>
+        TempateFile: c:\DataCap\SampleApplication\template1.xml <br/>
+        OutputFilePrefix: TextTMP_
+      </e>
+    </h>
+    <lvl>All levels.</lvl>
+    <ret>
+      <b>True,</b> if the action succeeds.  Otherwise, <b>False.</b>
+    </ret>
+    <see>
+      Refer to the detailed documentation on the template and its syntax for editing the template file.
+    </see>
+  </method>
+
+
+</net>
+</rrx>
