@@ -20,6 +20,8 @@ using System.Net;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Reflection;
+using System.Xml;
+using System.IO;
 
 namespace SmartExportTemplates
 {
@@ -201,18 +203,94 @@ namespace SmartExportTemplates
             internal const int DeletedDoc = 128;
         }
 
+        string logPrefix = "DBA-SmartExport - ";
         /// <summary/>
-        /// Processes the template file "TemplateFile" against the DCO of the current document. 
+        /// Processes the template file "TemplateFilePath" against the DCO of the current document. 
         /// Execution of this method to be called at the Export step of the workflow when the data is already extracted
         /// Output is written to a file with "OutputFilePrefix" followed by document id/name and date/time for uniqueness
-        public bool ConditionalSmartExport(string TemplateFile, string OutputFilePrefix)
+        public bool ConditionalSmartExport(string TemplateFilePath, string OutputFilePrefix)
         {
-            bool tBool = false;
-            if (TemplateFile.Equals("RanjTemplate"))
+            bool bResponse = true;
+            string batchXMLFile = this.BatchPilot.DCOFile;
+            try
             {
-                tBool = true;
+                /// Parse the DCO XML file for the current batch and for each document in the batch, 
+                /// process the document's exported XML data against the input template to generate 
+                /// data output file
+                XmlDocument batchXML = new XmlDocument();
+                batchXML.Load(batchXMLFile);
+                XmlElement batchRoot = batchXML.DocumentElement;
+                XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
+                foreach(XmlNode dcoDocumentNode in dcoDocumentNodes)
+                {
+                    XmlNode dataFileNode = dcoDocumentNode.SelectSingleNode("./P/V[@n='DATAFILE']"); //Multiple nodes with V, get the data file node
+                    if (dataFileNode != null)
+                    {
+                        bResponse = ProcessDocument(dataFileNode.InnerText,
+                                                    Path.GetDirectoryName(batchXMLFile),
+                                                    TemplateFilePath,
+                                                    OutputFilePrefix);
+                    }
+                }
+            } catch (System.IO.FileNotFoundException exp)
+            {
+                WriteLog(logPrefix + "DCO XML file not readable. Error: " + exp.ToString());
+                bResponse = false;
+            } catch (System.Exception exp)
+            {
+                WriteLog(logPrefix + "Internal error occurred while processing the application DCO file. Error: " + exp.ToString());
+                bResponse = false;
             }
-            return tBool;
+            
+            return bResponse;
+        }
+
+        /// <summary>
+        /// The main method that processes each of the document data against the template to generate data output file.
+        /// Output file is written to the same BasePath. The export folder where all data resides.
+        /// </summary>
+        /// <param name="DataFileName">Data file name for the given document</param>
+        /// <param name="BasePath">Base path where the data file resides</param>
+        /// <param name="TemplateFilePath">Path to the template file. Full path to the file</param>
+        /// <param name="OutputFilePrefix">Prefix for the generated file </param>
+        private bool ProcessDocument(string DataFileName, 
+                                        string BasePath,
+                                        string TemplateFilePath,
+                                        string OutputFilePrefix)
+        {
+            bool bResponse = true;
+            // Extract the root element of the data file for the given document
+            XmlElement dataRoot = null;
+            try
+            {
+                XmlDocument dataXML = new XmlDocument();
+                dataXML.Load(Path.Combine(BasePath, DataFileName));
+                dataRoot = dataXML.DocumentElement; 
+            } catch (System.IO.FileNotFoundException exp)
+            {
+                WriteLog(logPrefix + "Unable to read data XML file [" + DataFileName + "]. Error: " + exp.ToString());
+                bResponse = false;
+            }
+            // Read the template file and process it against the data file.
+            XmlElement templateRoot = null;
+            try
+            {
+                XmlDocument templateXML = new XmlDocument();
+                templateXML.Load(TemplateFilePath);
+                templateRoot = templateXML.DocumentElement;
+            } catch (System.IO.FileNotFoundException exp)
+            {
+                WriteLog(logPrefix + "Unable to read the template file [" + TemplateFilePath + "]. Error: " + exp.ToString());
+                bResponse = false;
+            }
+            if (bResponse)
+                TransformData(dataRoot, templateRoot);
+            return bResponse;
+        }
+
+        private void TransformData(XmlElement DataRoot, XmlElement TemplateRoot)
+        {
+            WriteLog(logPrefix + "Ready to transform data output");
         }
 
         public bool SampleAction(string TemplateFile, string OutputFilePrefix)
