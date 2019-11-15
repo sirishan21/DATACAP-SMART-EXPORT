@@ -22,6 +22,9 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Xml;
 using System.IO;
+using System.Text;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace SmartExportTemplates
 {
@@ -203,7 +206,10 @@ namespace SmartExportTemplates
             internal const int DeletedDoc = 128;
         }
 
-        string logPrefix = "DBA-SmartExport - ";
+        // Global constants
+        readonly string LOG_PREFIX = "DBA-SmartExport - ";
+        readonly string DCO_REF_PATTERN = "\\[DCO.*\\]";
+
         /// <summary/>
         /// Processes the template file "TemplateFilePath" against the DCO of the current document. 
         /// Execution of this method to be called at the Export step of the workflow when the data is already extracted
@@ -211,6 +217,24 @@ namespace SmartExportTemplates
         public bool ConditionalSmartExport(string TemplateFilePath, string OutputFilePrefix)
         {
             bool bResponse = true;
+
+            // Extract the root element of the template file 
+            XmlElement templateRoot = null;
+            try
+            {
+                XmlDocument templateXML = new XmlDocument();
+                templateXML.Load(TemplateFilePath);
+                templateRoot = templateXML.DocumentElement;
+            }
+            catch (System.IO.FileNotFoundException exp)
+            {
+                WriteLog(LOG_PREFIX + "Unable to read the template file [" + TemplateFilePath + "]. Error: " + exp.ToString());
+                bResponse = false;
+            }
+
+            if (!bResponse)
+                return bResponse;  // Don't proceed further if template file is not readable
+
             string batchXMLFile = this.BatchPilot.DCOFile;
             try
             {
@@ -228,17 +252,17 @@ namespace SmartExportTemplates
                     {
                         bResponse = ProcessDocument(dataFileNode.InnerText,
                                                     Path.GetDirectoryName(batchXMLFile),
-                                                    TemplateFilePath,
+                                                    templateRoot,
                                                     OutputFilePrefix);
                     }
                 }
             } catch (System.IO.FileNotFoundException exp)
             {
-                WriteLog(logPrefix + "DCO XML file not readable. Error: " + exp.ToString());
+                WriteLog(LOG_PREFIX + "DCO XML file not readable. Error: " + exp.ToString());
                 bResponse = false;
             } catch (System.Exception exp)
             {
-                WriteLog(logPrefix + "Internal error occurred while processing the application DCO file. Error: " + exp.ToString());
+                WriteLog(LOG_PREFIX + "Internal error occurred while processing the application DCO file. Error: " + exp.ToString());
                 bResponse = false;
             }
             
@@ -246,8 +270,8 @@ namespace SmartExportTemplates
         }
 
         /// <summary>
-        /// The main method that processes each of the document data against the template to generate data output file.
-        /// Output file is written to the same BasePath. The export folder where all data resides.
+        /// Read the data XML file and extract the document root. Transform Data needs both the template's root element
+        /// and the data XMl root element
         /// </summary>
         /// <param name="DataFileName">Data file name for the given document</param>
         /// <param name="BasePath">Base path where the data file resides</param>
@@ -255,7 +279,7 @@ namespace SmartExportTemplates
         /// <param name="OutputFilePrefix">Prefix for the generated file </param>
         private bool ProcessDocument(string DataFileName, 
                                         string BasePath,
-                                        string TemplateFilePath,
+                                        XmlElement TemplateRoot,
                                         string OutputFilePrefix)
         {
             bool bResponse = true;
@@ -268,294 +292,75 @@ namespace SmartExportTemplates
                 dataRoot = dataXML.DocumentElement; 
             } catch (System.IO.FileNotFoundException exp)
             {
-                WriteLog(logPrefix + "Unable to read data XML file [" + DataFileName + "]. Error: " + exp.ToString());
+                WriteLog(LOG_PREFIX + "Unable to read data XML file [" + DataFileName + "]. Error: " + exp.ToString());
                 bResponse = false;
             }
-            // Read the template file and process it against the data file.
-            XmlElement templateRoot = null;
-            try
+
+            if (!bResponse)
+                return bResponse;
+
+            // Transform the data
+            List<string> outputData = TransformData(dataRoot, TemplateRoot);
+            // Write to output file
+            string outputFileName = OutputFilePrefix + DataFileName + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
+            string outputFilePath = Path.Combine(BasePath, outputFileName);
+            using (StreamWriter outputFile = new StreamWriter(outputFilePath))
             {
-                XmlDocument templateXML = new XmlDocument();
-                templateXML.Load(TemplateFilePath);
-                templateRoot = templateXML.DocumentElement;
-            } catch (System.IO.FileNotFoundException exp)
-            {
-                WriteLog(logPrefix + "Unable to read the template file [" + TemplateFilePath + "]. Error: " + exp.ToString());
-                bResponse = false;
+                foreach (string line in outputData)
+                {
+                    outputFile.WriteLine(line);
+                }
             }
-            if (bResponse)
-                TransformData(dataRoot, templateRoot);
+
             return bResponse;
         }
 
-        private void TransformData(XmlElement DataRoot, XmlElement TemplateRoot)
+        /// <summary>
+        /// Transform the data output to the specified template. 
+        /// </summary>
+        /// <param name="DataRoot"></param>
+        /// <param name="TemplateRoot"></param>
+        private List<string> TransformData(XmlElement DataRoot, 
+                                            XmlElement TemplateRoot)
         {
-            WriteLog(logPrefix + "Ready to transform data output");
-        }
+            List<string> outputData = new List<string>();
 
-        public bool SampleAction(string TemplateFile, string OutputFilePrefix)
-        {
-             bool bRes = true;
-             /*dcSmart.SmartNav localSmartObj = null;
+            //Write Header
+            string header = TemplateRoot.SelectSingleNode("./header").InnerText;
+            Regex.Replace(header, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+            outputData.Add(header);
 
-             try
-             {
-                 // An example of how to support Smart Parameters in a .NET action.  
-                 // To support smart parameters, use the string type for the input parameter.  The type can be coverted after smart parameter resolution, if needed.
-                 localSmartObj = new dcSmart.SmartNav(this);
-
-                 // If the string contains a smart parameter, MetaWord will return the resolved smart parameter
-                 // if not, it will simply return the orignal string.  Note that smart paramters only work with the string type.
-                 // Smart parameters will not decrypt encrypted strings when called from custom actions.
-                 string smartP1 = localSmartObj.MetaWord(p1);
-
-                 SampleProperty01 = smartP1;
-                 SampleProperty02 = p2;
-                 SampleProperty03 = p3;
-                 SampleProperty04 = p4;
-                 SampleProperty05 = p5;
-                 SampleProperty06 = p6;
-                 SampleProperty07 = p7;
-                 SampleProperty08 = p8;
-                 SampleProperty09 = p9;
-                 SampleProperty10 = p10;
-                 SampleProperty11 = p11;
-                 SampleProperty12 = p12;
-
-                 // An example of how to determine the level of the current DCO object.
-                 if (CurrentDCO.ObjectType() == Level.Batch)
-                 {
-                     WriteLog("Batch Level");
-                 }
-                 else if (CurrentDCO.ObjectType() == Level.Document)
-                 {
-                     WriteLog("Document Level");
-                 }
-                 else if (CurrentDCO.ObjectType() == Level.Page)
-                 {
-                     WriteLog("Page Level");
-                     string imageName = CurrentDCO.ImageName; // We are at the page level, here is how to obtain the image name.
-                     WriteLog("Image name: " + imageName);
-                 }
-                 else if (CurrentDCO.ObjectType() == Level.Field)
-                 {
-                     WriteLog("Field Level");
-                 }
-
-                 string myValue = localSmartObj.MetaWord("@ID");  // Using MetaWord to resolve smart parameters
-                 WriteLog("The current object ID: " + myValue);
-                 myValue = localSmartObj.MetaWord("@TYPE");       // Using MetaWord to resolve smart parameters
-                 WriteLog("The current object Type: " + myValue);
-                 myValue = localSmartObj.MetaWord("@PILOT(BATCHDIR)");       // Using MetaWord to resolve smart parameters
-                 WriteLog("The current batch directory: " + myValue);
-
-                 WriteLog("Another way to get the batch directory: " + BatchPilot.BatchDir);
-
-                 // Here is an example of setting a variable in the DCO.  If the variable does not exist, it will be created.
-                 bool result = localSmartObj.DCONavSetValue("@B.MyVariable", smartP1);
-                 if (result)
-                 {
-                     WriteLog("MyVariable was set in the DCO at the batch level.");
-                 }
-                 else
-                 {
-                     WriteLog("MyVariable was not set in the DCO");
-                 }
-
-                 // Sometimes an action will need to set the status of the current DCO object.  For example, a validation action
-                 // that is peforming a test on a field object may want to set the status to 1 if a validation fails, in addition
-                 // to returning false.  Typically 0 is pass and 1 is fail.  Refer to the IBM Datacap documentation for 
-                 // more information regarding common status values.
-                 // This is an example of setting the object status.
-                 CurrentDCO.Status = 0;
-
-                 // The hierarchical variable hr_locale can be used to override the default locale.  A heirarchtical variable
-                 // is special because once set, all DCO objects below it will inherit its value unless it is specifically
-                 // overridden at a lower level object.  That means the variable could be set to english at the document level
-                 // and all pages and fields under that object will also be english.  A single field level object could set the
-                 // variable to another locale, such as Russian, and just that field would be treated as Russian while the page
-                 // and other fields are treated as English.
-                 string currentLocale = CurrentDCO.get_Variable("hr_locale");   // An example of reading a DCO variable.
-                 if (currentLocale.Trim().Length > 0)
-                 {
-                     WriteLog("The current locale in effect for this DCO object: " + currentLocale);
-                 }
-                 else
-                 {
-                     WriteLog("Using the default locale.");
-                 }
-
-                 // This is a breif example of creating a new child page object as might be done in a vscan action.
-                 // TDCOLib.IDCO oPage = DCO.AddChild(Level.Page, "P1" a unique ID, -1);
-                 // An action library must not update the XML directly, but instead use the TDCO object.
-                 // If children are deleted, then the action that deletes an object, must be the last action called in
-                 // a ruleset.  When an object is deleted, any subsequent actions must be called in a following ruleset.
-
-                 // If necessary, an action can set the task status.  Typically, this might be done if the action
-                 // encountered a situation where it is necessary to set the batch status to abort.  
-                 // Setting the status should be done with care.
-                 // example
-                 // RRState.set_Data("nTaskStatus", 0); // Abort = 0, Finished = 2, Hold = 4, Pending = 8   
-             }
-             catch (Exception ex)
-             {
-                 // It is a best practice to have a try catch in every action to prevent any unexpected errors
-                 // from being thrown back to RRS.
-                 WriteLog("There was an exception: " + ex.Message);
-             }
-
-             localSmartObj = null;*/
-             return bRes; 
-            
-        }
-
-
-
-        string prop1 = "";
-        /// <summary/>
-        /// This is an example of an action that sets a C# property.  
-        /// An action that sets a property always returns true.
-        /// The parameter type must match the type defined in the RRX file for this action.
-        public string SampleProperty01
-        {
-            get { return prop1; }
-            set
+            //Write Statements
+            XmlNodeList statementNodes = TemplateRoot.SelectNodes("./body/statement");
+            foreach (XmlNode statementNode in statementNodes)
             {
-                prop1 = value;
-                OutputToLog(5, prop1);
+                outputData.Add(getStatementOutput(statementNode));
             }
+
+            //Write Footer
+            string footer = TemplateRoot.SelectSingleNode("./footer").InnerText;
+            Regex.Replace(footer, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+            outputData.Add(footer);
+
+            return outputData;
         }
 
-        bool prop2 = false;
-        /// <summary/>
-        public bool SampleProperty02
+        /// <summary>
+        /// Given a DCO reference in the predefined format ([DCO.Page.Field]), this method returns the value
+        /// of the DCO. It looks up the exported data to find the value
+        /// </summary>
+        /// <param name="DCOTree"></param>
+        /// <returns></returns>
+        private string getDCOValue(string DCOTree)
         {
-            get { return prop2; }
-            set
-            {
-                prop2 = value;
-                OutputToLog(5, prop2.ToString());
-            }
+            return DCOTree.Replace("[", "_").Replace("]", "_");
         }
 
-        int prop3 = 0;
-        /// <summary/>
-        public int SampleProperty03
+        private string getStatementOutput(XmlNode StatementNode)
         {
-            get { return prop3; }
-            set
-            {
-                prop3 = value;
-                OutputToLog(5, prop3.ToString());
-            }
+            return ((XmlElement)StatementNode).GetAttribute("name");
         }
 
-        uint prop4 = 0;
-        /// <summary/>
-        public uint SampleProperty04
-        {
-            get { return prop4; }
-            set
-            {
-                prop4 = value;
-                OutputToLog(5, prop4.ToString());
-            }
-        }
-
-        long prop5 = 0;
-        /// <summary/>
-        public long SampleProperty05
-        {
-            get { return prop5; }
-            set
-            {
-                prop5 = value;
-                OutputToLog(5, prop5.ToString());
-            }
-        }
-
-        ulong prop6 = 0;
-        /// <summary/>
-        public ulong SampleProperty06
-        {
-            get { return prop6; }
-            set
-            {
-                prop6 = value;
-                OutputToLog(5, prop6.ToString());
-            }
-        }
-
-        short prop7 = 0;
-        /// <summary/>
-        public short SampleProperty07
-        {
-            get { return prop7; }
-            set
-            {
-                prop7 = value;
-                OutputToLog(5, prop7.ToString());
-            }
-        }
-
-        ushort prop8 = 0;
-        /// <summary/>
-        public ushort SampleProperty08
-        {
-            get { return prop8; }
-            set
-            {
-                prop8 = value;
-                OutputToLog(5, prop8.ToString());
-            }
-        }
-
-        byte prop9 = 0;
-        /// <summary/>
-        public byte SampleProperty09
-        {
-            get { return prop9; }
-            set
-            {
-                prop9 = value;
-                OutputToLog(5, prop9.ToString());
-            }
-        }
-
-        sbyte prop10 = 0;
-        /// <summary/>
-        public sbyte SampleProperty10
-        {
-            get { return prop10; }
-            set
-            {
-                prop10 = value;
-                OutputToLog(5, prop10.ToString());
-            }
-        }
-
-        float prop11 = 0;
-        /// <summary/>
-        public float SampleProperty11
-        {
-            get { return prop11; }
-            set
-            {
-                prop11 = value;
-                OutputToLog(5, prop11.ToString());
-            }
-        }
-
-        double prop12 = 0;
-        /// <summary/>
-        public double SampleProperty12
-        {
-            get { return prop12; }
-            set
-            {
-                prop12 = value;
-                OutputToLog(5, prop12.ToString());
-            }
-        }
+        
     }
 }
