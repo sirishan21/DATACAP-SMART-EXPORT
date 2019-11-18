@@ -248,13 +248,21 @@ namespace SmartExportTemplates
                 foreach(XmlNode dcoDocumentNode in dcoDocumentNodes)
                 {
                     XmlNode dataFileNode = dcoDocumentNode.SelectSingleNode("./P/V[@n='DATAFILE']"); //Multiple nodes with V, get the data file node
-                    if (dataFileNode != null)
+                    XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
+                    if (pageList.Count == 0)
+                        continue;
+
+                    Dictionary<string, string> pageNameDict = new Dictionary<string, string>();
+                    foreach(XmlNode pageNode in pageList)
                     {
-                        bResponse = ProcessDocument(dataFileNode.InnerText,
-                                                    Path.GetDirectoryName(batchXMLFile),
-                                                    templateRoot,
-                                                    OutputFilePrefix);
+                        string pageType = pageNode.SelectSingleNode("./V[@n='TYPE']").InnerText;
+                        string pageID = ((XmlElement)pageNode).GetAttribute("id");
+                        pageNameDict[pageType] = pageID;
                     }
+
+                    bResponse = ProcessDocument(pageNameDict,
+                                                templateRoot,
+                                                OutputFilePrefix);   
                 }
             } catch (System.IO.FileNotFoundException exp)
             {
@@ -277,30 +285,13 @@ namespace SmartExportTemplates
         /// <param name="BasePath">Base path where the data file resides</param>
         /// <param name="TemplateFilePath">Path to the template file. Full path to the file</param>
         /// <param name="OutputFilePrefix">Prefix for the generated file </param>
-        private bool ProcessDocument(string DataFileName, 
-                                        string BasePath,
+        private bool ProcessDocument(Dictionary<string, string> pageNameDict,
                                         XmlElement TemplateRoot,
                                         string OutputFilePrefix)
         {
             bool bResponse = true;
-            // Extract the root element of the data file for the given document
-            XmlElement dataRoot = null;
-            try
-            {
-                XmlDocument dataXML = new XmlDocument();
-                dataXML.Load(Path.Combine(BasePath, DataFileName));
-                dataRoot = dataXML.DocumentElement; 
-            } catch (System.IO.FileNotFoundException exp)
-            {
-                WriteLog(LOG_PREFIX + "Unable to read data XML file [" + DataFileName + "]. Error: " + exp.ToString());
-                bResponse = false;
-            }
-
-            if (!bResponse)
-                return bResponse;
-
             // Transform the data
-            List<string> outputData = TransformData(dataRoot, TemplateRoot);
+            List<string> outputData = TransformData(pageNameDict, TemplateRoot);
             // Write to output file
             string outputFileName = OutputFilePrefix + DataFileName + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
             string outputFilePath = Path.Combine(BasePath, outputFileName);
@@ -320,15 +311,16 @@ namespace SmartExportTemplates
         /// </summary>
         /// <param name="DataRoot"></param>
         /// <param name="TemplateRoot"></param>
-        private List<string> TransformData(XmlElement DataRoot, 
+        private List<string> TransformData(Dictionary<string, string> pageNameDict, 
                                             XmlElement TemplateRoot)
         {
             List<string> outputData = new List<string>();
+            string tsOutput = null;
 
             //Write Header
             string header = TemplateRoot.SelectSingleNode("./header").InnerText;
-            Regex.Replace(header, DCO_REF_PATTERN, m => getDCOValue(m.Value));
-            outputData.Add(header);
+            tsOutput = Regex.Replace(header, DCO_REF_PATTERN, m => getDCOValue(pageNameDict, m.Value));
+            outputData.Add(tsOutput);
 
             //Write Statements
             XmlNodeList statementNodes = TemplateRoot.SelectNodes("./body/statement");
@@ -339,8 +331,8 @@ namespace SmartExportTemplates
 
             //Write Footer
             string footer = TemplateRoot.SelectSingleNode("./footer").InnerText;
-            Regex.Replace(footer, DCO_REF_PATTERN, m => getDCOValue(m.Value));
-            outputData.Add(footer);
+            tsOutput = Regex.Replace(footer, DCO_REF_PATTERN, m => getDCOValue(pageNameDict, m.Value));
+            outputData.Add(tsOutput);
 
             return outputData;
         }
@@ -351,9 +343,15 @@ namespace SmartExportTemplates
         /// </summary>
         /// <param name="DCOTree"></param>
         /// <returns></returns>
-        private string getDCOValue(string DCOTree)
+        private string getDCOValue(Dictionary<string, string> pageNameDict, 
+                                        string DCOTree)
         {
-            return DCOTree.Replace("[", "_").Replace("]", "_");
+            dcSmart.SmartNav localSmartObj = null;
+            localSmartObj = new dcSmart.SmartNav(this);
+
+            string output = DCO.FindChild("TM000001").FindChild("Total_Cost").Text;
+
+            return DCOTree.Replace("[", "_").Replace("]", "_" + output);
         }
 
         private string getStatementOutput(XmlNode StatementNode)
