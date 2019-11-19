@@ -208,10 +208,21 @@ namespace SmartExportTemplates
 
         // Global constants
         readonly string LOG_PREFIX = "DBA-SmartExport - ";
-        readonly string DCO_REF_PATTERN = "\\[DCO.*\\]";
+        readonly string DCO_REF_PATTERN = "\\[DCO\\..+\\..+\\..+\\]$";
+        
+        //Global variables
+        // document ID reference used by the child methods during processing.
+        string DocumentID = null;
+        // Page type to Page ID dict used to map Page type reference to Page ID
+        Dictionary<string, string> PageTypeDict = null;
+        // Batch path where the output files are written to
+        string BatchDirPath = null;
+        // evaluation engine
+        Microsoft.JScript.Vsa.VsaEngine EvalEngine = Microsoft.JScript.Vsa.VsaEngine.CreateEngine();
+
 
         /// <summary/>
-        /// Processes the template file "TemplateFilePath" against the DCO of the current document. 
+        /// Processes the template file "TemplateFilePath" against each of the processed documents
         /// Execution of this method to be called at the Export step of the workflow when the data is already extracted
         /// Output is written to a file with "OutputFilePrefix" followed by document id/name and date/time for uniqueness
         public bool ConditionalSmartExport(string TemplateFilePath, string OutputFilePrefix)
@@ -231,15 +242,21 @@ namespace SmartExportTemplates
                 WriteLog(LOG_PREFIX + "Unable to read the template file [" + TemplateFilePath + "]. Error: " + exp.ToString());
                 bResponse = false;
             }
+            catch (Exception exp)
+            {
+                WriteLog(LOG_PREFIX + "Unable to parse the template file [" + TemplateFilePath + "]. Error: " + exp.ToString());
+                bResponse = false;
+            }
 
             if (!bResponse)
                 return bResponse;  // Don't proceed further if template file is not readable
 
             string batchXMLFile = this.BatchPilot.DCOFile;
+            BatchDirPath = Path.GetDirectoryName(batchXMLFile);
             try
             {
                 /// Parse the DCO XML file for the current batch and for each document in the batch, 
-                /// process the document's exported XML data against the input template to generate 
+                /// process the document's exported data against the input template to generate 
                 /// data output file
                 XmlDocument batchXML = new XmlDocument();
                 batchXML.Load(batchXMLFile);
@@ -247,21 +264,32 @@ namespace SmartExportTemplates
                 XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
                 foreach(XmlNode dcoDocumentNode in dcoDocumentNodes)
                 {
-                    XmlNode dataFileNode = dcoDocumentNode.SelectSingleNode("./P/V[@n='DATAFILE']"); //Multiple nodes with V, get the data file node
+                    DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("id");
                     XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
+                    // Data to be processed is always within pages
                     if (pageList.Count == 0)
+                    {
+                        WriteLog(LOG_PREFIX + "No data to proces. Processing skipped for document: " + DocumentID);
                         continue;
+                    }
+                        
+                    if (PageTypeDict != null)
+                    {
+                        PageTypeDict.Clear();
+                    }
+                    else
+                    {
+                        PageTypeDict = new Dictionary<string, string>();
+                    }
 
-                    Dictionary<string, string> pageNameDict = new Dictionary<string, string>();
                     foreach(XmlNode pageNode in pageList)
                     {
                         string pageType = pageNode.SelectSingleNode("./V[@n='TYPE']").InnerText;
                         string pageID = ((XmlElement)pageNode).GetAttribute("id");
-                        pageNameDict[pageType] = pageID;
+                        PageTypeDict[pageType] = pageID;
                     }
 
-                    bResponse = ProcessDocument(pageNameDict,
-                                                templateRoot,
+                    bResponse = ProcessDocument(templateRoot,
                                                 OutputFilePrefix);   
                 }
             } catch (System.IO.FileNotFoundException exp)
@@ -278,23 +306,19 @@ namespace SmartExportTemplates
         }
 
         /// <summary>
-        /// Read the data XML file and extract the document root. Transform Data needs both the template's root element
-        /// and the data XMl root element
+        /// TransformData is used for transforming. This method captures and writes the output to the file
         /// </summary>
-        /// <param name="DataFileName">Data file name for the given document</param>
-        /// <param name="BasePath">Base path where the data file resides</param>
         /// <param name="TemplateFilePath">Path to the template file. Full path to the file</param>
         /// <param name="OutputFilePrefix">Prefix for the generated file </param>
-        private bool ProcessDocument(Dictionary<string, string> pageNameDict,
-                                        XmlElement TemplateRoot,
+        private bool ProcessDocument(XmlElement TemplateRoot,
                                         string OutputFilePrefix)
         {
             bool bResponse = true;
             // Transform the data
-            List<string> outputData = TransformData(pageNameDict, TemplateRoot);
+            List<string> outputData = TransformData(TemplateRoot);
             // Write to output file
-            string outputFileName = OutputFilePrefix + DataFileName + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
-            string outputFilePath = Path.Combine(BasePath, outputFileName);
+            string outputFileName = OutputFilePrefix + DocumentID + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
+            string outputFilePath = Path.Combine(BatchDirPath, outputFileName);
             using (StreamWriter outputFile = new StreamWriter(outputFilePath))
             {
                 foreach (string line in outputData)
@@ -309,18 +333,19 @@ namespace SmartExportTemplates
         /// <summary>
         /// Transform the data output to the specified template. 
         /// </summary>
-        /// <param name="DataRoot"></param>
         /// <param name="TemplateRoot"></param>
-        private List<string> TransformData(Dictionary<string, string> pageNameDict, 
-                                            XmlElement TemplateRoot)
+        private List<string> TransformData(XmlElement TemplateRoot)
         {
             List<string> outputData = new List<string>();
             string tsOutput = null;
 
             //Write Header
             string header = TemplateRoot.SelectSingleNode("./header").InnerText;
-            tsOutput = Regex.Replace(header, DCO_REF_PATTERN, m => getDCOValue(pageNameDict, m.Value));
-            outputData.Add(tsOutput);
+            if (header != null)
+            {
+                tsOutput = Regex.Replace(header, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+                outputData.Add(tsOutput);
+            }
 
             //Write Statements
             XmlNodeList statementNodes = TemplateRoot.SelectNodes("./body/statement");
@@ -331,34 +356,147 @@ namespace SmartExportTemplates
 
             //Write Footer
             string footer = TemplateRoot.SelectSingleNode("./footer").InnerText;
-            tsOutput = Regex.Replace(footer, DCO_REF_PATTERN, m => getDCOValue(pageNameDict, m.Value));
-            outputData.Add(tsOutput);
+            if (footer != null)
+            {
+                tsOutput = Regex.Replace(footer, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+                outputData.Add(tsOutput);
+            }
 
             return outputData;
         }
 
         /// <summary>
-        /// Given a DCO reference in the predefined format ([DCO.Page.Field]), this method returns the value
-        /// of the DCO. It looks up the exported data to find the value
+        /// For each statement node in the template, this method evaluates the rules and finally 
+        /// returns the output text replacing condition values and DCO references in it.
         /// </summary>
-        /// <param name="DCOTree"></param>
+        /// <param name="StatementNode"></param>
         /// <returns></returns>
-        private string getDCOValue(Dictionary<string, string> pageNameDict, 
-                                        string DCOTree)
-        {
-            dcSmart.SmartNav localSmartObj = null;
-            localSmartObj = new dcSmart.SmartNav(this);
-
-            string output = DCO.FindChild("TM000001").FindChild("Total_Cost").Text;
-
-            return DCOTree.Replace("[", "_").Replace("]", "_" + output);
-        }
-
         private string getStatementOutput(XmlNode StatementNode)
         {
-            return ((XmlElement)StatementNode).GetAttribute("name");
+            string stmtText = null;
+            string stmtName = ((XmlElement)StatementNode).GetAttribute("name");
+            try
+            {
+                string stmtValue = null;
+                XmlNodeList ruleList = StatementNode.SelectNodes("./rules/rule");
+                // Evaluate the conditions. If more that one matches, the latest condition value is overwritten
+                foreach (XmlNode rule in ruleList)
+                {
+                    if (evaluateCondition(rule.SelectSingleNode("./condition"))){
+                        string valueText = rule.SelectSingleNode("./value").InnerText;
+                        stmtValue = Regex.Replace(valueText, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+                    }
+                }
+                // use the default if no conditions satisfies
+                if (stmtValue == null)
+                {
+                    XmlNode defaultNode = StatementNode.SelectSingleNode("./rules/default");
+                    if (defaultNode != null) { 
+                        string valueText = defaultNode.InnerText;
+                        stmtValue = Regex.Replace(valueText, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+                    }
+                }
+
+                XmlNode outputNode = StatementNode.SelectSingleNode("./output");
+                // Read text from output node and super impose value and variables in it.
+                if (outputNode != null)
+                {
+                    stmtText = outputNode.InnerText;
+                    // if value was extracted from conditions, replace that first
+                    if (stmtValue != null)
+                    {
+                        stmtText = stmtText.Replace("[value]", stmtValue);
+                    }
+                    // replace any DCO references in the output text
+                    stmtText = Regex.Replace(stmtText, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+                }
+
+            } catch (Exception exp)
+            {
+                WriteLog(LOG_PREFIX + "Error while processing statement: " + stmtName);
+                WriteLog(LOG_PREFIX + "Detailed error: " + exp.ToString());
+            }
+
+            return stmtText;
         }
 
-        
+        /// <summary>
+        /// Evaluates the condition by using Jscript Eval library. This is not production ready. TODO
+        /// FUTURE: Write a lexical parser to transform the conditions into program constructs.
+        /// </summary>
+        /// <param name="conditionNode"></param>
+        /// <returns>true/false</returns>
+        private bool evaluateCondition(XmlNode conditionNode)
+        {
+            bool response = false;
+            string conditionNodeTxt = conditionNode.InnerText;
+            if (conditionNodeTxt == null)
+            {
+                WriteLog(LOG_PREFIX + "Empty condition nodes found. Please check the template file for correctness");
+                return response;
+            }
+            //replace the DCO references before evaluating the condition
+            string conditionText = Regex.Replace(conditionNodeTxt, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+            conditionText = conditionText.Replace(" and ", " && ");
+            conditionText = conditionText.Replace(" or ", " || ");
+            try
+            {
+                response = (bool)Microsoft.JScript.Eval.JScriptEvaluate(conditionText, EvalEngine);
+            } catch (Exception exp)
+            {
+                // Evaluating conditions using this technique is risky (injections)
+                // Moreover, this API is deprecated. This is for the timebeing (to prototype and define the POV)
+                // If conditions do not evaluate properly, write log and skip the condition
+                // TODO: Lexical parser to get the conditions and transform them to c# code constructs
+                WriteLog(LOG_PREFIX + "Condition evalution failed for condition:" + conditionText);
+                WriteLog(LOG_PREFIX + "Detailed error: " + exp.ToString());
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// Given a DCO reference in the predefined format [DCO.<doc_type>.<page_type>.<field_name>], 
+        /// this method returns the value of the DCO. It looks up the DCO object to find the value
+        /// </summary>
+        /// <param name="DCOTree"></param>
+        /// <returns>If found returns the value of the reference DCO. Else returns null</returns>
+        private string getDCOValue(string DCOTree)
+        {
+            // DCO reference in the template file should adhere to a 4 part string [DCO.<doc_type>.<page_type>.<field_name>]
+            // Parse the DCO reference and extract the page_type and field_name which can then be used to look up in the 
+            // current document that is being processed
+            DCOTree = DCOTree.Replace("[", "").Replace("]", "");
+            char[] sep = { '.' };
+            string[] dcoArray = DCOTree.Split(sep, 4, StringSplitOptions.None);
+
+            if (dcoArray.Length != 4)
+            {
+                WriteLog(LOG_PREFIX + "DCO reference does not confirm to spec. " +
+                    "Expected 4 part string like [DCO.<doc_type>.<page_type>.<field_name>]." +
+                    "Found: " + DCOTree);
+                throw new System.ArgumentException("DCO reference invalid. Check detailed logs", DCOTree);
+            }
+
+            // get the page ID for the page type (in the current document being processed)
+            string pageID = PageTypeDict[dcoArray[2]];
+
+            // get the value of the DCO reference using the page ID and the field name
+            string output = null;
+            try
+            {
+                output = DCO.FindChild(pageID).FindChild(dcoArray[3]).Text;
+            } catch (Exception exp)
+            {
+                // There could be reference in the template for the documents that are not processed in the current batch
+                // Template in TravelDocs can have reference to a field under Flight but the current batch doesn't have 
+                // any flight related input. Alternatively, Flight and Car Rental gets processed but for the Car Rental 
+                // data output, there cannot be any Flight reference
+                WriteLog(LOG_PREFIX + "Unable to find DCO reference for the document with ID: " + DocumentID);
+                WriteLog(LOG_PREFIX + "Error while reading DCO reference: " + exp.ToString());
+            }
+
+            return output;
+        }
+ 
     }
 }
