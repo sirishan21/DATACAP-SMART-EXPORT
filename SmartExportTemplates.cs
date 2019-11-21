@@ -6,13 +6,7 @@
 // US Government Users Restricted Rights - Use, duplication or
 // disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
 //
-// This is an example of a .NET action for IBM Datacap using .NET 4.0.
-// The compliled DLL needs to be placed into the RRS directory.
-// The DLL does not need to be registered.  
-// Datacap studio will find the RRX file that is embedded in the DLL, you do not need to place the RRX in the RRS directory.
-// If you add references to other DLLs, such as 3rd party, you may need to place those DLLs in C:\RRS so they are found at runtime.
-// If Datacap references are not found at compile time, add a reference path of C:\Datacap\DCShared\NET to the project to locate the DLLs while building.
-// This template has been tested with IBM Datacap 9.0.  
+// SmartExportTemplates are used to transform DataCap output into formated files based on the input template.  
 
 using System;
 using System.Runtime.InteropServices;
@@ -28,7 +22,7 @@ using System.Text.RegularExpressions;
 
 namespace SmartExportTemplates
 {
-    public class SmartExport // This class must be a base class for .NET 4.0 Actions.
+    public class SmartExport 
     {
         #region ExpectedByRRS
         /// <summary/>
