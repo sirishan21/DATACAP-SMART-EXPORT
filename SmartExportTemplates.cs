@@ -340,26 +340,36 @@ namespace SmartExportTemplates
             string tsOutput = null;
 
             //Write Header
-            string header = TemplateRoot.SelectSingleNode("./header").InnerText;
-            if (header != null)
+            XmlNode headerNode = TemplateRoot.SelectSingleNode("./header");
+            if (headerNode != null)
             {
-                tsOutput = Regex.Replace(header, DCO_REF_PATTERN, m => getDCOValue(m.Value));
-                outputData.Add(tsOutput);
+                string headerText = headerNode.InnerText;
+                if (headerText != null)
+                {
+                    tsOutput = Regex.Replace(headerText, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+                    outputData.Add(tsOutput);
+                }
             }
 
             //Write Statements
             XmlNodeList statementNodes = TemplateRoot.SelectNodes("./body/statement");
             foreach (XmlNode statementNode in statementNodes)
             {
-                outputData.Add(getStatementOutput(statementNode));
+                tsOutput = getStatementOutput(statementNode);
+                if (tsOutput != null)
+                    outputData.Add(tsOutput);
             }
 
             //Write Footer
-            string footer = TemplateRoot.SelectSingleNode("./footer").InnerText;
-            if (footer != null)
+            XmlNode footerNode = TemplateRoot.SelectSingleNode("./footer");
+            if (footerNode != null)
             {
-                tsOutput = Regex.Replace(footer, DCO_REF_PATTERN, m => getDCOValue(m.Value));
-                outputData.Add(tsOutput);
+                string footerText = footerNode.InnerText;
+                if (footerText != null)
+                {
+                    tsOutput = Regex.Replace(footerText, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+                    outputData.Add(tsOutput);
+                }
             }
 
             return outputData;
@@ -379,12 +389,33 @@ namespace SmartExportTemplates
             {
                 string stmtValue = null;
                 XmlNodeList ruleList = StatementNode.SelectNodes("./rules/rule");
-                // Evaluate the conditions. If more that one matches, the latest condition value is overwritten
-                foreach (XmlNode rule in ruleList)
+                if (ruleList == null)
                 {
-                    if (evaluateCondition(rule.SelectSingleNode("./condition"))){
-                        string valueText = rule.SelectSingleNode("./value").InnerText;
-                        stmtValue = Regex.Replace(valueText, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+                    WriteLog(LOG_PREFIX + "No rules found for statement with name: " + stmtName);
+                }
+                else
+                {
+                    // Evaluate the conditions. If more that one matches, the latest condition value is overwritten
+                    foreach (XmlNode rule in ruleList)
+                    {
+                        string ruleName = ((XmlElement)rule).GetAttribute("name");
+                        XmlNode conditionNode = rule.SelectSingleNode("./condition");
+                        if (conditionNode == null)
+                        {
+                            WriteLog(LOG_PREFIX + "Condition node not found for rule " + ruleName + " in statement " + stmtName);
+                            continue;
+                        }
+                        if (evaluateCondition(rule.SelectSingleNode("./condition")))
+                        {
+                            XmlNode valueNode = rule.SelectSingleNode("./value");
+                            if (valueNode == null)
+                            {
+                                WriteLog(LOG_PREFIX + "Value node not present for rule " + ruleName + " in statement " + stmtName);
+                                continue;
+                            }
+
+                            stmtValue = Regex.Replace(valueNode.InnerText, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+                        }
                     }
                 }
                 // use the default if no conditions satisfies
@@ -394,14 +425,19 @@ namespace SmartExportTemplates
                     if (defaultNode != null) { 
                         string valueText = defaultNode.InnerText;
                         stmtValue = Regex.Replace(valueText, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+                    } else
+                    {
+                        WriteLog(LOG_PREFIX + "No conditions matched for statement " + stmtName + "; No default value provided;" +
+                            " value replacement in output will be skipped" );
                     }
                 }
 
                 XmlNode outputNode = StatementNode.SelectSingleNode("./output");
                 // Read text from output node and super impose value and variables in it.
-                if (outputNode != null)
+                if (outputNode != null && outputNode.InnerText != null)
                 {
                     stmtText = outputNode.InnerText;
+                    
                     // if value was extracted from conditions, replace that first
                     if (stmtValue != null)
                     {
@@ -409,6 +445,10 @@ namespace SmartExportTemplates
                     }
                     // replace any DCO references in the output text
                     stmtText = Regex.Replace(stmtText, DCO_REF_PATTERN, m => getDCOValue(m.Value));
+
+                } else
+                {
+                    WriteLog(LOG_PREFIX + "Statement " + stmtName + " does not have output node or it is empty. Statment discarded");
                 }
 
             } catch (Exception exp)
