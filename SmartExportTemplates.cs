@@ -353,11 +353,14 @@ namespace SmartExportTemplates
 
             //Write Statements
             XmlNodeList statementNodes = TemplateRoot.SelectNodes("./body/statement");
-            foreach (XmlNode statementNode in statementNodes)
+            if (statementNodes != null)
             {
-                tsOutput = getStatementOutput(statementNode);
-                if (tsOutput != null)
-                    outputData.Add(tsOutput);
+                foreach (XmlNode statementNode in statementNodes)
+                {
+                    tsOutput = getStatementOutput(statementNode);
+                    if (tsOutput != null)
+                        outputData.Add(tsOutput);
+                }
             }
 
             //Write Footer
