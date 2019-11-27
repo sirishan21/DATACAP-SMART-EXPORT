@@ -29,3 +29,12 @@
   * Template file should have the input template file with complete path
   * Output prefix is optional and can have a prefix that will be added to the generated output file name
 * Run DataCap workflow as usual and post completion, find output files (one for each document) in the current batch folder
+
+## Limitations
+
+**Disclaimer**: This is **NOT** production ready software. It is a POV to better understand broader requirements and its usage
+
+* Conditional logic in the template is evaluated using a library in C#. This is not extensible and reduces the flexibility in writing conditions. At this moment, conditions entered in the template are processed to replace DCO reference and then evaluated as native C# condition (with the exception of replacing "and" and "or" with the constructs). 
+* Given the way the conditions are executed, it is expected that the DataCap developer uses it with caution. Once a full version of this custom action is developed, a readme with all that is supported in conditions will be provided as a guide
+* Looping constructs not available. A lexical parser implementation is costly and will be implemented (or decided to implement) once requirements are finalized and signed off.
+* Given that this is written in a couple of weeks, it is highly recommended not to deploy this in any production environments.
