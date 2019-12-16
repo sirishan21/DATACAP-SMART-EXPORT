@@ -14,7 +14,25 @@
     SmartExport action library has function(s) to export template style data output files. 
     Templates are written by DataCap developers in pre-defined syntax and the template file is passed 
     in as an input to the functions of this action library<br/>
-  </h> 
+  </h>
+  <method name="FormattedDataOutput">
+    <p name="TemplateFile" type="string" qi="Template file (full path to the file)"/>
+    <p name="OutputFilePrefix" type="string" qi="Enter the file prefix of the output file"/>
+    <p name="OutputFolder" type="string" qi="Output folder where the generated files will be written"/>
+    <p name="AppendToFile" type="bool" qi="If true, single file will be used for the entire batch"/>
+    <h>
+      FormattedDataOutput applies the input template against the current DCO that it is associated with. 
+      It generates one or more data output files in the specified output folder. 
+    </h>
+    <lvl>All levels.</lvl>
+    <ret>
+      <b>True,</b> if the action succeeds.  Otherwise, <b>False.</b>
+    </ret>
+    <see>
+      Refer to the detailed documentation on the template and its syntax for editing the template file.
+    </see>
+  </method>
+  <!--
   <method name="ConditionalSmartExport">
     <p name="TemplateFile" type="string" qi="Template file (full path to the file)"/>
     <p name="OutputFilePrefix" type="string" qi="Enter the file prefix of the output file"/>
@@ -57,7 +75,7 @@
       &lt;/body&gt;<br/>
       &lt;footer&gt;Static text that needs to appear at the end of the file&lt;/footer&gt;<br/>
       &lt;/SmartExport&gt;
-
+      
       Sample call below
       <e>
         <b>ConditionalSmartExport</b><br/>
@@ -73,7 +91,7 @@
       Refer to the detailed documentation on the template and its syntax for editing the template file.
     </see>
   </method>
-
+  -->
 
 </net>
 </rrx>

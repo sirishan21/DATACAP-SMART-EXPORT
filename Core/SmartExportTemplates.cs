@@ -20,6 +20,11 @@ using System.Text;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+//Project namespaces
+using SmartExportTemplates.DCOUtil;
+using SmartExportTemplates.TemplateCore;
+
+
 namespace SmartExportTemplates
 {
     public class SmartExport 
@@ -200,6 +205,15 @@ namespace SmartExportTemplates
             internal const int DeletedDoc = 128;
         }
 
+
+        // NodeType
+        struct NodeType
+        {
+            internal const int Data = 0;
+            internal const int Condition = 1;
+            internal const int Loop = 2;
+        }
+
         // Global constants
         readonly string LOG_PREFIX = "DBA-SmartExport - ";
         readonly string DCO_REF_PATTERN = "\\[DCO\\..+?\\..+?\\..+?\\]";
@@ -213,6 +227,88 @@ namespace SmartExportTemplates
         string BatchDirPath = null;
         // evaluation engine
         Microsoft.JScript.Vsa.VsaEngine EvalEngine = Microsoft.JScript.Vsa.VsaEngine.CreateEngine();
+
+
+        private void SetGlobals()
+        {
+            // Set the global references into thread local for use by the different modules
+        }
+
+        private int getNodeType(XmlNode currentNode)
+        {
+            return NodeType.Data;
+        }
+
+        private void writeToFile(string OutputFilePrefix,
+                                    string OutputDir,
+                                    List<string> OutputData,
+                                    bool AppendToFile)
+        {
+            // Write to output file
+            string outputFileName = OutputFilePrefix + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
+            string outputFilePath = Path.Combine(OutputDir, outputFileName);
+            using (StreamWriter outputFile = new StreamWriter(outputFilePath))
+            {
+                foreach (string line in OutputData)
+                {
+                    outputFile.WriteLine(line);
+                }
+            }
+        }
+
+        public bool FormattedDataOutput (string TemplateFilePath,
+                                            string OutputFilePrefix,
+                                            string OutputFolder,
+                                            bool AppendToFile)
+        {
+            bool returnValue = true;
+            try
+            {
+                //set thread locals
+                SetGlobals();
+                //Initialize the parser
+                TemplateParser templateParser = new TemplateParser(TemplateFilePath);
+                templateParser.Parse();
+                //Node Parsers
+                DataElement dataElement = new DataElement();
+                Conditions conditionEvaluator = new Conditions();
+                Loops loopEvaluator = new Loops();
+
+                // String list to accumulate output
+                List<string> outputStringList = new List<string>();
+                
+                // Loop through the template and accumulate the output
+                while (templateParser.HasNextNode())
+                {
+                    XmlNode currentNode = templateParser.GetNextNode();
+                    switch(getNodeType(currentNode))
+                    {
+                        case NodeType.Data:
+                            outputStringList.AddRange(dataElement.EvaluateData(currentNode));
+                            break;
+                        case NodeType.Condition:
+                            outputStringList.AddRange(conditionEvaluator.EvaluateCondition(currentNode));
+                            break;
+                        case NodeType.Loop:
+                            outputStringList.AddRange(loopEvaluator.EvaluateLoop(currentNode));
+                            break;
+                        default:
+                            WriteLog(LOG_PREFIX + "Node type [" + ((XmlElement)currentNode).Name + "] not supported. Will be ignored");
+                            break;
+                    }
+                }
+                //Write data to output file
+                writeToFile(OutputFilePrefix, OutputFolder, outputStringList, AppendToFile);
+
+            } catch (System.Exception exp)
+            {
+                returnValue = false;
+                WriteLog(LOG_PREFIX + "Error while processing the template file: " + exp.Message);
+            }
+            // TODO: Catch the important exceptions here...
+            return returnValue;
+        }
+
 
 
         /// <summary/>
