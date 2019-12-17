@@ -23,6 +23,7 @@ using System.Text.RegularExpressions;
 //Project namespaces
 using SmartExportTemplates.DCOUtil;
 using SmartExportTemplates.TemplateCore;
+using SmartExportTemplates.Utils;
 
 
 namespace SmartExportTemplates
@@ -232,6 +233,8 @@ namespace SmartExportTemplates
         private void SetGlobals()
         {
             // Set the global references into thread local for use by the different modules
+            // No need to worry about threads here (given the way CurrentDCO works) and we can use a Singleton Globals class
+            Globals.Instance.SetData("CurrentDCO", CurrentDCO);
         }
 
         private int getNodeType(XmlNode currentNode)
