@@ -208,11 +208,12 @@ namespace SmartExportTemplates
 
 
         // NodeType
-        struct NodeType
+        public struct NodeType
         {
             internal const int Data = 0;
-            internal const int Condition = 1;
-            internal const int Loop = 2;
+            internal const int If = 1;
+            internal const int ForEach = 2;
+            internal const int Invalid = 2147482647;
         }
 
         // Global constants
@@ -235,13 +236,11 @@ namespace SmartExportTemplates
             // Set the global references into thread local for use by the different modules
             // No need to worry about threads here (given the way CurrentDCO works) and we can use a Singleton Globals class
             Globals.Instance.SetData("CurrentDCO", CurrentDCO);
+            Globals.Instance.SetData("LogPrefix", LOG_PREFIX);
+            Globals.Instance.SetData("DcoRefPattern", DCO_REF_PATTERN);
         }
 
-        private int getNodeType(XmlNode currentNode)
-        {
-            return NodeType.Data;
-        }
-
+  
         private void writeToFile(string OutputFilePrefix,
                                     string OutputDir,
                                     List<string> OutputData,
@@ -284,15 +283,15 @@ namespace SmartExportTemplates
                 while (templateParser.HasNextNode())
                 {
                     XmlNode currentNode = templateParser.GetNextNode();
-                    switch(getNodeType(currentNode))
+                    switch(templateParser.GetNodeType(currentNode))
                     {
                         case NodeType.Data:
                             outputStringList.AddRange(dataElement.EvaluateData(currentNode));
                             break;
-                        case NodeType.Condition:
+                        case NodeType.If:
                             outputStringList.AddRange(conditionEvaluator.EvaluateCondition(currentNode));
                             break;
-                        case NodeType.Loop:
+                        case NodeType.ForEach:
                             outputStringList.AddRange(loopEvaluator.EvaluateLoop(currentNode));
                             break;
                         default:
