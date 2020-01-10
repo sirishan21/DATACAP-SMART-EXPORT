@@ -9,5 +9,6 @@ namespace SmartExportTemplates.Utils
     public class Constants
     {
         public static string SE_DATA_NODE_NAME = "se:data";
+        public static string SE_APPEND_TO_FILE = "se:appendToFile";
     }
 }

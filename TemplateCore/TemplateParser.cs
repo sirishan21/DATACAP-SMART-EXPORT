@@ -68,7 +68,7 @@ namespace SmartExportTemplates.TemplateCore
 
         public int GetNodeType(XmlNode node)
         {
-            if (node == null || node.Name == null)
+            if (node == null || node.Name == null || node.NodeType != XmlNodeType.Element)
                 return SmartExport.NodeType.Invalid;
 
             int nodeType = SmartExport.NodeType.Invalid;
@@ -86,6 +86,18 @@ namespace SmartExportTemplates.TemplateCore
                     break;
             }
             return nodeType;
+        }
+
+        public bool AppendToFile()
+        {
+            bool AppendToFile = false;
+            XmlNode appendToFileNode = TemplateRoot.SelectSingleNode("./" + Constants.SE_APPEND_TO_FILE);
+            if (appendToFileNode != null)
+            {
+                string sAppendToFile = appendToFileNode.InnerText.Trim();
+                AppendToFile = (sAppendToFile.Equals("True", StringComparison.InvariantCultureIgnoreCase)) ? true : false;
+            }
+            return AppendToFile;
         }
 
     }

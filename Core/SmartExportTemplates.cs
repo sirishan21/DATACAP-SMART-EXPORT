@@ -297,12 +297,15 @@ namespace SmartExportTemplates
                             outputStringList.AddRange(loopEvaluator.EvaluateLoop(currentNode));
                             break;
                         default:
-                            WriteLog(LOG_PREFIX + "Node type [" + ((XmlElement)currentNode).Name + "] not supported. Will be ignored");
+                            if (currentNode.NodeType == XmlNodeType.Element)
+                            {
+                                WriteLog(LOG_PREFIX + "Node type [" + ((XmlElement)currentNode).Name + "] not supported. Will be ignored");
+                            }
                             break;
                     }
                 }
                 //Write data to output file
-                writeToFile(OutputFilePrefix, OutputFolder, outputStringList, AppendToFile);
+                writeToFile(OutputFilePrefix, OutputFolder, outputStringList, templateParser.AppendToFile());
 
             } catch (System.Exception exp)
             {
