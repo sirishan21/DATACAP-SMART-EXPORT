@@ -16,7 +16,10 @@ namespace SmartExportTemplates.TemplateCore
 
         public List<string> EvaluateLoop(XmlNode LoopNode)
         {
-            return null;
+            List<string> output = new List<string>();
+            //TODO: handle loops - below is just to test the skeleton code
+            output.Add("TODO: This is the output of the Loop : " + ((XmlElement)LoopNode).Name);
+            return output;
         }
     }
 }

@@ -249,6 +249,7 @@ namespace SmartExportTemplates
             // Write to output file
             string outputFileName = OutputFilePrefix + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
             string outputFilePath = Path.Combine(OutputDir, outputFileName);
+            //TODO: Take care of appending to existing file.
             using (StreamWriter outputFile = new StreamWriter(outputFilePath))
             {
                 foreach (string line in OutputData)
@@ -268,6 +269,7 @@ namespace SmartExportTemplates
             {
                 //set thread locals
                 SetGlobals();
+                //TODO: Validate template
                 //Initialize the parser
                 TemplateParser templateParser = new TemplateParser(TemplateFilePath);
                 templateParser.Parse();

@@ -93,6 +93,7 @@
     </Compile>
     <Compile Include="RRX.cs" />
     <Compile Include="TemplateCore\TemplateParser.cs" />
+    <Compile Include="Utils\Constants.cs" />
     <Compile Include="Utils\Globals.cs" />
     <Compile Include="Utils\SmartExportException.cs" />
   </ItemGroup>

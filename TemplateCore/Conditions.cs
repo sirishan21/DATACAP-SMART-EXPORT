@@ -16,7 +16,10 @@ namespace SmartExportTemplates
 
         public List<string> EvaluateCondition(XmlNode ConditionNode)
         {
-            return null;
+            List<string> output = new List<string>();
+            //TODO: handle conditions - below is just to test the skeleton code
+            output.Add("TODO: This is the output of the condition : " + ((XmlElement)ConditionNode).Name);
+            return output;
         }
     }
 }
