@@ -14,7 +14,8 @@ namespace SmartExportTemplates.TemplateCore
         XmlElement      TemplateRoot = null;
         XmlNode         CurrentNode = null;
         bool            HasMoreNodes = false;
-        private         SmartExportTemplates.SmartExport ExportCore = new SmartExportTemplates.SmartExport();
+        XmlNamespaceManager NameSpcManager = null;
+        SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         
         struct NodeTypeString
         {
@@ -34,6 +35,8 @@ namespace SmartExportTemplates.TemplateCore
             {
                 XmlDocument templateXML = new XmlDocument();
                 templateXML.Load(TemplateFilePath);
+                this.NameSpcManager = new XmlNamespaceManager(templateXML.NameTable);
+                this.NameSpcManager.AddNamespace("se", Constants.SE_NAMESPACE);
                 this.TemplateRoot = templateXML.DocumentElement;
                 if (this.TemplateRoot.HasChildNodes)
                 {
@@ -91,13 +94,34 @@ namespace SmartExportTemplates.TemplateCore
         public bool AppendToFile()
         {
             bool AppendToFile = false;
-            XmlNode appendToFileNode = TemplateRoot.SelectSingleNode("./" + Constants.SE_APPEND_TO_FILE);
+            string path = "./" + Constants.SE_APPEND_TO_FILE;
+            XmlNode appendToFileNode = TemplateRoot.SelectSingleNode(path, this.NameSpcManager);
             if (appendToFileNode != null)
             {
                 string sAppendToFile = appendToFileNode.InnerText.Trim();
                 AppendToFile = (sAppendToFile.Equals("True", StringComparison.InvariantCultureIgnoreCase)) ? true : false;
             }
             return AppendToFile;
+        }
+
+        public string GetOutputFileName()
+        {
+            string OutputFileName = Constants.GE_DEF_OUTPUT_FILE;
+            XmlNode outputFileNode = TemplateRoot.SelectSingleNode("./" + Constants.SE_OUTPUT_FILE_NAME, this.NameSpcManager);
+            if (outputFileNode != null)
+            {
+                OutputFileName = (outputFileNode.InnerText != null && !outputFileNode.InnerText.Trim().Equals("")) ?
+                                    outputFileNode.InnerText.Trim() : Constants.GE_DEF_OUTPUT_FILE;
+            }
+            return OutputFileName;
+        }
+
+        public string GetOutputDirectory()
+        {
+            //TODO - Get the output dir from the template file and validate it for its existence
+            // if not found, create it and return the path. Temporarily, returning the batch dir path
+
+            return (string)Globals.Instance.GetData(Constants.GE_BATCH_DIR_PATH);
         }
 
     }

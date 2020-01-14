@@ -235,9 +235,15 @@ namespace SmartExportTemplates
         {
             // Set the global references into thread local for use by the different modules
             // No need to worry about threads here (given the way CurrentDCO works) and we can use a Singleton Globals class
-            Globals.Instance.SetData("CurrentDCO", CurrentDCO);
-            Globals.Instance.SetData("LogPrefix", LOG_PREFIX);
-            Globals.Instance.SetData("DcoRefPattern", DCO_REF_PATTERN);
+            Globals.Instance.SetData(Constants.GE_CURRENT_DCO, CurrentDCO);
+            Globals.Instance.SetData(Constants.GE_DCO, DCO);
+            Globals.Instance.SetData(Constants.GE_LOG_PREFIX, LOG_PREFIX);
+            Globals.Instance.SetData(Constants.GE_DCO_REF_PATTERN, DCO_REF_PATTERN);
+            Globals.Instance.SetData(Constants.GE_EXPORT_CORE, this);
+            string batchXMLFile = this.BatchPilot.DCOFile;
+            string batchDirPath = Path.GetDirectoryName(batchXMLFile);
+            Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
+            
         }
 
   
@@ -304,7 +310,7 @@ namespace SmartExportTemplates
                             break;
                     }
                 }
-                //Write data to output file
+                
                 writeToFile(OutputFilePrefix, OutputFolder, outputStringList, templateParser.AppendToFile());
 
             } catch (System.Exception exp)
