@@ -311,7 +311,10 @@ namespace SmartExportTemplates
                     }
                 }
                 
-                writeToFile(OutputFilePrefix, OutputFolder, outputStringList, templateParser.AppendToFile());
+                writeToFile(templateParser.GetOutputFileName(), 
+                            templateParser.GetOutputDirectory(), 
+                            outputStringList, 
+                            templateParser.AppendToFile());
 
             } catch (System.Exception exp)
             {

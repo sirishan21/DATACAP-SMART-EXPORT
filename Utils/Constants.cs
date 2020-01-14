@@ -13,6 +13,7 @@ namespace SmartExportTemplates.Utils
         public static string SE_DATA_NODE_NAME = "se:data";
         public static string SE_APPEND_TO_FILE = "se:appendToFile";
         public static string SE_OUTPUT_FILE_NAME = "se:filename";
+        public static string SE_OUTPUT_DIR_PATH = "se:outputFolder";
 
 
         //General

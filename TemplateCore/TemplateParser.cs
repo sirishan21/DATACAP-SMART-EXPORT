@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -94,8 +95,7 @@ namespace SmartExportTemplates.TemplateCore
         public bool AppendToFile()
         {
             bool AppendToFile = false;
-            string path = "./" + Constants.SE_APPEND_TO_FILE;
-            XmlNode appendToFileNode = TemplateRoot.SelectSingleNode(path, this.NameSpcManager);
+            XmlNode appendToFileNode = TemplateRoot.SelectSingleNode("./" + Constants.SE_APPEND_TO_FILE, this.NameSpcManager);
             if (appendToFileNode != null)
             {
                 string sAppendToFile = appendToFileNode.InnerText.Trim();
@@ -120,8 +120,32 @@ namespace SmartExportTemplates.TemplateCore
         {
             //TODO - Get the output dir from the template file and validate it for its existence
             // if not found, create it and return the path. Temporarily, returning the batch dir path
-
-            return (string)Globals.Instance.GetData(Constants.GE_BATCH_DIR_PATH);
+            string OutputFolder = (string)Globals.Instance.GetData(Constants.GE_BATCH_DIR_PATH);
+            XmlNode outputFolderNode = TemplateRoot.SelectSingleNode("./" + Constants.SE_OUTPUT_DIR_PATH, this.NameSpcManager);
+            if (outputFolderNode != null)
+            {
+                string path = outputFolderNode.InnerText.Trim();
+                if (path != null && !path.Equals(""))
+                {
+                    if (Directory.Exists(path))
+                    {
+                        OutputFolder = path;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            OutputFolder = Directory.CreateDirectory(path).FullName;
+                        }
+                        catch (Exception exp)
+                        {
+                            // Log exception and use the batches folder. Ignore the exception
+                            ExportCore.WriteLog(Constants.GE_LOG_PREFIX + "Invalid output folder path provided, using batches folder as output dir.");
+                        }
+                    }
+                }
+            }
+            return OutputFolder;
         }
 
     }
