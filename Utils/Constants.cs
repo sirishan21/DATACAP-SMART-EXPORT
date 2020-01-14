@@ -8,8 +8,17 @@ namespace SmartExportTemplates.Utils
 {
     public class Constants
     {
+        //Node types
+        public struct NodeTypeString
+        {
+            internal const string SE_DATA = "se:data";
+            internal const string SE_IF = "se:if";
+            internal const string SE_FOREACH = "se:for-each";
+        }
+
         //Templat element names
-        public static string SE_NAMESPACE = "https://www.w3.org/2001/XMLSchema";
+        public static string SE_NAMESPACE_URL = "https://www.w3.org/2001/XMLSchema";
+        public static string SE_NAMESPACE_NAME = "se";
         public static string SE_DATA_NODE_NAME = "se:data";
         public static string SE_APPEND_TO_FILE = "se:appendToFile";
         public static string SE_OUTPUT_FILE_NAME = "se:filename";
