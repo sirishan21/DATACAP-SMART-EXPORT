@@ -21,6 +21,12 @@ namespace SmartExportTemplates.TemplateCore
         public TemplateParser(string TemplateFilePath)
         {
             this.TemplateFilePath = TemplateFilePath;
+            Globals.Instance.SetData(Constants.GE_TEMPLATE_PARSER, this);
+        }
+
+        public XmlNamespaceManager getNameSpcManager()
+        {
+            return this.NameSpcManager;
         }
 
         public bool Parse() 
@@ -130,7 +136,7 @@ namespace SmartExportTemplates.TemplateCore
                         {
                             OutputFolder = Directory.CreateDirectory(path).FullName;
                         }
-                        catch (Exception exp)
+                        catch (Exception)
                         {
                             // Log exception and use the batches folder. Ignore the exception
                             ExportCore.WriteLog(Constants.GE_LOG_PREFIX + "Invalid output folder path provided, using batches folder as output dir.");
