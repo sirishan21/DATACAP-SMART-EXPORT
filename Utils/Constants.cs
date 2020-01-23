@@ -13,7 +13,11 @@ namespace SmartExportTemplates.Utils
         public static string SE_DATA_NODE_NAME = "se:data";
         public static string SE_APPEND_TO_FILE = "se:appendToFile";
         public static string SE_OUTPUT_FILE_NAME = "se:filename";
+        public const string TEXT_NODE_NAME = "#text";
+        public const string SE_TAB_NODE_NAME = "se:tab";
+        public const string SE_VALUE_NODE_NAME = "se:value";
 
+        public const string TAB_SPACE = "\t";
 
         //General
         public static string GE_CURRENT_DCO = "GECurrentDCO";
