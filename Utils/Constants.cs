@@ -39,6 +39,7 @@ namespace SmartExportTemplates.Utils
         public static string GE_DEF_OUTPUT_FILE = "SmartExport";
         public static string LOG_PREFIX = "DBA-SmartExport - ";
         public static string DCO_REF_PATTERN = "\\[DCO\\..+?\\..+?\\..+?\\]";
+        public static string IF_REF_PATTERN = "(and|or)";
 
 
     }
