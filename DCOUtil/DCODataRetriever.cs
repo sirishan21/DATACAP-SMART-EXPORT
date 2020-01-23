@@ -243,6 +243,75 @@ namespace SmartExportTemplates.DCOUtil
             }
             return pageIDs;
         }
+
+        public  string getPageType(string pageID)
+        {
+            string pageType ="";
+
+            XmlDocument batchXML = new XmlDocument();
+            batchXML.Load((string)Globals.Instance.GetData(Constants.GE_BATCH_XML_FILE));
+            XmlElement batchRoot = batchXML.DocumentElement;
+            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
+            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
+            {
+                String DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("id");
+                XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
+                // Data to be processed is always within pages
+                if (pageList.Count == 0)
+                {
+                    ExportCore.WriteLog(Constants.GE_LOG_PREFIX + "No data to proces. Processing skipped for document: " + DocumentID);
+                    continue;
+                }
+
+                foreach (XmlNode pageNode in pageList)
+                {
+                    string ID = ((XmlElement)pageNode).GetAttribute("id");                    
+                    if (pageID == ID)
+                    {
+                        pageType = pageNode.SelectSingleNode("./V[@n='TYPE']").InnerText;
+                        break;
+                    }
+                }               
+            }
+            return pageType;
+        }
+
+        public  string  getDocumentType(string documentID)
+        {
+            string documentType = "";
+
+            XmlDocument batchXML = new XmlDocument();
+            batchXML.Load((string)Globals.Instance.GetData(Constants.GE_BATCH_XML_FILE));
+            XmlElement batchRoot = batchXML.DocumentElement;
+            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
+            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
+            {
+                string ID = ((XmlElement)dcoDocumentNode).GetAttribute("id");                
+                if (documentID == ID)
+                {
+                    documentType = dcoDocumentNode.SelectSingleNode("./V[@n='TYPE']").InnerText;
+                }
+            }             
+            return documentType;
+        }
+
+        public List<string> getAllDocuments()
+        {
+            List<string> documentIDs = new List<string>();
+
+            XmlDocument batchXML = new XmlDocument();
+            batchXML.Load((string)Globals.Instance.GetData(Constants.GE_BATCH_XML_FILE));
+            XmlElement batchRoot = batchXML.DocumentElement;
+            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
+            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
+            {
+                string ID = ((XmlElement)dcoDocumentNode).GetAttribute("id");
+                documentIDs.Add(ID);
+            }
+            return documentIDs;
+        }
+
+
     }
 }
 
