@@ -225,12 +225,13 @@ namespace SmartExportTemplates
         string DocumentID = null;
         // Page type to Page ID dict used to map Page type reference to Page ID
         Dictionary<string, string> PageTypeDict = null;
+ 
         // Batch path where the output files are written to
         string BatchDirPath = null;
         // evaluation engine
         Microsoft.JScript.Vsa.VsaEngine EvalEngine = Microsoft.JScript.Vsa.VsaEngine.CreateEngine();
-
-
+        List<string> DCOPatterns = new List<string>();
+ 
         private void SetGlobals()
         {
             // Set the global references into thread local for use by the different modules
@@ -243,7 +244,7 @@ namespace SmartExportTemplates
             string batchXMLFile = this.BatchPilot.DCOFile;
             string batchDirPath = Path.GetDirectoryName(batchXMLFile);
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
-            
+            Globals.Instance.SetData(Constants.GE_BATCH_XML_FILE, batchXMLFile);
         }
 
   
@@ -283,6 +284,13 @@ namespace SmartExportTemplates
                 DataElement dataElement = new DataElement();
                 Conditions conditionEvaluator = new Conditions();
                 Loops loopEvaluator = new Loops();
+                ValidateExpressions(TemplateFilePath);
+                SmartExportTemplates.DCOUtil.DCODataRetriever dcr = new DCODataRetriever();
+                //createDocumentTypeIDMap();
+                WriteLog(LOG_PREFIX + " Evaluated value is : " 
+                    + dcr.getDCOValueForPage("[DCO].[Car_Rental].[Rental_Agreement].[Car_Type]", "TM000001"));
+                WriteLog(LOG_PREFIX + " Evaluated value is : "
+                    + dcr.getDCOValueForDocument("[DCO].[Car_Rental].[Rental_Agreement].[Car_Type]", "20200122.000012.01"));
 
                 // String list to accumulate output
                 List<string> outputStringList = new List<string>();
@@ -365,7 +373,7 @@ namespace SmartExportTemplates
                 batchXML.Load(batchXMLFile);
                 XmlElement batchRoot = batchXML.DocumentElement;
                 XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
-                foreach(XmlNode dcoDocumentNode in dcoDocumentNodes)
+                foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
                 {
                     DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("id");
                     XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
@@ -375,7 +383,7 @@ namespace SmartExportTemplates
                         WriteLog(LOG_PREFIX + "No data to proces. Processing skipped for document: " + DocumentID);
                         continue;
                     }
-                        
+
                     if (PageTypeDict != null)
                     {
                         PageTypeDict.Clear();
@@ -385,7 +393,7 @@ namespace SmartExportTemplates
                         PageTypeDict = new Dictionary<string, string>();
                     }
 
-                    foreach(XmlNode pageNode in pageList)
+                    foreach (XmlNode pageNode in pageList)
                     {
                         string pageType = pageNode.SelectSingleNode("./V[@n='TYPE']").InnerText;
                         string pageID = ((XmlElement)pageNode).GetAttribute("id");
@@ -393,19 +401,64 @@ namespace SmartExportTemplates
                     }
 
                     bResponse = ProcessDocument(templateRoot,
-                                                OutputFilePrefix);   
+                                                OutputFilePrefix);
                 }
-            } catch (System.IO.FileNotFoundException exp)
+            }
+            catch (System.IO.FileNotFoundException exp)
             {
                 WriteLog(LOG_PREFIX + "DCO XML file not readable. Error: " + exp.ToString());
                 bResponse = false;
-            } catch (System.Exception exp)
+            }
+            catch (System.Exception exp)
             {
                 WriteLog(LOG_PREFIX + "Internal error occurred while processing the application DCO file. Error: " + exp.ToString());
                 bResponse = false;
             }
-            
+
             return bResponse;
+        }
+
+
+        private void createDCOPatternList()
+        {
+            string projectFile = this.BatchPilot.ProjectPath;
+           
+            string parentDirectory =Path.GetDirectoryName(projectFile);
+            string dcoDefinitionFile = parentDirectory + Path .DirectorySeparatorChar + Path.GetFileName(Path.GetDirectoryName(parentDirectory)) + ".xml";
+ 
+            XmlDocument batchXML = new XmlDocument();
+            batchXML.Load(dcoDefinitionFile);
+            XmlElement batchRoot = batchXML.DocumentElement;
+            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
+            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
+            {
+                DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("type");
+                XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
+
+                foreach (XmlNode pageNode in pageList)
+                {
+                    string pageID = ((XmlElement)pageNode).GetAttribute("type");
+                    XmlNodeList allPageList = batchRoot.SelectNodes("./P");
+                    XmlNode currentPage = pageNode;
+                    foreach (XmlNode page in allPageList)
+                    {
+                        if (pageID == ((XmlElement)page).GetAttribute("type"))
+                        {
+                            currentPage = page;
+                            break;
+                        }
+                    }
+                    XmlNodeList fieldList = currentPage.SelectNodes("./F");
+                    foreach (XmlNode fieldNode in fieldList)
+                    {
+                        string fieldID = ((XmlElement)fieldNode).GetAttribute("type");
+                        string dcoPattern = DocumentID + "." + pageID + "." + fieldID;
+                        
+                        DCOPatterns.Add(dcoPattern);
+                        
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -481,13 +534,13 @@ namespace SmartExportTemplates
             return outputData;
         }
 
-        /// <summary>
-        /// For each statement node in the template, this method evaluates the rules and finally 
-        /// returns the output text replacing condition values and DCO references in it.
-        /// </summary>
-        /// <param name="StatementNode"></param>
-        /// <returns></returns>
-        private string getStatementOutput(XmlNode StatementNode)
+            /// <summary>
+            /// For each statement node in the template, this method evaluates the rules and finally 
+            /// returns the output text replacing condition values and DCO references in it.
+            /// </summary>
+            /// <param name="StatementNode"></param>
+            /// <returns></returns>
+            private string getStatementOutput(XmlNode StatementNode)
         {
             string stmtText = null;
             string stmtName = ((XmlElement)StatementNode).GetAttribute("name");
@@ -598,6 +651,29 @@ namespace SmartExportTemplates
                 WriteLog(LOG_PREFIX + "Detailed error: " + exp.ToString());
             }
             return response;
+        }
+
+        private void ValidateExpressions(string TemplateFile)
+        {
+
+            createDCOPatternList();
+            byte[] bytes = System.IO.File.ReadAllBytes(TemplateFile);
+            string text = System.Text.Encoding.UTF8.GetString(bytes);
+
+            Regex rg = new Regex(DCO_REF_PATTERN);
+            MatchCollection matchedPatterns = rg.Matches(text);
+ 
+            foreach (Match Pattern in matchedPatterns)
+            {
+                string DCOTree = Pattern.Value;
+                DCOTree = DCOTree.Replace("[", "").Replace("]", "").Replace("DCO.", "");
+                if(!DCOPatterns.Contains(DCOTree))
+                {
+                    WriteLog(LOG_PREFIX + "DCO reference is invalid. " +
+                                Pattern.Value);
+                    throw new System.ArgumentException("DCO reference invalid. Check detailed logs", Pattern.Value);
+                }
+            }
         }
 
         /// <summary>

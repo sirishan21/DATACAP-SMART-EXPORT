@@ -23,7 +23,7 @@ namespace SmartExportTemplates.Utils
         public static string GE_EXPORT_CORE = "GEExportCore";
         public static string GE_BATCH_DIR_PATH = "GEBatchDirPath";
         public static string GE_DEF_OUTPUT_FILE = "SmartExport";
-        
+        public static string GE_BATCH_XML_FILE = "GEBatchXMLFile";
 
     }
 }
