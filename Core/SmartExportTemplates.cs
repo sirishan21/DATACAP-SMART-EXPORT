@@ -284,13 +284,7 @@ namespace SmartExportTemplates
                 DataElement dataElement = new DataElement();
                 Conditions conditionEvaluator = new Conditions();
                 Loops loopEvaluator = new Loops();
-                ValidateExpressions(TemplateFilePath);
-                SmartExportTemplates.DCOUtil.DCODataRetriever dcr = new DCODataRetriever();
-                //createDocumentTypeIDMap();
-                WriteLog(LOG_PREFIX + " Evaluated value is : " 
-                    + dcr.getDCOValueForPage("[DCO].[Car_Rental].[Rental_Agreement].[Car_Type]", "TM000001"));
-                WriteLog(LOG_PREFIX + " Evaluated value is : "
-                    + dcr.getDCOValueForDocument("[DCO].[Car_Rental].[Rental_Agreement].[Car_Type]", "20200122.000012.01"));
+                ValidateExpressions(TemplateFilePath);               
 
                 // String list to accumulate output
                 List<string> outputStringList = new List<string>();

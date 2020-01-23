@@ -10,6 +10,30 @@ namespace SmartExportTemplates.DCOUtil
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         protected TDCOLib.IDCO DCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_DCO);
         protected TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
+
+        public string getDCOValue(string DCOTree)        
+        {
+            string output = "";
+            if (CurrentDCO.ObjectType() == 0)
+            {
+                string message = "Unable to find DCO reference at batch level due to ambiguity.";
+                ExportCore.WriteLog(Constants.GE_LOG_PREFIX +message);
+                throw new SmartExportException(message);
+
+            }
+            else if (CurrentDCO.ObjectType() == 1)
+            {
+                output = getDCOValueForDocument(DCOTree, CurrentDCO.ID);
+            }else if (CurrentDCO.ObjectType() ==2)
+            {
+                output = getDCOValueForPage(DCOTree, CurrentDCO.ID);
+            }
+            else if (CurrentDCO.ObjectType() == 3)
+            {
+                output = getDCOValueForPage(DCOTree, CurrentDCO.Parent().ID);
+            }
+            return output;
+        }
         public string getDCOValueForPage(string DCOTree, string pageID)
         {
             // DCO reference in the template file should adhere to a 4 part string [DCO.<doc_type>.<page_type>.<field_name>]
@@ -54,7 +78,7 @@ namespace SmartExportTemplates.DCOUtil
             try
             {
                 string pageID = getPageIDOfTypeInDocument(DCOTree, DocumentID, dcoArray[2]);
-                output = DCO.FindChild(pageID).FindChild(dcoArray[3]).Text;
+                output = CurrentDCO.FindChild(pageID).FindChild(dcoArray[3]).Text;
                 
             }
             catch (Exception exp)
@@ -180,7 +204,11 @@ namespace SmartExportTemplates.DCOUtil
             return pageIDs;
 
         }
-
+        /// <summary>
+        /// Returns the list of documentIDs for the specified page type.
+        ///<param name="documentType">Page type</param>  
+        /// <returns>List of document IDs.</returns>  
+        /// </summary>
         public List<string> getDocumentsOfType(string documentType)
         {
 
@@ -207,6 +235,11 @@ namespace SmartExportTemplates.DCOUtil
             return documentList;
         }
 
+        /// <summary>
+        /// Returns the list of pageIDs for the specified page type.
+        ///<param name="pageType">Page type</param>  
+        /// <returns>List of page IDs.</returns>  
+        /// </summary>
         public List<string> getPageIDsForType(string pageType)
         {
             List<string> pageIDs = new List<string>();
@@ -276,7 +309,12 @@ namespace SmartExportTemplates.DCOUtil
             return pageType;
         }
 
-        public  string  getDocumentType(string documentID)
+        /// <summary>
+        /// Returns type of the document corresponding to the specified document ID.
+        ///<param name="documentID">Document ID</param>  
+        /// <returns>Type of the document.</returns>  
+        /// </summary>
+        public string  getDocumentType(string documentID)
         {
             string documentType = "";
 
@@ -295,6 +333,10 @@ namespace SmartExportTemplates.DCOUtil
             return documentType;
         }
 
+        /// <summary>
+        /// Returns a list of Document IDs of the documents present in the batch.
+        /// <returns>List of  Document IDs of the documents present in the batch</returns>  
+        /// </summary>
         public List<string> getAllDocuments()
         {
             List<string> documentIDs = new List<string>();
