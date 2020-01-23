@@ -13,6 +13,10 @@ namespace SmartExportTemplates.Utils
         public static string SE_DATA_NODE_NAME = "se:data";
         public static string SE_APPEND_TO_FILE = "se:appendToFile";
         public static string SE_OUTPUT_FILE_NAME = "se:filename";
+        public const string TEXT_NODE_NAME = "#text";
+        public const string SE_TAB_NODE_NAME = "se:tab";
+        public const string SE_VALUE_NODE_NAME = "se:value";
+
 
 
         //General
@@ -23,6 +27,8 @@ namespace SmartExportTemplates.Utils
         public static string GE_EXPORT_CORE = "GEExportCore";
         public static string GE_BATCH_DIR_PATH = "GEBatchDirPath";
         public static string GE_DEF_OUTPUT_FILE = "SmartExport";
+        public static string GE_BATCH_XML_FILE = "GEBatchXMLFile";
+        public const string TAB_SPACE = "\t";
         
 
     }
