@@ -67,8 +67,58 @@ namespace SmartExportTemplates.TemplateCore
 
         private bool EvaluateConditions()
         {
-            //TODO - From left to right, apply the logical and/or operators on the individual condition results and return a single bool
-            return true;
+            //TODO: There should be a better way to do this... For the moment
+            if (this.LexParseCondList.Count < 3)
+            {
+                // Min 3 items needed to evaluate
+                return false;
+            }
+            // Apply logical operators on the operands from left to right until the list is exhausted. 
+            // Parenthesis is not supported in release 1 and hence the result of the first two operands on the operator is 
+            // taken as the base for the next operator/operand that follows. 
+            // "a and b or c and d" evaluated as "((a and b) or c) and d)". Future releases will support parenthesis
+            string output = "false";
+            int rolling_index = 0;
+            string left = this.LexParseCondList.ElementAt(rolling_index);
+            string right = this.LexParseCondList.ElementAt(rolling_index + 2);
+            string log_operator = this.LexParseCondList.ElementAt(rolling_index + 1);
+            do
+            {
+                output = applyCondition(left, right, log_operator);
+                if ((rolling_index + 4) >= this.LexParseCondList.Count)
+                {
+                    break;
+                }
+                rolling_index += 2;
+                left = output;
+                right = this.LexParseCondList.ElementAt(rolling_index + 2);
+                log_operator = this.LexParseCondList.ElementAt(rolling_index + 1);
+            } while (true);
+
+            return (output.Trim().ToLower().Equals("true") ? true : false);
+        }
+
+        private string applyCondition(string operand1, string operand2, string log_operator)
+        {
+            //TODO: There should be a better way to do this. For the moment!
+            bool left = Boolean.Parse(operand1);
+            bool right = Boolean.Parse(operand2);
+            string output = "false";
+
+            switch (log_operator.Trim().ToLower())
+            {
+                case Constants.CondLogOperators.COND_LOG_AND:
+                    output = (left && right) ? "true" : "false";
+                    break;
+                case Constants.CondLogOperators.COND_LOG_OR:
+                    output = (left || right) ? "true" : "false";
+                    break;
+                default:
+                    // Only "and" and "or" is supported for now.
+                    throw new SmartExportException("Logical operators other than 'and' and 'or' are not supported. Check the condition: " + this.ConditionText);                   
+            }
+
+            return output;
         }
 
     }

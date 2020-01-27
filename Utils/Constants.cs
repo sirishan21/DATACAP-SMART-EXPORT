@@ -8,6 +8,13 @@ namespace SmartExportTemplates.Utils
 {
     public class Constants
     {
+        // Logical operators - TODO - there should be a better way to do this!
+        public struct CondLogOperators
+        {
+            internal const string COND_LOG_AND = "and";
+            internal const string COND_LOG_OR = "or";
+        }
+
         //Node types
         public struct NodeTypeString
         {
