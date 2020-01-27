@@ -80,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DCOUtil\DCODataRetriever.cs" />
+    <Compile Include="TemplateCore\ConditionEvaluation.cs" />
     <Compile Include="TemplateCore\DataElement.cs" />
     <Compile Include="TemplateCore\Expressions.cs" />
     <Compile Include="TemplateCore\Loops.cs" />

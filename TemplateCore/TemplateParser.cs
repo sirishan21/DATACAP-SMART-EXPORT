@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,16 +18,15 @@ namespace SmartExportTemplates.TemplateCore
         XmlNamespaceManager NameSpcManager = null;
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         
-        struct NodeTypeString
-        {
-            internal const string SE_DATA = "se:data";
-            internal const string SE_IF = "se:if";
-            internal const string SE_FOREACH = "se:for-each";
-        }
-
         public TemplateParser(string TemplateFilePath)
         {
             this.TemplateFilePath = TemplateFilePath;
+            Globals.Instance.SetData(Constants.GE_TEMPLATE_PARSER, this);
+        }
+
+        public XmlNamespaceManager getNameSpcManager()
+        {
+            return this.NameSpcManager;
         }
 
         public bool Parse() 
@@ -36,7 +36,7 @@ namespace SmartExportTemplates.TemplateCore
                 XmlDocument templateXML = new XmlDocument();
                 templateXML.Load(TemplateFilePath);
                 this.NameSpcManager = new XmlNamespaceManager(templateXML.NameTable);
-                this.NameSpcManager.AddNamespace("se", Constants.SE_NAMESPACE);
+                this.NameSpcManager.AddNamespace(Constants.SE_NAMESPACE_NAME, Constants.SE_NAMESPACE_URL);
                 this.TemplateRoot = templateXML.DocumentElement;
                 if (this.TemplateRoot.HasChildNodes)
                 {
@@ -78,13 +78,13 @@ namespace SmartExportTemplates.TemplateCore
 
             switch (node.Name.Trim())
             {
-                case NodeTypeString.SE_IF:
+                case Constants.NodeTypeString.SE_IF:
                     nodeType = SmartExport.NodeType.If;
                     break;
-                case NodeTypeString.SE_FOREACH:
+                case Constants.NodeTypeString.SE_FOREACH:
                     nodeType = SmartExport.NodeType.ForEach;
                     break;
-                case NodeTypeString.SE_DATA:
+                case Constants.NodeTypeString.SE_DATA:
                     nodeType = SmartExport.NodeType.Data;
                     break;
             }
@@ -94,8 +94,7 @@ namespace SmartExportTemplates.TemplateCore
         public bool AppendToFile()
         {
             bool AppendToFile = false;
-            string path = "./" + Constants.SE_APPEND_TO_FILE;
-            XmlNode appendToFileNode = TemplateRoot.SelectSingleNode(path, this.NameSpcManager);
+            XmlNode appendToFileNode = TemplateRoot.SelectSingleNode("./" + Constants.SE_APPEND_TO_FILE, this.NameSpcManager);
             if (appendToFileNode != null)
             {
                 string sAppendToFile = appendToFileNode.InnerText.Trim();
@@ -120,8 +119,32 @@ namespace SmartExportTemplates.TemplateCore
         {
             //TODO - Get the output dir from the template file and validate it for its existence
             // if not found, create it and return the path. Temporarily, returning the batch dir path
-
-            return (string)Globals.Instance.GetData(Constants.GE_BATCH_DIR_PATH);
+            string OutputFolder = (string)Globals.Instance.GetData(Constants.GE_BATCH_DIR_PATH);
+            XmlNode outputFolderNode = TemplateRoot.SelectSingleNode("./" + Constants.SE_OUTPUT_DIR_PATH, this.NameSpcManager);
+            if (outputFolderNode != null)
+            {
+                string path = outputFolderNode.InnerText.Trim();
+                if (path != null && !path.Equals(""))
+                {
+                    if (Directory.Exists(path))
+                    {
+                        OutputFolder = path;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            OutputFolder = Directory.CreateDirectory(path).FullName;
+                        }
+                        catch (Exception)
+                        {
+                            // Log exception and use the batches folder. Ignore the exception
+                            ExportCore.WriteLog(Constants.GE_LOG_PREFIX + "Invalid output folder path provided, using batches folder as output dir.");
+                        }
+                    }
+                }
+            }
+            return OutputFolder;
         }
 
     }
