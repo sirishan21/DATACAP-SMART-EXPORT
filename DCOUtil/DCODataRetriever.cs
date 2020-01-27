@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Xml;
 using SmartExportTemplates.Utils;
 
@@ -11,29 +10,86 @@ namespace SmartExportTemplates.DCOUtil
         protected TDCOLib.IDCO DCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_DCO);
         protected TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
 
+        ///       <summary>
+        ///       The method returns the value corresponding to the DCO expression specified, from the current DCO.
+        ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
+        ///       <returns>The value corresponding to the DCO expression specified, from the current DCO.</returns>
+        ///       </summary>
         public string getDCOValue(string DCOTree)        
         {
             string output = "";
-            if (CurrentDCO.ObjectType() == 0)
+      
+            int objectType = CurrentDCO.ObjectType();
+            
+            switch (objectType)
             {
-                string message = "Unable to find DCO reference at batch level due to ambiguity.";
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX +message);
-                throw new SmartExportException(message);
+                case Constants.Batch:
+                    string message = "Unable to find DCO reference at batch level due to ambiguity.";
+                    ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
+                    throw new SmartExportException(message);
+                case Constants.Document:
+                    output = getDCOValueForDocument(DCOTree, CurrentDCO.ID);
+                    break;
+                case Constants.Page:
+                    output = getDCOValueForPage(DCOTree, CurrentDCO.ID);
+                    break;
+                case Constants.Field:
+                    output = getDCOValueForField(DCOTree);
+                    break;
+               
 
-            }
-            else if (CurrentDCO.ObjectType() == 1)
-            {
-                output = getDCOValueForDocument(DCOTree, CurrentDCO.ID);
-            }else if (CurrentDCO.ObjectType() ==2)
-            {
-                output = getDCOValueForPage(DCOTree, CurrentDCO.ID);
-            }
-            else if (CurrentDCO.ObjectType() == 3)
-            {
-                output = getDCOValueForPage(DCOTree, CurrentDCO.Parent().ID);
+
             }
             return output;
         }
+
+        ///       <summary>
+        ///       The method returns the value corresponding to the DCO field specified, from the current DCO for the field.
+        ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
+        ///       <returns>The value corresponding to the DCO field specified, from the current DCO.</returns>
+        ///       </summary>
+        public string getDCOValueForField(string DCOTree)
+        {
+            // DCO reference in the template file should adhere to a 4 part string [DCO].[document_type].[page_type].[field_name]
+            // Parse the DCO reference and extract the page_type and field_name which can then be used to look up in the 
+            // current document that is being processed
+            DCOTree = DCOTree.Replace("[", "").Replace("]", "");
+            char[] sep = { '.' };
+            string[] dcoArray = DCOTree.Split(sep, 4, StringSplitOptions.None);
+            string pageID = CurrentDCO.Parent().ID;
+            string output = null;
+            try
+            {
+                // this is to pick up the field from the right page type
+                if(dcoArray[3]== CurrentDCO.ID && dcoArray[2] == getPageType(pageID))
+                {
+                    return getDCOValueForPage(DCOTree, CurrentDCO.Parent().ID);
+                }
+                else
+                {
+                    ExportCore.WriteLog(Constants.GE_LOG_PREFIX + "Current field "+ CurrentDCO.ID +
+                        " is not different from required field which is" + dcoArray[3]);
+                }
+            }
+            catch (Exception exp)
+            {
+                // There could be reference in the template for the documents that are not processed in the current batch
+                // Template in TravelDocs can have reference to a field under Flight but the current batch doesn't have 
+                // any flight related input. Alternatively, Flight and Car Rental gets processed but for the Car Rental 
+                // data output, there cannot be any Flight reference
+                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + "Unable to find DCO reference for the field with ID: " + dcoArray[3]);
+                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + "Error while reading DCO reference: " + exp.ToString());
+            }
+
+            return output;
+        }
+
+        ///       <summary>
+        ///       The method returns the value corresponding to the DCO expression specified from the current DCO for a given page.
+        ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
+        ///       <param name="pageID">Page ID</param>
+        ///       <returns>The value corresponding to the DCO expression specified from the current DCO.</returns>
+        ///       </summary>
         public string getDCOValueForPage(string DCOTree, string pageID)
         {
             // DCO reference in the template file should adhere to a 4 part string [DCO.<doc_type>.<page_type>.<field_name>]
@@ -61,6 +117,12 @@ namespace SmartExportTemplates.DCOUtil
             return output;
         }
 
+        ///       <summary>
+        ///       The method returns the value corresponding to the DCO expression specified from the current DCO for a given document.
+        ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
+        ///       <param name="DocumentID">Docuemnt ID</param>
+        ///       <returns>The value corresponding to the DCO expression specified from the current DCO.</returns>
+        ///       </summary>
         public string getDCOValueForDocument(string DCOTree, string DocumentID )
         {
 
@@ -94,6 +156,14 @@ namespace SmartExportTemplates.DCOUtil
             return output;
         }
 
+
+        ///       <summary>
+        ///       The method returns the page ID of the specified page typs in the specified document.
+        ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
+        ///       <param name="DocumentID">Docuemnt ID</param>
+        ///       <param name="pageType">Page tyep</param>
+        ///       <returns>The page ID of the specified page typs in the specified document.</returns>
+        ///       </summary>
         public string getPageIDOfTypeInDocument(string DCOTree, string documentID, string pageType)
         {
 
@@ -152,132 +222,13 @@ namespace SmartExportTemplates.DCOUtil
             
         }
 
-        public List<string> getPageIDsOfTypeInDocument(  string documentID, string pageType)
-        {
 
-            List<string> pageIDs = new List<string>();
-            XmlDocument batchXML = new XmlDocument();
-            batchXML.Load((string)Globals.Instance.GetData(Constants.GE_BATCH_XML_FILE));
-            XmlElement batchRoot = batchXML.DocumentElement;
-            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
-            Boolean foundDoc = false;
-            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
-            {
-                string ID = ((XmlElement)dcoDocumentNode).GetAttribute("id");
-                if (ID == documentID)
-                {
-                    foundDoc = true;
-                    XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
-                    // Data to be processed is always within pages
-                    if (pageList.Count == 0)
-                    {
-                        ExportCore.WriteLog(Constants.GE_LOG_PREFIX + "No pages in document: " + ID);
-                        break;
-                    }
-                    foreach (XmlNode pageNode in pageList)
-                    {
-                        string type = pageNode.SelectSingleNode("./V[@n='TYPE']").InnerText;
-
-                        if (pageType == type)
-                        {
-                            String pageID = ((XmlElement)pageNode).GetAttribute("id");
-                            pageIDs.Add(pageID);
-
-                        }
-                        
-
-                    }
-                    break;
-                }
-
-            }
-            if(0 == pageIDs.Count)
-            {
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + "Document with ID " + documentID + " doesn't have pages of type "+pageType);
-            }
-            if (!foundDoc)
-            {
-                string message = "Document with ID " + documentID + " not  found.";
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
-                throw new SmartExportException(message);
-            }
-            return pageIDs;
-
-        }
-        /// <summary>
-        /// Returns the list of documentIDs for the specified page type.
-        ///<param name="documentType">Page type</param>  
-        /// <returns>List of document IDs.</returns>  
-        /// </summary>
-        public List<string> getDocumentsOfType(string documentType)
-        {
-
-            List<string> documentList = new List<string>();
-
-            XmlDocument batchXML = new XmlDocument();
-            batchXML.Load((string)Globals.Instance.GetData(Constants.GE_BATCH_XML_FILE));
-            XmlElement batchRoot = batchXML.DocumentElement;
-            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
-            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
-            {
-                string ID = ((XmlElement)dcoDocumentNode).GetAttribute("id");
-                string type = dcoDocumentNode.SelectSingleNode("./V[@n='TYPE']").InnerText;
-                if (documentType == type)
-                {
-                    documentList.Add(ID);
-
-                }
-            }
-            if (0 == documentList.Count)
-            {
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + "This batch doesn't have documents of type " + documentType);
-            }
-            return documentList;
-        }
-
-        /// <summary>
-        /// Returns the list of pageIDs for the specified page type.
-        ///<param name="pageType">Page type</param>  
-        /// <returns>List of page IDs.</returns>  
-        /// </summary>
-        public List<string> getPageIDsForType(string pageType)
-        {
-            List<string> pageIDs = new List<string>();
-
-            XmlDocument batchXML = new XmlDocument();
-            batchXML.Load((string)Globals.Instance.GetData(Constants.GE_BATCH_XML_FILE));
-            XmlElement batchRoot = batchXML.DocumentElement;
-            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
-            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
-            {
-                String DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("id");
-                XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
-                // Data to be processed is always within pages
-                if (pageList.Count == 0)
-                {
-                    ExportCore.WriteLog(Constants.GE_LOG_PREFIX + "No data to proces. Processing skipped for document: " + DocumentID);
-                    continue;
-                }
-
-                foreach (XmlNode pageNode in pageList)
-                {
-                    string type = pageNode.SelectSingleNode("./V[@n='TYPE']").InnerText;
-                    if (pageType == type)
-                    {
-                        string pageID = ((XmlElement)pageNode).GetAttribute("id");
-                        pageIDs.Add(pageID);
-                    }
- 
-                }
-                if (0 == pageIDs.Count)
-                {
-                    ExportCore.WriteLog(Constants.GE_LOG_PREFIX + "This batch doesn't have pages of type " + pageType);
-                }
-            }
-            return pageIDs;
-        }
-
-        public  string getPageType(string pageID)
+        ///       <summary>
+        ///       The method returns the page type of the specified page.
+        ///       <param name="pageID">Page ID</param>
+        ///       <returns>The page ID of the specified page typs in the specified document.</returns>
+        ///       </summary>
+        public string getPageType(string pageID)
         {
             string pageType ="";
 
@@ -309,50 +260,7 @@ namespace SmartExportTemplates.DCOUtil
             return pageType;
         }
 
-        /// <summary>
-        /// Returns type of the document corresponding to the specified document ID.
-        ///<param name="documentID">Document ID</param>  
-        /// <returns>Type of the document.</returns>  
-        /// </summary>
-        public string  getDocumentType(string documentID)
-        {
-            string documentType = "";
-
-            XmlDocument batchXML = new XmlDocument();
-            batchXML.Load((string)Globals.Instance.GetData(Constants.GE_BATCH_XML_FILE));
-            XmlElement batchRoot = batchXML.DocumentElement;
-            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
-            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
-            {
-                string ID = ((XmlElement)dcoDocumentNode).GetAttribute("id");                
-                if (documentID == ID)
-                {
-                    documentType = dcoDocumentNode.SelectSingleNode("./V[@n='TYPE']").InnerText;
-                }
-            }             
-            return documentType;
-        }
-
-        /// <summary>
-        /// Returns a list of Document IDs of the documents present in the batch.
-        /// <returns>List of  Document IDs of the documents present in the batch</returns>  
-        /// </summary>
-        public List<string> getAllDocuments()
-        {
-            List<string> documentIDs = new List<string>();
-
-            XmlDocument batchXML = new XmlDocument();
-            batchXML.Load((string)Globals.Instance.GetData(Constants.GE_BATCH_XML_FILE));
-            XmlElement batchRoot = batchXML.DocumentElement;
-            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
-            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
-            {
-                string ID = ((XmlElement)dcoDocumentNode).GetAttribute("id");
-                documentIDs.Add(ID);
-            }
-            return documentIDs;
-        }
-
+        
 
     }
 }

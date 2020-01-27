@@ -29,5 +29,11 @@ namespace SmartExportTemplates.Utils
         public static string GE_DEF_OUTPUT_FILE = "SmartExport";
         public static string GE_BATCH_XML_FILE = "GEBatchXMLFile";
 
+        //Object types
+        public const int Batch = 0;
+        public const int Document = 1;
+        public const int Page = 2;
+        public const int Field = 3;
+
     }
 }

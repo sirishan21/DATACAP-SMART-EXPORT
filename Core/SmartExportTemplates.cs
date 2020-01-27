@@ -218,7 +218,7 @@ namespace SmartExportTemplates
 
         // Global constants
         readonly string LOG_PREFIX = "DBA-SmartExport - ";
-        readonly string DCO_REF_PATTERN = "\\[DCO\\..+?\\..+?\\..+?\\]";
+        readonly string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
         
         //Global variables
         // document ID reference used by the child methods during processing.
@@ -412,7 +412,9 @@ namespace SmartExportTemplates
             return bResponse;
         }
 
-
+        ///       <summary>
+        ///       The method creates a list of valid DCO references.
+        ///      
         private void createDCOPatternList()
         {
             string projectFile = this.BatchPilot.ProjectPath;
@@ -647,6 +649,10 @@ namespace SmartExportTemplates
             return response;
         }
 
+        ///       <summary>
+        ///       The method checks if valid DCO references are used in the template file. If an invalid reference if found an exception is thrown.
+        ///       <param name="TemplateFile">Fully qualified path of the template file.</param>
+        ///       </summary>
         private void ValidateExpressions(string TemplateFile)
         {
 
