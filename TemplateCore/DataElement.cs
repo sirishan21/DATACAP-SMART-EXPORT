@@ -22,10 +22,7 @@ namespace SmartExportTemplates.TemplateCore
         {
             List<string> output = new List<string>();
             string NodeName = ((XmlElement)DataNode).Name;
-            if (!NodeName.Trim().Equals(Constants.SE_DATA_NODE_NAME))
-            {
-                throw new SmartExportException("Internal error. Data node expected for evaluation but found " + NodeName);
-            }
+
             if (DataNode.HasChildNodes)
             {
                 StringBuilder text = new StringBuilder("");
