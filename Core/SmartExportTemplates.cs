@@ -317,6 +317,7 @@ namespace SmartExportTemplates
             {
                 returnValue = false;
                 WriteLog(LOG_PREFIX + "Error while processing the template file: " + exp.Message);
+                WriteLog( exp.StackTrace);
             }
             // TODO: Catch the important exceptions here...
             return returnValue;
