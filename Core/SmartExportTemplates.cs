@@ -28,7 +28,7 @@ using SmartExportTemplates.Utils;
 
 namespace SmartExportTemplates
 {
-    public class SmartExport 
+    public class SmartExport
     {
         #region ExpectedByRRS
         /// <summary/>
@@ -218,20 +218,19 @@ namespace SmartExportTemplates
 
         // Global constants
         readonly string LOG_PREFIX = "DBA-SmartExport - ";
-        readonly string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
-        
+        readonly string DCO_REF_PATTERN = "\\[DCO\\..+?\\..+?\\..+?\\]";
+
         //Global variables
         // document ID reference used by the child methods during processing.
         string DocumentID = null;
         // Page type to Page ID dict used to map Page type reference to Page ID
         Dictionary<string, string> PageTypeDict = null;
- 
         // Batch path where the output files are written to
         string BatchDirPath = null;
         // evaluation engine
         Microsoft.JScript.Vsa.VsaEngine EvalEngine = Microsoft.JScript.Vsa.VsaEngine.CreateEngine();
-        List<string> DCOPatterns = new List<string>();
- 
+
+
         private void SetGlobals()
         {
             // Set the global references into thread local for use by the different modules
@@ -244,10 +243,9 @@ namespace SmartExportTemplates
             string batchXMLFile = this.BatchPilot.DCOFile;
             string batchDirPath = Path.GetDirectoryName(batchXMLFile);
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
-            Globals.Instance.SetData(Constants.GE_BATCH_XML_FILE, batchXMLFile);
         }
 
-  
+
         private void writeToFile(string OutputFilePrefix,
                                     string OutputDir,
                                     List<string> OutputData,
@@ -266,7 +264,7 @@ namespace SmartExportTemplates
             }
         }
 
-        public bool FormattedDataOutput (string TemplateFilePath,
+        public bool FormattedDataOutput(string TemplateFilePath,
                                             string OutputFilePrefix,
                                             string OutputFolder,
                                             bool AppendToFile)
@@ -284,16 +282,15 @@ namespace SmartExportTemplates
                 DataElement dataElement = new DataElement();
                 Conditions conditionEvaluator = new Conditions();
                 Loops loopEvaluator = new Loops();
-                ValidateExpressions(TemplateFilePath);               
 
                 // String list to accumulate output
                 List<string> outputStringList = new List<string>();
-                
+
                 // Loop through the template and accumulate the output
                 while (templateParser.HasNextNode())
                 {
                     XmlNode currentNode = templateParser.GetNextNode();
-                    switch(templateParser.GetNodeType(currentNode))
+                    switch (templateParser.GetNodeType(currentNode))
                     {
                         case NodeType.Data:
                             outputStringList.AddRange(dataElement.EvaluateData(currentNode));
@@ -312,10 +309,14 @@ namespace SmartExportTemplates
                             break;
                     }
                 }
-                
-                writeToFile(OutputFilePrefix, OutputFolder, outputStringList, templateParser.AppendToFile());
 
-            } catch (System.Exception exp)
+                writeToFile(templateParser.GetOutputFileName(),
+                            templateParser.GetOutputDirectory(),
+                            outputStringList,
+                            templateParser.AppendToFile());
+
+            }
+            catch (System.Exception exp)
             {
                 returnValue = false;
                 WriteLog(LOG_PREFIX + "Error while processing the template file: " + exp.Message);
@@ -412,51 +413,6 @@ namespace SmartExportTemplates
             return bResponse;
         }
 
-        ///       <summary>
-        ///       The method creates a list of valid DCO references.
-        ///      
-        private void createDCOPatternList()
-        {
-            string projectFile = this.BatchPilot.ProjectPath;
-           
-            string parentDirectory =Path.GetDirectoryName(projectFile);
-            string dcoDefinitionFile = parentDirectory + Path .DirectorySeparatorChar + Path.GetFileName(Path.GetDirectoryName(parentDirectory)) + ".xml";
- 
-            XmlDocument batchXML = new XmlDocument();
-            batchXML.Load(dcoDefinitionFile);
-            XmlElement batchRoot = batchXML.DocumentElement;
-            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
-            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
-            {
-                DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("type");
-                XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
-
-                foreach (XmlNode pageNode in pageList)
-                {
-                    string pageID = ((XmlElement)pageNode).GetAttribute("type");
-                    XmlNodeList allPageList = batchRoot.SelectNodes("./P");
-                    XmlNode currentPage = pageNode;
-                    foreach (XmlNode page in allPageList)
-                    {
-                        if (pageID == ((XmlElement)page).GetAttribute("type"))
-                        {
-                            currentPage = page;
-                            break;
-                        }
-                    }
-                    XmlNodeList fieldList = currentPage.SelectNodes("./F");
-                    foreach (XmlNode fieldNode in fieldList)
-                    {
-                        string fieldID = ((XmlElement)fieldNode).GetAttribute("type");
-                        string dcoPattern = DocumentID + "." + pageID + "." + fieldID;
-                        
-                        DCOPatterns.Add(dcoPattern);
-                        
-                    }
-                }
-            }
-        }
-
         /// <summary>
         /// TransformData is used for transforming. This method captures and writes the output to the file
         /// </summary>
@@ -530,13 +486,13 @@ namespace SmartExportTemplates
             return outputData;
         }
 
-            /// <summary>
-            /// For each statement node in the template, this method evaluates the rules and finally 
-            /// returns the output text replacing condition values and DCO references in it.
-            /// </summary>
-            /// <param name="StatementNode"></param>
-            /// <returns></returns>
-            private string getStatementOutput(XmlNode StatementNode)
+        /// <summary>
+        /// For each statement node in the template, this method evaluates the rules and finally 
+        /// returns the output text replacing condition values and DCO references in it.
+        /// </summary>
+        /// <param name="StatementNode"></param>
+        /// <returns></returns>
+        private string getStatementOutput(XmlNode StatementNode)
         {
             string stmtText = null;
             string stmtName = ((XmlElement)StatementNode).GetAttribute("name");
@@ -577,13 +533,15 @@ namespace SmartExportTemplates
                 if (stmtValue == null)
                 {
                     XmlNode defaultNode = StatementNode.SelectSingleNode("./rules/default");
-                    if (defaultNode != null) { 
+                    if (defaultNode != null)
+                    {
                         string valueText = defaultNode.InnerText;
                         stmtValue = Regex.Replace(valueText, DCO_REF_PATTERN, m => getDCOValue(m.Value));
-                    } else
+                    }
+                    else
                     {
                         WriteLog(LOG_PREFIX + "No conditions matched for statement " + stmtName + "; No default value provided;" +
-                            " value replacement in output will be skipped" );
+                            " value replacement in output will be skipped");
                     }
                 }
 
@@ -592,7 +550,7 @@ namespace SmartExportTemplates
                 if (outputNode != null && outputNode.InnerText != null)
                 {
                     stmtText = outputNode.InnerText;
-                    
+
                     // if value was extracted from conditions, replace that first
                     if (stmtValue != null)
                     {
@@ -601,12 +559,14 @@ namespace SmartExportTemplates
                     // replace any DCO references in the output text
                     stmtText = Regex.Replace(stmtText, DCO_REF_PATTERN, m => getDCOValue(m.Value));
 
-                } else
+                }
+                else
                 {
                     WriteLog(LOG_PREFIX + "Statement " + stmtName + " does not have output node or it is empty. Statment discarded");
                 }
 
-            } catch (Exception exp)
+            }
+            catch (Exception exp)
             {
                 WriteLog(LOG_PREFIX + "Error while processing statement: " + stmtName);
                 WriteLog(LOG_PREFIX + "Detailed error: " + exp.ToString());
@@ -637,7 +597,8 @@ namespace SmartExportTemplates
             try
             {
                 response = (bool)Microsoft.JScript.Eval.JScriptEvaluate(conditionText, EvalEngine);
-            } catch (Exception exp)
+            }
+            catch (Exception exp)
             {
                 // Evaluating conditions using this technique is risky (injections)
                 // Moreover, this API is deprecated. This is for the timebeing (to prototype and define the POV)
@@ -647,33 +608,6 @@ namespace SmartExportTemplates
                 WriteLog(LOG_PREFIX + "Detailed error: " + exp.ToString());
             }
             return response;
-        }
-
-        ///       <summary>
-        ///       The method checks if valid DCO references are used in the template file. If an invalid reference if found an exception is thrown.
-        ///       <param name="TemplateFile">Fully qualified path of the template file.</param>
-        ///       </summary>
-        private void ValidateExpressions(string TemplateFile)
-        {
-
-            createDCOPatternList();
-            byte[] bytes = System.IO.File.ReadAllBytes(TemplateFile);
-            string text = System.Text.Encoding.UTF8.GetString(bytes);
-
-            Regex rg = new Regex(DCO_REF_PATTERN);
-            MatchCollection matchedPatterns = rg.Matches(text);
- 
-            foreach (Match Pattern in matchedPatterns)
-            {
-                string DCOTree = Pattern.Value;
-                DCOTree = DCOTree.Replace("[", "").Replace("]", "").Replace("DCO.", "");
-                if(!DCOPatterns.Contains(DCOTree))
-                {
-                    WriteLog(LOG_PREFIX + "DCO reference is invalid. " +
-                                Pattern.Value);
-                    throw new System.ArgumentException("DCO reference invalid. Check detailed logs", Pattern.Value);
-                }
-            }
         }
 
         /// <summary>
@@ -707,7 +641,8 @@ namespace SmartExportTemplates
             try
             {
                 output = DCO.FindChild(pageID).FindChild(dcoArray[3]).Text;
-            } catch (Exception exp)
+            }
+            catch (Exception exp)
             {
                 // There could be reference in the template for the documents that are not processed in the current batch
                 // Template in TravelDocs can have reference to a field under Flight but the current batch doesn't have 
@@ -719,6 +654,6 @@ namespace SmartExportTemplates
 
             return output;
         }
- 
+
     }
 }
