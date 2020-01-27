@@ -45,8 +45,20 @@ namespace SmartExportTemplates.Utils
         public static string GE_BATCH_DIR_PATH = "GEBatchDirPath";
         public static string GE_DEF_OUTPUT_FILE = "SmartExport";
         public static string LOG_PREFIX = "DBA-SmartExport - ";
-        public static string DCO_REF_PATTERN = "\\[DCO\\..+?\\..+?\\..+?\\]";
+        public static string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
         public static string IF_REF_PATTERN = "(and|or)";
+        public static string GE_BATCH_XML_FILE = "GEBatchXMLFile";
+
+        //Object types
+        public const int Batch = 0;
+        public const int Document = 1;
+        public const int Page = 2;
+        public const int Field = 3;
+
+        public const string TEXT_NODE_NAME = "#text";
+        public const string SE_TAB_NODE_NAME = "se:tab";
+        public const string SE_VALUE_NODE_NAME = "se:value";
+        public const string TAB_SPACE = "\t";
 
 
     }

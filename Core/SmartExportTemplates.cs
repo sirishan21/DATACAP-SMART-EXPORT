@@ -229,6 +229,7 @@ namespace SmartExportTemplates
         string BatchDirPath = null;
         // evaluation engine
         Microsoft.JScript.Vsa.VsaEngine EvalEngine = Microsoft.JScript.Vsa.VsaEngine.CreateEngine();
+        List<string> DCOPatterns = new List<string>();
 
 
         private void SetGlobals()
@@ -243,6 +244,7 @@ namespace SmartExportTemplates
             string batchXMLFile = this.BatchPilot.DCOFile;
             string batchDirPath = Path.GetDirectoryName(batchXMLFile);
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
+            Globals.Instance.SetData(Constants.GE_BATCH_XML_FILE, batchXMLFile);
         }
 
 
@@ -278,6 +280,8 @@ namespace SmartExportTemplates
                 //Initialize the parser
                 TemplateParser templateParser = new TemplateParser(TemplateFilePath);
                 templateParser.Parse();
+                                ValidateExpressions(TemplateFilePath);               
+
                 //Node Parsers
                 DataElement dataElement = new DataElement();
                 Conditions conditionEvaluator = new Conditions();
@@ -320,11 +324,84 @@ namespace SmartExportTemplates
             {
                 returnValue = false;
                 WriteLog(LOG_PREFIX + "Error while processing the template file: " + exp.Message);
+                WriteLog(exp.StackTrace);
+
             }
             // TODO: Catch the important exceptions here...
             return returnValue;
         }
 
+        ///       <summary>
+        ///       The method creates a list of valid DCO references.
+        ///      
+        private void createDCOPatternList()
+        {
+            string projectFile = this.BatchPilot.ProjectPath;
+
+            string parentDirectory = Path.GetDirectoryName(projectFile);
+            string dcoDefinitionFile = parentDirectory + Path.DirectorySeparatorChar + Path.GetFileName(Path.GetDirectoryName(parentDirectory)) + ".xml";
+
+            XmlDocument batchXML = new XmlDocument();
+            batchXML.Load(dcoDefinitionFile);
+            XmlElement batchRoot = batchXML.DocumentElement;
+            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
+            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
+            {
+                DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("type");
+                XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
+
+                foreach (XmlNode pageNode in pageList)
+                {
+                    string pageID = ((XmlElement)pageNode).GetAttribute("type");
+                    XmlNodeList allPageList = batchRoot.SelectNodes("./P");
+                    XmlNode currentPage = pageNode;
+                    foreach (XmlNode page in allPageList)
+                    {
+                        if (pageID == ((XmlElement)page).GetAttribute("type"))
+                        {
+                            currentPage = page;
+                            break;
+                        }
+                    }
+                    XmlNodeList fieldList = currentPage.SelectNodes("./F");
+                    foreach (XmlNode fieldNode in fieldList)
+                    {
+                        string fieldID = ((XmlElement)fieldNode).GetAttribute("type");
+                        string dcoPattern = DocumentID + "." + pageID + "." + fieldID;
+
+                        DCOPatterns.Add(dcoPattern);
+
+                    }
+                }
+            }
+        }
+
+        ///       <summary>
+        ///       The method checks if valid DCO references are used in the template file. If an invalid reference if found an exception is thrown.
+        ///       <param name="TemplateFile">Fully qualified path of the template file.</param>
+        ///       </summary>
+        private void ValidateExpressions(string TemplateFile)
+        {
+
+            createDCOPatternList();
+            byte[] bytes = System.IO.File.ReadAllBytes(TemplateFile);
+            string text = System.Text.Encoding.UTF8.GetString(bytes);
+
+            Regex rg = new Regex(DCO_REF_PATTERN);
+            MatchCollection matchedPatterns = rg.Matches(text);
+
+            foreach (Match Pattern in matchedPatterns)
+            {
+                string DCOTree = Pattern.Value;
+                DCOTree = DCOTree.Replace("[", "").Replace("]", "").Replace("DCO.", "");
+                if (!DCOPatterns.Contains(DCOTree))
+                {
+                    WriteLog(LOG_PREFIX + "DCO reference is invalid. " +
+                                Pattern.Value);
+                    throw new System.ArgumentException("DCO reference invalid. Check detailed logs", Pattern.Value);
+                }
+            }
+        }
 
 
         /// <summary/>

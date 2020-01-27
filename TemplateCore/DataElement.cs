@@ -43,7 +43,7 @@ namespace SmartExportTemplates.TemplateCore
                             text.Append(dCODataRetriever.getDCOValue(node.Attributes["select"].Value));
                             break;
                         default:
-                            throw new SmartExportException("Internal error. Not supported node " + node.Name);
+                            throw new SmartExportException("Internal error. " + node.Name + " node is not supported inside data node ");
                     }
                 }
                 if (text.Length > 0)
