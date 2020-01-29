@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Xml;
 using SmartExportTemplates.Utils;
 
@@ -7,7 +8,6 @@ namespace SmartExportTemplates.DCOUtil
     class DCODataRetriever
     {
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
-        protected TDCOLib.IDCO DCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_DCO);
         protected TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
 
         ///       <summary>
@@ -186,56 +186,32 @@ namespace SmartExportTemplates.DCOUtil
         {
 
             string pageID="";
-            XmlDocument batchXML = new XmlDocument();
-            batchXML.Load((string)Globals.Instance.GetData(Constants.GE_BATCH_XML_FILE));
-            XmlElement batchRoot = batchXML.DocumentElement;
-            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
-            int pageCount = 0;
-            Boolean foundDoc = false;
-            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
-            {
-                string ID = ((XmlElement)dcoDocumentNode).GetAttribute("id");
-                if (ID == documentID)
-                {
-                    foundDoc = true;
-                       XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
-                    // Data to be processed is always within pages
-                    if (pageList.Count == 0)
-                    {
-                        ExportCore.WriteLog(Constants.LOG_PREFIX + " No pages in document: " + ID);
-                        break;
-                    }
-                    foreach (XmlNode pageNode in pageList)
-                    {
-                        string type = pageNode.SelectSingleNode("./V[@n='TYPE']").InnerText;
-                        
-                        if (pageType == type)
-                        {
-                            pageCount++;
-                            pageID = ((XmlElement)pageNode).GetAttribute("id");
-                           
-                        }
-                        if(pageCount > 1)
-                        {
-                            pageID = "";
-                            string message = " More than 1 page of type " + pageType + "  found in document: " + ID +
-                                " Expression cannot be evaluated due to ambiguity. " + DCOTree;
-                            ExportCore.WriteLog(Constants.LOG_PREFIX + message );
-                            throw new SmartExportException(message);
-                           
-                        }
+          
 
-                    }
-                    break;
-                }
-                
-            }
-            if (!foundDoc)
+            List<string>  pageIDs = new List<string>();
+            int noOfChildren = CurrentDCO.NumOfChildren();
+            for(int i = 0; i < noOfChildren; i++)
             {
-                string message = " Document with ID " + documentID + " not  found.";
-                ExportCore.WriteLog(Constants.LOG_PREFIX + message);
-                throw new SmartExportException(message);
+                TDCOLib.DCO child = CurrentDCO.GetChild(i);
+                if (child.Type == pageType)
+                {
+                    pageID = child.ID;
+                    pageIDs.Add(child.ID);
+                }
+                if (1 < pageIDs.Count)
+                {
+                    string message = " There is more than one page of type " + pageType + " in the document " + documentID;
+                    ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
+                    throw new SmartExportException(message);
+                }
             }
+           
+            if (0 == pageIDs.Count)
+            {
+                string message = " There is no page of type " + pageType + " in the document " + documentID;
+                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
+            }
+
             return pageID;
             
         }
