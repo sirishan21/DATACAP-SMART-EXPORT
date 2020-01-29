@@ -66,7 +66,7 @@ namespace SmartExportTemplates.DCOUtil
                 // this is to pick up the field from the right page type
                 if(dcoArray[3]== CurrentDCO.ID && dcoArray[1] == document.Type && dcoArray[2] == page.Type)
                 {
-                    return CurrentDCO.Text;
+                    output = CurrentDCO.Text;
                 }
                 else
                 {
