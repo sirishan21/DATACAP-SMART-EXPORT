@@ -107,7 +107,6 @@ namespace SmartExportTemplates.DCOUtil
                  
                 if (dcoArray[1] == CurrentDCO.Parent().Type && dcoArray[2] == CurrentDCO.Type)
                 {
-                    // output = DCO.FindChild(pageID).FindChild(dcoArray[3]).Text;
                     output =CurrentDCO.FindChild(dcoArray[3]).Text;
                 }
                 else
