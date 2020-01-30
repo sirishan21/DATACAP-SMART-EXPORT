@@ -217,7 +217,6 @@ namespace SmartExportTemplates
 
         // Global constants
         readonly string LOG_PREFIX = "DBA-SmartExport - ";
-        readonly string DCO_REF_PATTERN = "\\[DCO\\..+?\\..+?\\..+?\\]";
 
         //Global variables
         // document ID reference used by the child methods during processing.

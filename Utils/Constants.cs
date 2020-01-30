@@ -60,6 +60,24 @@ namespace SmartExportTemplates.Utils
         public const string SE_VALUE_NODE_NAME = "se:value";
         public const string TAB_SPACE = "\t";
 
+        public struct DataTypeString
+        {
+            internal const string INT32 = "int32";
+            internal const string INT64 = "int64";
+            internal const string DOUBLE = "double";
+            internal const string DATE_TIME = "DateTime";
+            internal const string STRING = "string";
+            internal const string BOOL = "bool";
+            internal const string FLOAT = "float";
+        }
+
+        public struct Operators
+        {
+            internal const string EQUALS = "==";
+            internal const string LESSER_THAN = "<";
+            internal const string GREATER_THAN = ">";
+ 
+        }
 
     }
 }
