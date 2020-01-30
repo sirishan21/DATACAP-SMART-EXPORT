@@ -19,7 +19,6 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-
 //Project namespaces
 using SmartExportTemplates.DCOUtil;
 using SmartExportTemplates.TemplateCore;
@@ -244,7 +243,6 @@ namespace SmartExportTemplates
             string batchXMLFile = this.BatchPilot.DCOFile;
             string batchDirPath = Path.GetDirectoryName(batchXMLFile);
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
-            Globals.Instance.SetData(Constants.GE_BATCH_XML_FILE, batchXMLFile);
         }
 
 
@@ -274,6 +272,8 @@ namespace SmartExportTemplates
             bool returnValue = true;
             try
             {
+                Stopwatch sw = Stopwatch.StartNew();
+
                 //set thread locals
                 SetGlobals();
                 //TODO: Validate template
@@ -319,6 +319,10 @@ namespace SmartExportTemplates
                             outputStringList,
                             templateParser.AppendToFile());
 
+                WriteLog(LOG_PREFIX+ " Smart export completed in " + sw.ElapsedMilliseconds+" ms.");
+
+                sw.Stop();
+
             }
             catch (System.Exception exp)
             {
@@ -327,6 +331,7 @@ namespace SmartExportTemplates
                 WriteLog(exp.StackTrace);
 
             }
+           
             // TODO: Catch the important exceptions here...
             return returnValue;
         }
@@ -387,7 +392,7 @@ namespace SmartExportTemplates
             byte[] bytes = System.IO.File.ReadAllBytes(TemplateFile);
             string text = System.Text.Encoding.UTF8.GetString(bytes);
 
-            Regex rg = new Regex(DCO_REF_PATTERN);
+            Regex rg = new Regex(Constants.DCO_REF_PATTERN);
             MatchCollection matchedPatterns = rg.Matches(text);
 
             foreach (Match Pattern in matchedPatterns)

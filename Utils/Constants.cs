@@ -47,7 +47,7 @@ namespace SmartExportTemplates.Utils
         public static string LOG_PREFIX = "DBA-SmartExport - ";
         public static string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
         public static string IF_REF_PATTERN = "(and|or)";
-        public static string GE_BATCH_XML_FILE = "GEBatchXMLFile";
+        public static string ALLOWED_OPERATORS = "(==|>|<)";
 
         //Object types
         public const int Batch = 0;
