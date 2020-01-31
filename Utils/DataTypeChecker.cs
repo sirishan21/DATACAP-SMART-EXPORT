@@ -1,6 +1,6 @@
 ﻿using System;
 using SmartExportTemplates.Utils;
-
+//using Datacap.Global;
 
 namespace SmartExportTemplates.Utils
 {
@@ -28,12 +28,19 @@ namespace SmartExportTemplates.Utils
 
             else if (double.TryParse(str, out doubleValue))
                 type = Constants.DataTypeString.DOUBLE;
-            else if (DateTime.TryParse(str, out dateValue)) //replace with logic to identify date types of various formats 
+            else if (DateTime.TryParse(str, out dateValue)) //replace with logic to identify date types of various formats
+            {
+                //Dates d = new Dates();
+                //d.IsDate(str);
+                // d.FormatDateTime()
                 type = Constants.DataTypeString.DATE_TIME;
+            }
             else type = Constants.DataTypeString.STRING;
             return type;
 
         }
+
+
 
 
     }
