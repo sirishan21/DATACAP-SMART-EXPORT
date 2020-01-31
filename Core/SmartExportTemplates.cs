@@ -225,6 +225,11 @@ namespace SmartExportTemplates
         // List of valid DCO expressions that can be used within the template
         List<string> DCOPatterns = new List<string>();
 
+        // boolean to identify if it is first iteration , so that the headers are only copied at first time.
+        bool isFirstIteration = true;
+       
+        //file name used when output is written to single file.
+        string singleOutputFileName = null;
 
         private void SetGlobals()
         {
@@ -238,6 +243,7 @@ namespace SmartExportTemplates
             string batchXMLFile = this.BatchPilot.DCOFile;
             string batchDirPath = Path.GetDirectoryName(batchXMLFile);
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
+            Globals.Instance.SetData(Constants.IS_FIRST_ITERATION, isFirstIteration);
         }
 
 
@@ -248,9 +254,11 @@ namespace SmartExportTemplates
         {
             // Write to output file
             string outputFileName = OutputFilePrefix + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
-            string outputFilePath = Path.Combine(OutputDir, outputFileName);
-            //TODO: Take care of appending to existing file.
-            using (StreamWriter outputFile = new StreamWriter(outputFilePath))
+            string outputFilePath = Path.Combine(OutputDir, AppendToFile ? singleOutputFileName : outputFileName);
+
+            //if AppendToFile is false then everytime new file is given then it creates a new file.
+            //if AppendToFile is true then everytime singleOutputFileName file is given then it appends to the same file.
+            using (StreamWriter outputFile = File.AppendText(outputFilePath))
             {
                 foreach (string line in OutputData)
                 {
@@ -259,10 +267,7 @@ namespace SmartExportTemplates
             }
         }
 
-        public bool FormattedDataOutput(string TemplateFilePath,
-                                            string OutputFilePrefix,
-                                            string OutputFolder,
-                                            bool AppendToFile)
+        public bool FormattedDataOutput(string TemplateFilePath)
         {
             bool returnValue = true;
             try
@@ -284,6 +289,10 @@ namespace SmartExportTemplates
 
                 // String list to accumulate output
                 List<string> outputStringList = new List<string>();
+
+                if(isFirstIteration && templateParser.AppendToFile()){
+                   singleOutputFileName = templateParser.GetOutputFileName() + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
+                }
 
                 // Loop through the template and accumulate the output
                 while (templateParser.HasNextNode())
@@ -313,6 +322,10 @@ namespace SmartExportTemplates
                             templateParser.GetOutputDirectory(),
                             outputStringList,
                             templateParser.AppendToFile());
+
+                		
+                // setting it to false to tell first iteration is complete.
+                isFirstIteration = false;
 
                 WriteLog(LOG_PREFIX+ " Smart export completed in " + sw.ElapsedMilliseconds+" ms.");
 

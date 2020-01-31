@@ -48,6 +48,7 @@ namespace SmartExportTemplates.Utils
         public static string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
         public static string IF_REF_PATTERN = "(and|or)";
         public static string ALLOWED_OPERATORS = "(==|>|<)";
+        public static string IS_FIRST_ITERATION = "isFirstIteration";
 
         //Object types
         public const int Batch = 0;
