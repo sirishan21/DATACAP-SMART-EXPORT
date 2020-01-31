@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using SmartExportTemplates.Utils;
 using SmartExportTemplates.DCOUtil;
-using Validations;
 namespace SmartExportTemplates.TemplateCore
 {
     class ConditionEvaluation
@@ -73,7 +70,8 @@ namespace SmartExportTemplates.TemplateCore
             //Don't replace "and/or", evaluate the rest as individual conditions
             if (!Regex.Match(conditionText, Constants.IF_REF_PATTERN).Success)
             {
-                output = EvaluateIndividualCondition(conditionText) ? "true" : "false";
+                // output = EvaluateIndividualCondition(conditionText) ? "true" : "false";
+                output = true ? "true" : "false";
             }
             return output;
         }
@@ -135,7 +133,11 @@ namespace SmartExportTemplates.TemplateCore
                 // Moreover, this API is deprecated. This is for the timebeing (to prototype and define the POV)
                 // If conditions do not evaluate properly, write log and skip the condition
                 // TODO: Lexical parser to get the conditions and transform them to c# code constructs
-                throw new SmartExportException("Condition evalution failed for condition:" + conditionText);
+                string message = "Condition evalution failed for condition:" + conditionText;
+                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
+                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + exp.StackTrace);
+                throw new SmartExportException(message);
+
             }
             ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Condition  " + conditionText + " is evaluated as " + response);
 
