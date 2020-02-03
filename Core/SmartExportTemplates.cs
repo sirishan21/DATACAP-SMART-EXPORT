@@ -224,9 +224,6 @@ namespace SmartExportTemplates
    
         // List of valid DCO expressions that can be used within the template
         List<string> DCOPatterns = new List<string>();
-
-        // boolean to identify if it is first iteration , so that the headers are only copied at first time.
-        bool isFirstIteration = true;
        
         //file name used when output is written to single file.
         string singleOutputFileName = null;
@@ -243,7 +240,6 @@ namespace SmartExportTemplates
             string batchXMLFile = this.BatchPilot.DCOFile;
             string batchDirPath = Path.GetDirectoryName(batchXMLFile);
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
-            Globals.Instance.SetData(Constants.IS_FIRST_ITERATION, isFirstIteration);
         }
 
 
@@ -290,7 +286,7 @@ namespace SmartExportTemplates
                 // String list to accumulate output
                 List<string> outputStringList = new List<string>();
 
-                if(isFirstIteration && templateParser.AppendToFile()){
+                if(singleOutputFileName == null && templateParser.AppendToFile()){
                    singleOutputFileName = templateParser.GetOutputFileName() + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
                 }
 
@@ -322,10 +318,6 @@ namespace SmartExportTemplates
                             templateParser.GetOutputDirectory(),
                             outputStringList,
                             templateParser.AppendToFile());
-
-                		
-                // setting it to false to tell first iteration is complete.
-                isFirstIteration = false;
 
                 WriteLog(LOG_PREFIX+ " Smart export completed in " + sw.ElapsedMilliseconds+" ms.");
 

@@ -31,9 +31,7 @@ namespace SmartExportTemplates.TemplateCore
                     switch (node.Name)
                     {
                         case Constants.TEXT_NODE_NAME:
-                           // if((bool)Globals.Instance.GetData(Constants.IS_FIRST_ITERATION)){
-                                text.Append(node.Value);
-                             //   }
+                            text.Append(node.Value);
                             break;
                         case Constants.SE_TAB_NODE_NAME:
                             text.Append(Constants.TAB_SPACE);
