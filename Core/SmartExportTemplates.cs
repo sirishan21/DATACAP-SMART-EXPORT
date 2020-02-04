@@ -225,8 +225,8 @@ namespace SmartExportTemplates
         // List of valid DCO expressions that can be used within the template
         List<string> DCOPatterns = new List<string>();
        
-        //file name used when output is written to single file.
-        string singleOutputFileName = null;
+        //Map containing file names used when output is written to single file.
+        Dictionary<string,string> singleOutputFileNameMap = new Dictionary<string,string>();
 
         private void SetGlobals()
         {
@@ -243,14 +243,11 @@ namespace SmartExportTemplates
         }
 
 
-        private void writeToFile(string OutputFilePrefix,
-                                    string OutputDir,
-                                    List<string> OutputData,
-                                    bool AppendToFile)
+        private void writeToFile(TemplateParser templateParser,List<string> OutputData)
         {
             // Write to output file
-            string outputFileName = OutputFilePrefix + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
-            string outputFilePath = Path.Combine(OutputDir, AppendToFile ? singleOutputFileName : outputFileName);
+            string outputFileName = templateParser.GetOutputFileName() + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
+            string outputFilePath = Path.Combine(templateParser.GetOutputDirectory(), templateParser.AppendToFile() ? singleOutputFileNameMap[templateParser.GetOutputFileName()] : outputFileName);
 
             //if AppendToFile is false then everytime new file is given then it creates a new file.
             //if AppendToFile is true then everytime singleOutputFileName file is given then it appends to the same file.
@@ -285,9 +282,9 @@ namespace SmartExportTemplates
 
                 // String list to accumulate output
                 List<string> outputStringList = new List<string>();
-
-                if(singleOutputFileName == null && templateParser.AppendToFile()){
-                   singleOutputFileName = templateParser.GetOutputFileName() + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
+                //WriteLog("###outputfilename "+ templateParser.GetOutputFileName());
+                if(templateParser.AppendToFile() && !singleOutputFileNameMap.ContainsKey(templateParser.GetOutputFileName())){
+                   singleOutputFileNameMap.Add(templateParser.GetOutputFileName(), templateParser.GetOutputFileName() + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff"));
                 }
 
                 // Loop through the template and accumulate the output
@@ -314,10 +311,7 @@ namespace SmartExportTemplates
                     }
                 }
 
-                writeToFile(templateParser.GetOutputFileName(),
-                            templateParser.GetOutputDirectory(),
-                            outputStringList,
-                            templateParser.AppendToFile());
+                writeToFile(templateParser, outputStringList);
 
                 WriteLog(LOG_PREFIX+ " Smart export completed in " + sw.ElapsedMilliseconds+" ms.");
 
