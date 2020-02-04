@@ -11,8 +11,8 @@ namespace SmartExportTemplates.TemplateCore
 {
     class DataElement
     {
-
         private DCODataRetriever dCODataRetriever = new DCODataRetriever();
+
         public DataElement()
         {
 
@@ -22,37 +22,33 @@ namespace SmartExportTemplates.TemplateCore
         {
             List<string> output = new List<string>();
             string NodeName = ((XmlElement)DataNode).Name;
-            //commenting below line as the check is done in switch case 
-           /* if (!NodeName.Trim().Equals(Constants.SE_DATA_NODE_NAME))
+
+            if (DataNode.HasChildNodes)
             {
-                throw new SmartExportException("Internal error. Data node expected for evaluation but found " + NodeName); 
-            }*/
-            if(DataNode.HasChildNodes)
-            {  StringBuilder text = new StringBuilder("");
-               foreach (XmlNode node in DataNode.ChildNodes)
+                StringBuilder text = new StringBuilder("");
+                foreach (XmlNode node in DataNode.ChildNodes)
                 {
-                      switch(node.Name.Trim())
+                    switch (node.Name)
                     {
                         case Constants.TEXT_NODE_NAME:
-                          text.Append(node.Value);
-                          break;
-                        case  Constants.SE_TAB_NODE_NAME:
-                          text.Append(Constants.TAB_SPACE);
-                          break;
+                            text.Append(node.Value);
+                            break;
+                        case Constants.SE_TAB_NODE_NAME:
+                            text.Append(Constants.TAB_SPACE);
+                            break;
                         case Constants.SE_VALUE_NODE_NAME:
-                          text.Append(dCODataRetriever.getDCOValue(node.Attributes["select"].Value));
-                          break;
+                            text.Append(dCODataRetriever.getDCOValue(node.Attributes["select"].Value));
+                            break;
                         default:
-                             throw new SmartExportException("Internal error. " + node.Name + " node is not supported inside data node " );
-                             break;
+                            throw new SmartExportException("Internal error. " + node.Name + " node is not supported inside data node ");
                     }
                 }
-                if(text.Length > 0){
-                     output.Add(text.ToString());
+                if (text.Length > 0)
+                {
+                    output.Add(text.ToString());
                 }
 
             }
-
             return output;
         }
     }
