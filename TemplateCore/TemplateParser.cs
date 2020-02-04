@@ -94,7 +94,7 @@ namespace SmartExportTemplates.TemplateCore
         public bool AppendToFile()
         {
             bool AppendToFile = false;
-            XmlNode appendToFileNode = TemplateRoot.SelectSingleNode("./" + Constants.SE_APPEND_TO_FILE, this.NameSpcManager);
+            XmlNode appendToFileNode = TemplateRoot.GetElementsByTagName(Constants.SE_APPEND_TO_FILE)[0];
             if (appendToFileNode != null)
             {
                 string sAppendToFile = appendToFileNode.InnerText.Trim();
@@ -106,7 +106,7 @@ namespace SmartExportTemplates.TemplateCore
         public string GetOutputFileName()
         {
             string OutputFileName = Constants.GE_DEF_OUTPUT_FILE;
-            XmlNode outputFileNode = TemplateRoot.SelectSingleNode("./" + Constants.SE_OUTPUT_FILE_NAME, this.NameSpcManager);
+            XmlNode outputFileNode = TemplateRoot.GetElementsByTagName(Constants.SE_OUTPUT_FILE_NAME)[0];
             if (outputFileNode != null)
             {
                 OutputFileName = (outputFileNode.InnerText != null && !outputFileNode.InnerText.Trim().Equals("")) ?

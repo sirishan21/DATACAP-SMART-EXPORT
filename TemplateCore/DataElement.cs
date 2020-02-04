@@ -49,8 +49,6 @@ namespace SmartExportTemplates.TemplateCore
                 }
 
             }
-
-            //TODO: Handle "se:value select" for DCO references - above is just for testing the skeleton
             return output;
         }
     }

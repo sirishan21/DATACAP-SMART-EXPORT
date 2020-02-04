@@ -47,7 +47,8 @@ namespace SmartExportTemplates.Utils
         public static string LOG_PREFIX = "DBA-SmartExport - ";
         public static string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
         public static string IF_REF_PATTERN = "(and|or)";
-        public static string GE_BATCH_XML_FILE = "GEBatchXMLFile";
+        public static string ALLOWED_OPERATORS = "(==|>|<)";
+        public static string IS_FIRST_ITERATION = "isFirstIteration";
 
         //Object types
         public const int Batch = 0;
@@ -60,6 +61,24 @@ namespace SmartExportTemplates.Utils
         public const string SE_VALUE_NODE_NAME = "se:value";
         public const string TAB_SPACE = "\t";
 
+        public struct DataTypeString
+        {
+            internal const string INT32 = "int32";
+            internal const string INT64 = "int64";
+            internal const string DOUBLE = "double";
+            internal const string DATE_TIME = "DateTime";
+            internal const string STRING = "string";
+            internal const string BOOL = "bool";
+            internal const string FLOAT = "float";
+        }
+
+        public struct Operators
+        {
+            internal const string EQUALS = "==";
+            internal const string LESSER_THAN = "<";
+            internal const string GREATER_THAN = ">";
+ 
+        }
 
     }
 }
