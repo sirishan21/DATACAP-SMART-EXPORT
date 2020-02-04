@@ -17,9 +17,6 @@
   </h>
   <method name="FormattedDataOutput">
     <p name="TemplateFile" type="string" qi="Template file (full path to the file)"/>
-    <p name="OutputFilePrefix" type="string" qi="Enter the file prefix of the output file"/>
-    <p name="OutputFolder" type="string" qi="Output folder where the generated files will be written"/>
-    <p name="AppendToFile" type="bool" qi="If true, single file will be used for the entire batch"/>
     <h>
       FormattedDataOutput applies the input template against the current DCO that it is associated with. 
       It generates one or more data output files in the specified output folder. 
