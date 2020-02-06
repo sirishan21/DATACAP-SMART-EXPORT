@@ -216,6 +216,57 @@ namespace SmartExportTemplates.DCOUtil
             
         }
 
+        public string getPageType()
+        {
+
+            string pageType = "";
+            int objectType = CurrentDCO.ObjectType();
+           if (Constants.Page == objectType)
+            {
+                pageType = CurrentDCO.Type;
+            }
+            else if (Constants.Field == objectType)
+            {
+                pageType = CurrentDCO.Parent().Type;
+            }
+            else
+            {
+                string message = "  Page Type can be determined at   page / field level only. " + CurrentDCO.ID
+                    + " is of type " + CurrentDCO.Type + ".";
+                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
+                throw new SmartExportException(message);
+            }
+
+            return pageType;
+        }
+
+        public string getDocumentType()
+        {
+            string docType = "";
+            int objectType = CurrentDCO.ObjectType();
+            if (Constants.Document == objectType)
+            {
+                docType = CurrentDCO.Type;
+            }
+            else if (Constants.Page == objectType)
+            {
+                docType = CurrentDCO.Parent().Type;
+            }
+            else if (Constants.Field == objectType)
+            {
+                docType = CurrentDCO.Parent().Parent().Type;
+            }
+            else 
+            {
+                string message = "  Document Type can be determined at document/ page / field level only. " + CurrentDCO.ID 
+                    + " is of type "+ CurrentDCO.Type + ".";
+                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
+                throw new SmartExportException(message);
+            }
+
+            return docType;
+        }
+
     }
 }
 

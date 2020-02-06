@@ -65,6 +65,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Datacap.Global">
+      <HintPath>..\..\..\..\..\Datacap\RRS\Datacap.Global.dll</HintPath>
+    </Reference>
     <Reference Include="dcsmart">
       <HintPath>..\..\..\..\..\Datacap\dcshared\NET\dcsmart.dll</HintPath>
     </Reference>
@@ -95,6 +98,7 @@
     <Compile Include="RRX.cs" />
     <Compile Include="TemplateCore\TemplateParser.cs" />
     <Compile Include="Utils\Constants.cs" />
+    <Compile Include="Utils\ExpressionEvaluator.cs" />
     <Compile Include="Utils\Globals.cs" />
     <Compile Include="Utils\SmartExportException.cs" />
     <Compile Include="Utils\DataTypeChecker.cs" />

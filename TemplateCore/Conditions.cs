@@ -37,17 +37,27 @@ namespace SmartExportTemplates
             // Evaluate the ELSIFs if IF has not satisfied
             if (!ConditionEvaluated)
             {
-                XmlNodeList elseIfNodeList = ConditionNode.SelectNodes("./" + Constants.NodeTypeString.SE_ELSIF, 
-                                                this.templateParser.getNameSpcManager());
-                foreach (XmlNode elseIfNode in elseIfNodeList)
+
+                XmlNode elseIfNode = ConditionNode.NextSibling;
+
+                while (elseIfNode!=null)
                 {
-                    CondText = ((XmlElement)elseIfNode).GetAttribute(Constants.SE_ATTRIBUTE_COND_TEST);
-                    conditionEvaluation = new ConditionEvaluation(CondText);
-                    if (conditionEvaluation.CanEvaluate())
+                    if (elseIfNode.Name == Constants.NodeTypeString.SE_ELSIF)
                     {
-                        output.AddRange(getDataStringList(elseIfNode));
-                        ConditionEvaluated = true;
-                        break;
+                        CondText = ((XmlElement)elseIfNode).GetAttribute(Constants.SE_ATTRIBUTE_COND_TEST);
+                        conditionEvaluation = new ConditionEvaluation(CondText);
+                        if (conditionEvaluation.CanEvaluate())
+                        {
+                            output.AddRange(getDataStringList(elseIfNode));
+                            ConditionEvaluated = true;
+                            break;
+                        }
+                        elseIfNode = elseIfNode.NextSibling;
+                        // reaching else node indicates there are no more siblings with node name ELSIF
+                        if (elseIfNode.Name == Constants.NodeTypeString.SE_ELSE)
+                        {
+                            break;
+                        }
                     }
                 }
             }
@@ -55,13 +65,20 @@ namespace SmartExportTemplates
             // Evaluate the Else
             if (!ConditionEvaluated)
             {
-                XmlNode elseNode = ConditionNode.SelectSingleNode("./" + Constants.NodeTypeString.SE_ELSE,
-                                        this.templateParser.getNameSpcManager());
-                if (elseNode != null)
+                XmlNode elseNode = ConditionNode.NextSibling;
+
+                while (elseNode != null)
                 {
-                    output.AddRange(getDataStringList(elseNode));
-                    ConditionEvaluated = true;
-                } 
+                    if ( elseNode.Name == Constants.NodeTypeString.SE_ELSE)
+                    {
+                        output.AddRange(getDataStringList(elseNode));
+                        ConditionEvaluated = true;
+                        break;
+                    }
+                    elseNode = elseNode.NextSibling;
+
+                }
+
             }
             if (!ConditionEvaluated)
             {
@@ -75,11 +92,11 @@ namespace SmartExportTemplates
             List<string> output = new List<string>();
             DataElement dataElement = new DataElement();
 
-            XmlNodeList dataNodeList = parentNode.SelectNodes("./" + Constants.SE_DATA_NODE_NAME,
-                                            this.templateParser.getNameSpcManager());
+            XmlNodeList dataNodeList = parentNode.ChildNodes;
             foreach (XmlNode dataNode in dataNodeList)
             {
-                output.AddRange(dataElement.EvaluateData(dataNode));
+                if(dataNode.Name== Constants.NodeTypeString.SE_DATA)
+                     output.AddRange(dataElement.EvaluateData(dataNode));
             }
             return output;
         }

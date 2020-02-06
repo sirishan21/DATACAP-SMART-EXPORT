@@ -25,6 +25,13 @@ namespace SmartExportTemplates.Utils
             internal const string SE_FOREACH = "se:for-each";
         }
 
+        public struct ConditionString
+        {
+            internal const string DCOUMENT_TYPE = "document.type";
+            internal const string PAGE_TYPE = "page.type";
+
+        }
+
         //Templat element names
         public static string SE_NAMESPACE_URL = "https://www.w3.org/2001/XMLSchema";
         public static string SE_NAMESPACE_NAME = "se";
@@ -47,7 +54,7 @@ namespace SmartExportTemplates.Utils
         public static string LOG_PREFIX = "DBA-SmartExport - ";
         public static string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
         public static string IF_REF_PATTERN = "(and|or)";
-        public static string ALLOWED_OPERATORS = "(==|>|<)";
+        public static string ALLOWED_OPERATORS = "(==|>|<|EQUALS|LESSER-THAN|GREATER-THAN)";
         public static string IS_FIRST_ITERATION = "isFirstIteration";
 
         //Object types
@@ -63,13 +70,11 @@ namespace SmartExportTemplates.Utils
 
         public struct DataTypeString
         {
-            internal const string INT32 = "int32";
-            internal const string INT64 = "int64";
+            internal const string INT = "int";
             internal const string DOUBLE = "double";
             internal const string DATE_TIME = "DateTime";
             internal const string STRING = "string";
-            internal const string BOOL = "bool";
-            internal const string FLOAT = "float";
+            internal const string BOOL = "bool";           
         }
 
         public struct Operators
@@ -77,7 +82,10 @@ namespace SmartExportTemplates.Utils
             internal const string EQUALS = "==";
             internal const string LESSER_THAN = "<";
             internal const string GREATER_THAN = ">";
- 
+            internal const string EQUALS_LITERAL = "EQUALS";
+            internal const string LESSER_THAN_LITERAL = "LESSER-THAN";
+            internal const string GREATER_THAN_LITERAL = "GREATER-THAN";
+
         }
 
     }
