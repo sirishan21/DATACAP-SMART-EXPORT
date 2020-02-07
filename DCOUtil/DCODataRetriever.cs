@@ -9,6 +9,7 @@ namespace SmartExportTemplates.DCOUtil
     {
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         protected TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
+        protected TDCOLib.IDCO DCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_DCO);
 
         ///       <summary>
         ///       The method returns the value corresponding to the DCO expression specified, from the current DCO.
@@ -131,6 +132,48 @@ namespace SmartExportTemplates.DCOUtil
         ///       <summary>
         ///       The method returns the value corresponding to the DCO expression specified from the current DCO.
         ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
+        ///       <param name="pageID">Page ID from where the value needs to be extracted</param>
+        ///       <returns>The value corresponding to the DCO expression specified from the current DCO.</returns>
+        ///       </summary>
+        public string getDCOValueForPage(string DCOTree, string pageID)
+        {
+            // DCO reference in the template file should adhere to a 4 part string [DCO.<doc_type>.<page_type>.<field_name>]
+            // Parse the DCO reference and extract the page_type and field_name which can then be used to look up in the 
+            // current document that is being processed
+            DCOTree = DCOTree.Replace("[", "").Replace("]", "");
+            char[] sep = { '.' };
+            string[] dcoArray = DCOTree.Split(sep, 4, StringSplitOptions.None);
+
+            string output = "";
+            try
+            {
+                TDCOLib.DCO page = DCO.FindChild(pageID);
+                if (dcoArray[1] == page.Parent().Type && dcoArray[2] == page.Type)
+                {
+                    output = page.FindChild(dcoArray[3]).Text;
+                }
+                else
+                {
+                    ExportCore.WriteLog(Constants.LOG_PREFIX + " The expression   " + DCOTree + " is not valid for page  " + pageID);
+                }
+
+            }
+            catch (Exception exp)
+            {
+                // There could be reference in the template for the documents that are not processed in the current batch
+                // Template in TravelDocs can have reference to a field under Flight but the current batch doesn't have 
+                // any flight related input. Alternatively, Flight and Car Rental gets processed but for the Car Rental 
+                // data output, there cannot be any Flight reference
+                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Unable to find DCO reference for the page with ID: " + pageID);
+                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Error while reading DCO reference: " + exp.ToString());
+            }
+
+            return output;
+        }
+
+        ///       <summary>
+        ///       The method returns the value corresponding to the DCO expression specified from the current DCO.
+        ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
         ///       <returns>The value corresponding to the DCO expression specified from the current DCO.</returns>
         ///       </summary>
         public string getDCOValueForDocument(string DCOTree )
@@ -168,6 +211,54 @@ namespace SmartExportTemplates.DCOUtil
                 // any flight related input. Alternatively, Flight and Car Rental gets processed but for the Car Rental 
                 // data output, there cannot be any Flight reference
                 ExportCore.WriteLog(Constants.LOG_PREFIX + " Unable to find DCO reference for the document with ID: " + CurrentDCO.ID);
+                ExportCore.WriteLog(Constants.LOG_PREFIX + " Error while reading DCO reference: " + exp.ToString());
+            }
+
+            return output;
+        }
+
+        ///       <summary>
+        ///       The method returns the value corresponding to the DCO expression specified from the current DCO.
+        ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
+        ///       <param name="documentID">ID of the document from where the value needs to be extracted</param>
+        ///       <returns>The value corresponding to the DCO expression specified from the current DCO.</returns>
+        ///       </summary>
+        public string getDCOValueForDocument(string DCOTree, string documentID)
+        {
+
+            // DCO reference in the template file should adhere to a 4 part string [DCO.<doc_type>.<page_type>.<field_name>]
+            // Parse the DCO reference and extract the page_type and field_name which can then be used to look up in the 
+            // current document that is being processed
+            DCOTree = DCOTree.Replace("[", "").Replace("]", "");
+            char[] sep = { '.' };
+            string[] dcoArray = DCOTree.Split(sep, 4, StringSplitOptions.None);
+
+            // get the value of the DCO reference using the page ID and the field name
+            string output = "";
+
+
+            try
+            {
+                TDCOLib.DCO document = DCO.FindChild(documentID);
+                if (dcoArray[1] == document.Type)
+                {
+                    string pageID = getPageIDOfTypeInDocument(DCOTree, documentID, dcoArray[2]);
+                    output = CurrentDCO.FindChild(pageID).FindChild(dcoArray[3]).Text;
+                }
+                else
+                {
+                    ExportCore.WriteLog(Constants.LOG_PREFIX + " The expression   " + DCOTree + " is not valid for document  " + documentID);
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                // There could be reference in the template for the documents that are not processed in the current batch
+                // Template in TravelDocs can have reference to a field under Flight but the current batch doesn't have 
+                // any flight related input. Alternatively, Flight and Car Rental gets processed but for the Car Rental 
+                // data output, there cannot be any Flight reference
+                ExportCore.WriteLog(Constants.LOG_PREFIX + " Unable to find DCO reference for the document with ID: " + documentID);
                 ExportCore.WriteLog(Constants.LOG_PREFIX + " Error while reading DCO reference: " + exp.ToString());
             }
 

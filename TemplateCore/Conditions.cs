@@ -37,10 +37,8 @@ namespace SmartExportTemplates
             // Evaluate the ELSIFs if IF has not satisfied
             if (!ConditionEvaluated)
             {
-
-                XmlNode elseIfNode = ConditionNode.NextSibling;
-
-                while (elseIfNode!=null)
+                XmlNodeList elseIfNodeList = ConditionNode.ChildNodes;
+                foreach (XmlNode elseIfNode in elseIfNodeList)
                 {
                     if (elseIfNode.Name == Constants.NodeTypeString.SE_ELSIF)
                     {
@@ -52,7 +50,6 @@ namespace SmartExportTemplates
                             ConditionEvaluated = true;
                             break;
                         }
-                        elseIfNode = elseIfNode.NextSibling;
                         // reaching else node indicates there are no more siblings with node name ELSIF
                         if (elseIfNode.Name == Constants.NodeTypeString.SE_ELSE)
                         {
@@ -65,9 +62,8 @@ namespace SmartExportTemplates
             // Evaluate the Else
             if (!ConditionEvaluated)
             {
-                XmlNode elseNode = ConditionNode.NextSibling;
-
-                while (elseNode != null)
+                XmlNodeList elseNodeList = ConditionNode.ChildNodes;
+                foreach (XmlNode elseNode in elseNodeList)
                 {
                     if ( elseNode.Name == Constants.NodeTypeString.SE_ELSE)
                     {
@@ -75,7 +71,6 @@ namespace SmartExportTemplates
                         ConditionEvaluated = true;
                         break;
                     }
-                    elseNode = elseNode.NextSibling;
 
                 }
 

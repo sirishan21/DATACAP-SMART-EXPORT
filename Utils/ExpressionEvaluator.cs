@@ -13,14 +13,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Datacap.Global;
-
+using SmartExportTemplates.TemplateCore;
 namespace SmartExportTemplates.Utils
 {
     class ExpressionEvaluator
     {
         public static bool evaluateExpression(string operandOne, string operandTwo, string type, string op)
         {
-            Dates d = new Dates();
+            Dates date = new Dates();
             bool response = false;
             if ((operandOne == "" || operandTwo == "") && type != Constants.DataTypeString.STRING)
             {
@@ -44,9 +44,8 @@ namespace SmartExportTemplates.Utils
                 
                 case Constants.DataTypeString.DATE_TIME :
                     response = evaluateDateTimeExpression(
-                        DateTime.Parse(d.FormatDateTime(operandOne, "dd/MMM/yyyy")),
-                        DateTime.Parse(d.FormatDateTime(operandTwo, "dd/MMM/yyyy")), op);
-
+                        DateTime.Parse(date.FormatDateTime(operandOne, Constants.DATE_FORMAT, (string) Globals.Instance.GetData(Constants.LOCALE))),
+                        DateTime.Parse(date.FormatDateTime(operandTwo, Constants.DATE_FORMAT, (string)Globals.Instance.GetData(Constants.LOCALE))), op);
                     break;
                 
             }
@@ -59,9 +58,8 @@ namespace SmartExportTemplates.Utils
             
             switch (op)
             {
-                case Constants.Operators.EQUALS_LITERAL:
                 case Constants.Operators.EQUALS:
-                    response =( operandOne ==  operandTwo);
+                     response =( operandOne ==  operandTwo);
                     break;
                 default:
                     throw new SmartExportException("The operator " + op + " is not applicable for type boolean. " );
@@ -77,8 +75,7 @@ namespace SmartExportTemplates.Utils
             switch (op)
             {
                 case Constants.Operators.EQUALS:
-                case Constants.Operators.EQUALS_LITERAL:
-                    response = operandOne.Equals(operandTwo, StringComparison.OrdinalIgnoreCase);
+                     response = operandOne.Equals(operandTwo, StringComparison.OrdinalIgnoreCase);
                     break;
                 default:
                     throw new SmartExportException("The operator " + op + " is not applicable for type string");
@@ -94,15 +91,12 @@ namespace SmartExportTemplates.Utils
             switch (op)
             {
                 case Constants.Operators.EQUALS:
-                case Constants.Operators.EQUALS_LITERAL:
                     response =  operandOne ==  operandTwo ;
                     break;
                 case Constants.Operators.GREATER_THAN:
-                case Constants.Operators.GREATER_THAN_LITERAL:
                     response = operandOne  >  operandTwo ;
                     break;
                 case Constants.Operators.LESSER_THAN:
-                case Constants.Operators.LESSER_THAN_LITERAL:
                     response =  operandOne  < operandTwo ;
                     break;
                 default:
@@ -119,15 +113,12 @@ namespace SmartExportTemplates.Utils
             switch (op)
             {
                 case Constants.Operators.EQUALS:
-                case Constants.Operators.EQUALS_LITERAL:
                     response = operandOne == operandTwo;
                     break;
                 case Constants.Operators.GREATER_THAN:
-                case Constants.Operators.GREATER_THAN_LITERAL:
                     response = operandOne > operandTwo;
                     break;
                 case Constants.Operators.LESSER_THAN:
-                case Constants.Operators.LESSER_THAN_LITERAL:
                     response = operandOne < operandTwo;
                     break;
                 default:
@@ -144,15 +135,12 @@ namespace SmartExportTemplates.Utils
             switch (op)
             {
                 case Constants.Operators.EQUALS:
-                case Constants.Operators.EQUALS_LITERAL:
                     response = operandOne == operandTwo;
                     break;
                 case Constants.Operators.GREATER_THAN:
-                case Constants.Operators.GREATER_THAN_LITERAL:
                     response = operandOne > operandTwo;
                     break;
                 case Constants.Operators.LESSER_THAN:
-                case Constants.Operators.LESSER_THAN_LITERAL:
                     response = operandOne < operandTwo;
                     break;
                 default:

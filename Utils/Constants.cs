@@ -38,6 +38,7 @@ namespace SmartExportTemplates.Utils
         public static string SE_DATA_NODE_NAME = "se:data";
         public static string SE_APPEND_TO_FILE = "se:appendToFile";
         public static string SE_OUTPUT_FILE_NAME = "se:filename";
+        public static string SE_LOCALE = "se:locale";
         public static string SE_OUTPUT_DIR_PATH = "se:outputFolder";
         public static string SE_ATTRIBUTE_COND_TEST = "test";
 
@@ -54,8 +55,9 @@ namespace SmartExportTemplates.Utils
         public static string LOG_PREFIX = "DBA-SmartExport - ";
         public static string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
         public static string IF_REF_PATTERN = "(and|or)";
-        public static string ALLOWED_OPERATORS = "(==|>|<|EQUALS|LESSER-THAN|GREATER-THAN)";
+        public static string ALLOWED_OPERATORS = "(EQUALS|LESSER-THAN|GREATER-THAN)";
         public static string IS_FIRST_ITERATION = "isFirstIteration";
+        public static string LOCALE = "locale";
 
         //Object types
         public const int Batch = 0;
@@ -68,6 +70,9 @@ namespace SmartExportTemplates.Utils
         public const string SE_VALUE_NODE_NAME = "se:value";
         public const string TAB_SPACE = "\t";
 
+        public const string DATE_FORMAT = "dd/MMM/yyyy";
+
+
         public struct DataTypeString
         {
             internal const string INT = "int";
@@ -79,12 +84,9 @@ namespace SmartExportTemplates.Utils
 
         public struct Operators
         {
-            internal const string EQUALS = "==";
-            internal const string LESSER_THAN = "<";
-            internal const string GREATER_THAN = ">";
-            internal const string EQUALS_LITERAL = "EQUALS";
-            internal const string LESSER_THAN_LITERAL = "LESSER-THAN";
-            internal const string GREATER_THAN_LITERAL = "GREATER-THAN";
+            internal const string EQUALS = "EQUALS";
+            internal const string LESSER_THAN = "LESSER-THAN";
+            internal const string GREATER_THAN = "GREATER-THAN";
 
         }
 
