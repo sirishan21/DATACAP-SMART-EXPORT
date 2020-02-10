@@ -50,7 +50,7 @@ namespace SmartExportTemplates
                             ConditionEvaluated = true;
                             break;
                         }
-                        // reaching else node indicates there are no more siblings with node name ELSIF
+                        // reaching else node indicates there are no more nodes with node name ELSIF
                         if (elseIfNode.Name == Constants.NodeTypeString.SE_ELSE)
                         {
                             break;

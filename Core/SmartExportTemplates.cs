@@ -88,8 +88,6 @@ namespace SmartExportTemplates
 
         public TDCOLib.IDCO CurrentDCO = null;
 
-        public string locale = "";
-
         /// <summary/>
         public TDCOLib.IDCO DatacapRRCurrentDCO
         {
@@ -240,7 +238,6 @@ namespace SmartExportTemplates
             Globals.Instance.SetData(Constants.GE_LOG_PREFIX, LOG_PREFIX);
             Globals.Instance.SetData(Constants.GE_DCO_REF_PATTERN, Constants.DCO_REF_PATTERN);
             Globals.Instance.SetData(Constants.GE_EXPORT_CORE, this); 
-            Globals.Instance.SetData(Constants.LOCALE, locale);
             string batchXMLFile = this.BatchPilot.DCOFile;
             string batchDirPath = Path.GetDirectoryName(batchXMLFile);
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
@@ -290,7 +287,8 @@ namespace SmartExportTemplates
                 if(templateParser.AppendToFile() && !singleOutputFileNameMap.ContainsKey(templateParser.GetOutputFileName())){
                    singleOutputFileNameMap.Add(templateParser.GetOutputFileName(), templateParser.GetOutputFileName() + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff"));
                 }
-                locale = templateParser.GetLocale();
+                string locale = templateParser.GetLocale();
+                Globals.Instance.SetData(Constants.LOCALE, locale);
 
                 // Loop through the template and accumulate the output
                 while (templateParser.HasNextNode())
