@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using SmartExportTemplates.Utils;
 using SmartExportTemplates.DCOUtil;
+using Datacap.Global;
+
 namespace SmartExportTemplates.TemplateCore
 {
     class ConditionEvaluation
@@ -13,25 +15,10 @@ namespace SmartExportTemplates.TemplateCore
         private DCODataRetriever dCODataRetriever = new DCODataRetriever();
         private DataTypeChecker dataTypeChecker = new DataTypeChecker();
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
-        Dictionary<string, List<string>> operatorTypeMap = new Dictionary<string, List<string>>();
-        public ConditionEvaluation(string ConditionText)
+         public ConditionEvaluation(string ConditionText)
         {
             this.ConditionText = ConditionText;
-            operatorTypeMap.Add(Constants.Operators.EQUALS, new List<string>()
-            {
-               Constants.DataTypeString.BOOL,Constants.DataTypeString.DATE_TIME,Constants.DataTypeString.DOUBLE,
-                Constants.DataTypeString.INT32,Constants.DataTypeString.INT64,Constants.DataTypeString.STRING
-            });
-            operatorTypeMap.Add(Constants.Operators.GREATER_THAN, new List<string>()
-            {
-              Constants.DataTypeString.DATE_TIME,Constants.DataTypeString.DOUBLE,
-                Constants.DataTypeString.INT32,Constants.DataTypeString.INT64
-            });
-            operatorTypeMap.Add(Constants.Operators.LESSER_THAN, new List<string>()
-            {
-              Constants.DataTypeString.DATE_TIME,Constants.DataTypeString.DOUBLE,
-                Constants.DataTypeString.INT32,Constants.DataTypeString.INT64
-            });
+             
         }
 
         public bool CanEvaluate()
@@ -70,8 +57,7 @@ namespace SmartExportTemplates.TemplateCore
             //Don't replace "and/or", evaluate the rest as individual conditions
             if (!Regex.Match(conditionText, Constants.IF_REF_PATTERN).Success)
             {
-                // output = EvaluateIndividualCondition(conditionText) ? "true" : "false";
-                output = true ? "true" : "false";
+                 output = EvaluateIndividualCondition(conditionText) ? "true" : "false";
             }
             return output;
         }
@@ -82,27 +68,26 @@ namespace SmartExportTemplates.TemplateCore
 
             bool response = false;
             List<string> operands
-                = new List<string>(Regex.Split(this.ConditionText, Constants.ALLOWED_OPERATORS));
+                = new List<string>(Regex.Split(conditionText, Constants.ALLOWED_OPERATORS));
 
             // check if there are 2 operands
-            if (2 != operands.Count)
+            if (3 != operands.Count)
             {
                 throw new SmartExportException("Unsupported syntax. Check documentation: " + conditionText);
             }
-            string op = this.ConditionText.Replace(operands[0], "").Replace(operands[1], "");
             //check if allowed operator are used
-            if (!Regex.Match(op, Constants.ALLOWED_OPERATORS).Success)
+            if (!Regex.Match(operands[1].Trim(), Constants.ALLOWED_OPERATORS).Success)
             {
                 throw new SmartExportException("Unsupported syntax. Check documentation: " + conditionText);
             }
-            //replace DCO referencing expressions
             Regex rx = new Regex(Constants.DCO_REF_PATTERN);
             for (int i = 0; i < operands.Count; i++)
             {
-                if (rx.IsMatch(operands[i]))
+                //replace DCO referencing expressions
+                if (rx.IsMatch(operands[i].Trim()))
                 {
                     string expr = operands[i];
-                    operands[i] = dCODataRetriever.getDCOValue(operands[i]);
+                    operands[i] = dCODataRetriever.getDCOValue(operands[i].Trim());
                     if ("" == operands[i])
                     {
                         ExportCore.WriteLog(Constants.GE_LOG_PREFIX +
@@ -110,22 +95,39 @@ namespace SmartExportTemplates.TemplateCore
                         return false;
                     }
                 }
+                else if(Constants.ConditionString.DCOUMENT_TYPE == operands[i].Trim())
+                {
+                    operands[i] = dCODataRetriever.getDocumentType();
+                }
+                else if (Constants.ConditionString.PAGE_TYPE == operands[i].Trim())
+                {
+                    operands[i] = dCODataRetriever.getPageType();
+                }
+                else
+                {
+                    operands[i] = operands[i].Trim();
+                }
             }
 
 
             //check if comparisons are done for same data types
-            string operandOneType = dataTypeChecker.getType(operands[0]);
-            string operandTwoType = dataTypeChecker.getType(operands[1]);
+            string operandOneType = dataTypeChecker.getType(operands[0].Trim());
+            string operandTwoType = dataTypeChecker.getType(operands[2].Trim());
+
+            // allow operations on numeric opernads even if they are not of the same data type
+            if (operandOneType != operandTwoType && dataTypeChecker.numericTypes.Contains(operandOneType)
+                && dataTypeChecker.numericTypes.Contains(operandTwoType))
+            {
+                operandTwoType = operandOneType = castNumericDataTypes(operandOneType, operandTwoType);
+            }
             if (operandOneType != operandTwoType)
             {
                 throw new SmartExportException("Invalid comparisons in : "
-                    + conditionText + " " + operandOneType + " " + op + " " + operandTwoType);
+                    + conditionText + " " + operandOneType + " " + operands[1] + " " + operandTwoType);
             }
-
-            checkIfOperatorIsApplicable(operandOneType, op);
             try
             {
-                response = evaluateExpression(operands, operandOneType, op);
+                response = ExpressionEvaluator.evaluateExpression(operands[0].Trim(), operands[2].Trim(), operandOneType, operands[1].Trim());
             }
             catch (Exception exp)
             {
@@ -144,76 +146,29 @@ namespace SmartExportTemplates.TemplateCore
             return response;
         }
 
-        private bool evaluateExpression(List<string> operands, string type, string op)
+        private string castNumericDataTypes(string operandOneType, string operandTwoType)
         {
-            bool response = false;
-            if ((operands[0] == "" || operands[1] == "") && type != Constants.DataTypeString.STRING)
+            string type = operandOneType;
+            if (operandOneType == Constants.DataTypeString.DOUBLE || operandTwoType == Constants.DataTypeString.DOUBLE)
             {
-                return false;
+                type = Constants.DataTypeString.DOUBLE;
             }
-            switch (type + op)
-            {
-                case Constants.DataTypeString.BOOL + Constants.Operators.EQUALS:
-                    response = bool.Parse(operands[0]) == bool.Parse(operands[1]);
-                    break;
-                case Constants.DataTypeString.STRING + Constants.Operators.EQUALS:
-                    response = operands[0].Equals(operands[1], StringComparison.OrdinalIgnoreCase);
-                    break;
-                case Constants.DataTypeString.INT32 + Constants.Operators.EQUALS:
-                    response = Int32.Parse(operands[0]) == Int32.Parse(operands[1]);
-                    break;
-                case Constants.DataTypeString.INT32 + Constants.Operators.GREATER_THAN:
-                    response = Int32.Parse(operands[0]) > Int32.Parse(operands[1]);
-                    break;
-                case Constants.DataTypeString.INT32 + Constants.Operators.LESSER_THAN:
-                    response = Int32.Parse(operands[0]) < Int32.Parse(operands[1]);
-                    break;
-                case Constants.DataTypeString.INT64 + Constants.Operators.EQUALS:
-                    response = Int64.Parse(operands[0]) == Int64.Parse(operands[1]);
-                    break;
-                case Constants.DataTypeString.INT64 + Constants.Operators.GREATER_THAN:
-                    response = Int64.Parse(operands[0]) > Int64.Parse(operands[1]);
-                    break;
-                case Constants.DataTypeString.INT64 + Constants.Operators.LESSER_THAN:
-                    response = Int64.Parse(operands[0]) < Int64.Parse(operands[1]);
-                    break;
-                case Constants.DataTypeString.DOUBLE + Constants.Operators.EQUALS:
-                    response = double.Parse(operands[0]) == double.Parse(operands[1]);
-                    break;
-                case Constants.DataTypeString.DOUBLE + Constants.Operators.GREATER_THAN:
-                    response = double.Parse(operands[0]) > double.Parse(operands[1]);
-                    break;
-                case Constants.DataTypeString.DOUBLE + Constants.Operators.LESSER_THAN:
-                    response = double.Parse(operands[0]) < double.Parse(operands[1]);
-                    break;
-                case Constants.DataTypeString.DATE_TIME + Constants.Operators.EQUALS:
-                    response = DateTime.Parse(operands[0]) == DateTime.Parse(operands[1]);
-                    break;
-                case Constants.DataTypeString.DATE_TIME + Constants.Operators.GREATER_THAN:
-                    response = DateTime.Parse(operands[0]) > DateTime.Parse(operands[1]);
-                    break;
-                case Constants.DataTypeString.DATE_TIME + Constants.Operators.LESSER_THAN:
-                    response = DateTime.Parse(operands[0]) < DateTime.Parse(operands[1]);
-                    break;
-            }
-            return response;
+             
+            return type;
         }
 
-        private void checkIfOperatorIsApplicable(string operandOneType, string op)
-        {
-            List<string> types = operatorTypeMap[op];
-            if (!types.Contains(operandOneType))
-            {
-                throw new SmartExportException("The operator " + op + " is not applicable for type " + operandOneType);
-            }
-        }
-
-
+         
 
         private bool EvaluateConditions()
         {
             //TODO: There should be a better way to do this... For the moment
-            if (this.LexParseCondList.Count < 3)
+            if( this.LexParseCondList.Count == 1
+                && (this.LexParseCondList.Contains("true") || this.LexParseCondList.Contains("false"))
+                 )
+            {
+                return Boolean.Parse(LexParseCondList.ElementAt(0));
+            }
+            if (this.LexParseCondList.Count < 3 )
             {
                 // Min 3 items needed to evaluate
                 return false;

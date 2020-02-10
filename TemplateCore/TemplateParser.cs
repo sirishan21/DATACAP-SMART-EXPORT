@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using SmartExportTemplates.Utils;
+using System.Globalization;
 
 namespace SmartExportTemplates.TemplateCore
 {
@@ -114,6 +115,19 @@ namespace SmartExportTemplates.TemplateCore
             }
             return OutputFileName;
         }
+
+        public string GetLocale()
+        {
+            string locale = Constants.LOCALE;
+            XmlNode localeNode = TemplateRoot.GetElementsByTagName(Constants.SE_LOCALE)[0];
+            if (localeNode != null)
+            {
+                locale = (localeNode.InnerText != null && !localeNode.InnerText.Trim().Equals("")) ?
+                                    localeNode.InnerText.Trim() : CultureInfo.CurrentUICulture.Name;
+            }
+            return locale;
+        }
+
 
         public string GetOutputDirectory()
         {
