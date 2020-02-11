@@ -95,7 +95,7 @@ namespace SmartExportTemplates.TemplateCore
                         return false;
                     }
                 }
-                else if(Constants.ConditionString.DCOUMENT_TYPE == operands[i].Trim())
+                else if(Constants.ConditionString.DOCUMENT_TYPE == operands[i].Trim())
                 {
                     operands[i] = dCODataRetriever.getDocumentType();
                 }

@@ -16,11 +16,17 @@ namespace SmartExportTemplates.DCOUtil
         ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
         ///       <returns>The value corresponding to the DCO expression specified, from the current DCO.</returns>
         ///       </summary>
-        public string getDCOValue(string DCOTree)        
+         public string getDCOValue(string DCOTree)        
         {
             string output = "";
-      
+            TDCOLib.IDCO currentIterationDCO = null;
             int objectType = CurrentDCO.ObjectType();
+
+            //If the call is from ForEach, this will be having a currentIterationDCO object.
+            if(!Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO).Equals("")){
+                currentIterationDCO = (TDCOLib.IDCO)Globals.Instance.GetData("currentIterationDCO");
+                objectType = currentIterationDCO.ObjectType();
+            }   
             
             switch (objectType)
             {
@@ -29,13 +35,16 @@ namespace SmartExportTemplates.DCOUtil
                     ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
                     throw new SmartExportException(message);
                 case Constants.Document:
-                    output = getDCOValueForDocument(DCOTree);
+                    output = currentIterationDCO == null ? getDCOValueForDocument(DCOTree) : 
+                        getDCOValueForDocument(DCOTree, currentIterationDCO.ID);
                     break;
                 case Constants.Page:
-                    output = getDCOValueForPage(DCOTree);
+                    output = currentIterationDCO == null ? getDCOValueForPage(DCOTree) : 
+                        getDCOValueForPage(DCOTree, currentIterationDCO.ID);
                     break;
                 case Constants.Field:
-                    output = getDCOValueForField(DCOTree);
+                    output = currentIterationDCO == null ? getDCOValueForField(DCOTree) : 
+                        getDCOValueForField(currentIterationDCO);
                     break;
                
 
@@ -124,6 +133,29 @@ namespace SmartExportTemplates.DCOUtil
                 // data output, there cannot be any Flight reference
                 ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Unable to find DCO reference for the page with ID: " + CurrentDCO.ID);
                 ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Error while reading DCO reference: " + exp.ToString());
+            }
+
+            return output;
+        }
+
+        ///       <summary>
+        ///       The method returns the value corresponding to the field specified from the current DCO.
+        ///       <param name="currentIterationDCO">It is the DCO which is currently iterated in for loop.</param>
+        ///       <returns>The value corresponding to the DCO expression specified from the current DCO.</returns>
+        ///       </summary>
+        public string getDCOValueForField(TDCOLib.IDCO currentIterationDCO)
+        {
+ 
+            string output = "";
+            try
+            {
+                TDCOLib.DCO page = DCO.FindChild(currentIterationDCO.Parent().ID);
+                output = page.FindChild(currentIterationDCO.ID).Text;
+            }
+            catch (Exception exp)
+            {
+                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Unable to find field reference for the page with ID: " + currentIterationDCO.Parent().ID);
+                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Error while reading field reference: " + exp.ToString());
             }
 
             return output;
