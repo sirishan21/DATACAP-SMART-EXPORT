@@ -343,19 +343,31 @@ namespace SmartExportTemplates.DCOUtil
         {
 
             string pageType = "";
+            TDCOLib.IDCO currentIterationDCO = null;
             int objectType = CurrentDCO.ObjectType();
+
+            //If the call is from ForEach, this will be having a currentIterationDCO object.
+            if(!Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO).Equals("")){
+                currentIterationDCO = (TDCOLib.IDCO)Globals.Instance.GetData("currentIterationDCO");
+                objectType = currentIterationDCO.ObjectType();
+            }   
+
            if (Constants.Page == objectType)
             {
-                pageType = CurrentDCO.Type;
+                pageType = currentIterationDCO == null ? CurrentDCO.Type : currentIterationDCO.Type;
             }
             else if (Constants.Field == objectType)
             {
-                pageType = CurrentDCO.Parent().Type;
+                pageType = currentIterationDCO == null ? CurrentDCO.Parent().Type : currentIterationDCO.Parent().Type;
             }
             else
             {
                 string message = "  Page Type can be determined at   page / field level only. " + CurrentDCO.ID
                     + " is of type " + CurrentDCO.Type + ".";
+                if(currentIterationDCO != null){
+                  message =  "  Page Type can be determined at   page / field level only. " + currentIterationDCO.ID
+                    + " is of type " + currentIterationDCO.Type + ".";
+                    }
                 ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
                 throw new SmartExportException(message);
             }
@@ -366,23 +378,36 @@ namespace SmartExportTemplates.DCOUtil
         public string getDocumentType()
         {
             string docType = "";
+            TDCOLib.IDCO currentIterationDCO = null;
             int objectType = CurrentDCO.ObjectType();
+
+            //If the call is from ForEach, this will be having a currentIterationDCO object.
+            if(!Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO).Equals("")){
+                currentIterationDCO = (TDCOLib.IDCO)Globals.Instance.GetData("currentIterationDCO");
+                objectType = currentIterationDCO.ObjectType();
+            }  
+
             if (Constants.Document == objectType)
             {
-                docType = CurrentDCO.Type;
+                docType = currentIterationDCO == null ? CurrentDCO.Type : currentIterationDCO.Type;
             }
             else if (Constants.Page == objectType)
             {
-                docType = CurrentDCO.Parent().Type;
+                docType = currentIterationDCO == null ? CurrentDCO.Parent().Type : currentIterationDCO.Parent().Type;
             }
             else if (Constants.Field == objectType)
             {
-                docType = CurrentDCO.Parent().Parent().Type;
+                docType = currentIterationDCO == null ? CurrentDCO.Parent().Parent().Type : currentIterationDCO.Parent().Parent().Type;
             }
             else 
             {
                 string message = "  Document Type can be determined at document/ page / field level only. " + CurrentDCO.ID 
                     + " is of type "+ CurrentDCO.Type + ".";
+                if(currentIterationDCO != null){
+                message = "  Document Type can be determined at document/ page / field level only. " + currentIterationDCO.ID 
+                    + " is of type "+ currentIterationDCO.Type + ".";
+                    }
+               
                 ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
                 throw new SmartExportException(message);
             }

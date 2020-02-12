@@ -96,13 +96,13 @@ namespace SmartExportTemplates.TemplateCore
         private void validateForLoop(int forEachlevel){
 
             if(forEachlevel == 4 || forEachlevel == Constants.Batch){
-                throw new SmartExportException(Constants.GE_LOG_PREFIX + " Assigned level of ForEach loop is wrong"); 
+                throw new SmartExportException(Constants.LOG_PREFIX + " Assigned level of ForEach loop is wrong"); 
             }
            if(forEachlevel == CurrentDCO.ObjectType()){
-                throw new SmartExportException(Constants.GE_LOG_PREFIX + " ForEach loop level must not be same to the Datacap assigned level"); 
+                throw new SmartExportException(Constants.LOG_PREFIX + " ForEach loop level must not be same to the Datacap assigned level"); 
             }
            if(!(forEachlevel == (CurrentDCO.ObjectType()+1))){
-                throw new SmartExportException(Constants.GE_LOG_PREFIX + " ForEach loop must be one level lower from the Datacap assigned level "); 
+                throw new SmartExportException(Constants.LOG_PREFIX + " ForEach loop must be one level lower from the Datacap assigned level "); 
             }
 
         }
