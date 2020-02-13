@@ -247,6 +247,11 @@ namespace SmartExportTemplates
 
         private void writeToFile(TemplateParser templateParser,List<string> OutputData)
         {
+            if (OutputData.Count == 0)
+            {
+                WriteLog(LOG_PREFIX + "Empty content. Skipping writing to file: " + templateParser.GetOutputFileName());
+                return;
+            }
             // Write to output file
             string outputFileName = templateParser.GetOutputFileName() + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
             string outputFilePath = Path.Combine(templateParser.GetOutputDirectory(), templateParser.AppendToFile() ? singleOutputFileNameMap[templateParser.GetOutputFileName()] : outputFileName);
