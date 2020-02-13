@@ -36,6 +36,9 @@ namespace SmartExportTemplates.TemplateCore
                         case Constants.SE_TAB_NODE_NAME:
                             text.Append(Constants.TAB_SPACE);
                             break;
+                        case Constants.SE_COMMA_NODE_NAME:
+                            text.Append(Constants.COMMA);
+                            break;
                         case Constants.SE_VALUE_NODE_NAME:
                             text.Append(dCODataRetriever.getDCOValue(node.Attributes["select"].Value));
                             break;

@@ -68,6 +68,7 @@ namespace SmartExportTemplates.Utils
         public static string IS_FIRST_ITERATION = "isFirstIteration";
         public static string LOCALE = "locale";
         internal const string EMPTYSTRING = "";
+        internal const string COMMA = ",";
 
         //Object types
         public const int Batch = 0;
@@ -77,6 +78,7 @@ namespace SmartExportTemplates.Utils
 
         public const string TEXT_NODE_NAME = "#text";
         public const string SE_TAB_NODE_NAME = "se:tab";
+        public const string SE_COMMA_NODE_NAME = "se:comma";
         public const string SE_VALUE_NODE_NAME = "se:value";
         public const string TAB_SPACE = "\t";
 
