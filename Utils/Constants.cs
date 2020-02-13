@@ -27,9 +27,18 @@ namespace SmartExportTemplates.Utils
 
         public struct ConditionString
         {
-            internal const string DCOUMENT_TYPE = "document.type";
+            internal const string DOCUMENT_TYPE = "document.type";
             internal const string PAGE_TYPE = "page.type";
 
+        }
+
+        public struct forLoopString
+        {
+            internal const string BATCH = "BATCH";
+            internal const string DOCUMENT = "DOCUMENT";
+            internal const string PAGE = "PAGE";
+            internal const string FIELD = "FIELD";
+            internal const string CURRENTITERATIONDCO = "currentIterationDCO";
         }
 
         //Templat element names
@@ -58,6 +67,8 @@ namespace SmartExportTemplates.Utils
         public static string ALLOWED_OPERATORS = "(EQUALS|LESSER-THAN|GREATER-THAN)";
         public static string IS_FIRST_ITERATION = "isFirstIteration";
         public static string LOCALE = "locale";
+        internal const string EMPTYSTRING = "";
+        internal const string COMMA = ",";
 
         //Object types
         public const int Batch = 0;
@@ -67,6 +78,7 @@ namespace SmartExportTemplates.Utils
 
         public const string TEXT_NODE_NAME = "#text";
         public const string SE_TAB_NODE_NAME = "se:tab";
+        public const string SE_COMMA_NODE_NAME = "se:comma";
         public const string SE_VALUE_NODE_NAME = "se:value";
         public const string TAB_SPACE = "\t";
 
