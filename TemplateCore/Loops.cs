@@ -69,24 +69,22 @@ namespace SmartExportTemplates.TemplateCore
         ///       <param name="objectType">String value of the level</param>
         ///       </summary>
         private int getIntValueForEachObjectType(String objectType){
+            int output = 4;
             switch(objectType.ToUpper()){
             case Constants.forLoopString.BATCH:
-                    return Constants.Batch;
+                    output = Constants.Batch;
                     break;
             case Constants.forLoopString.DOCUMENT:
-                    return Constants.Document;
+                    output = Constants.Document;
                     break;
             case Constants.forLoopString.PAGE:
-                    return Constants.Page;
+                    output = Constants.Page;
                     break;
             case Constants.forLoopString.FIELD:
-                    return Constants.Field;
-                    break;
-            default:
-                    // returns 4 if the foreach expression is other than the above.
-                    return 4;
+                    output = Constants.Field;
                     break;
             }
+            return output;
         }
 
           ///       <summary>
