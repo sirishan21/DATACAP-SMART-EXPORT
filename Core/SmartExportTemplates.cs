@@ -301,10 +301,10 @@ namespace SmartExportTemplates
                             outputStringList.AddRange(dataElement.EvaluateData(currentNode));
                             break;
                         case NodeType.If:
-                            outputStringList.AddRange(conditionEvaluator.EvaluateCondition(currentNode));
+                            conditionEvaluator.EvaluateCondition(currentNode, outputStringList);
                             break;
                         case NodeType.ForEach:
-                            outputStringList.AddRange(loopEvaluator.EvaluateLoop(currentNode));
+                            loopEvaluator.EvaluateLoop(currentNode, outputStringList);
                             break;
                         default:
                             if (currentNode.NodeType == XmlNodeType.Element)

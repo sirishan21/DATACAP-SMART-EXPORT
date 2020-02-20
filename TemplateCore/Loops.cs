@@ -21,11 +21,10 @@ namespace SmartExportTemplates.TemplateCore
         ///       <summary>
         ///       The method Evaluates for loop.
         ///       <param name="loopNode">XML node of Foreach</param>
+        ///       <param name="output">List of strings to be printed in the output file.</param>
         ///       </summary>
-        public List<string> EvaluateLoop(XmlNode loopNode)
+        public void EvaluateLoop(XmlNode loopNode, List<string> output)
         {
-           
-            List<string> output = new List<string>();
 
             DataElement dataElement = new DataElement();
             Conditions conditionEvaluator = new Conditions();
@@ -44,7 +43,7 @@ namespace SmartExportTemplates.TemplateCore
                 {
                     switch(node.Name){
                         case Constants.NodeTypeString.SE_IF:
-                            output.AddRange(conditionEvaluator.EvaluateCondition(node));
+                             conditionEvaluator.EvaluateCondition(node, output);
                             break;
                         case Constants.NodeTypeString.SE_DATA:
                             output.AddRange(dataElement.EvaluateData(node));
@@ -61,7 +60,6 @@ namespace SmartExportTemplates.TemplateCore
                Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
             }
             
-            return output;
         }
 
          ///       <summary>
