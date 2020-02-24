@@ -33,10 +33,9 @@ namespace SmartExportTemplates.TemplateCore
             int forEachlevel = getIntValueForEachObjectType(loopNode.Attributes["select"].Value);
             validateForLoop(forEachlevel);
 
-           // ExportCore.WriteLog(" ##### " +CurrentDCO.NumOfChildren());
             for (int i = 0; i < CurrentDCO.NumOfChildren(); i++){
 
-              //  ExportCore.WriteLog(" ##### " +CurrentDCO.GetChild(i).ID);
+               ExportCore.WriteDebugLog(" Current iterating child :" +CurrentDCO.GetChild(i).Type);
                //setting the currentIterationDCO , so that it can be used in DCODataRetreiver to get the data.
                Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, CurrentDCO.GetChild(i));
 

@@ -124,11 +124,28 @@ namespace SmartExportTemplates
                 return;
             RRLog.WriteEx(nLevel, strMessage);
         }
-
+        //to log errors
+        public void WriteErrorLog(string sMessage)
+        {
+            OutputToLog(1, "ERROR: " + sMessage);
+        }
+        //to log info errors
+        public void WriteInfoLog(string sMessage)
+        {
+            OutputToLog(2, "INFO: " + sMessage);
+        }
+        //to log debug errors
+        public void WriteDebugLog(string sMessage)
+        {
+            OutputToLog(3, "DEBUG: " +sMessage);
+        }
+        //to log full/All errors
         public void WriteLog(string sMessage)
         {
-            OutputToLog(5, sMessage);
+            OutputToLog(5, "ALL: " + sMessage);
         }
+
+       
 
         private bool versionWasLogged = false;
 
@@ -284,7 +301,6 @@ namespace SmartExportTemplates
 
                 // String list to accumulate output
                 List<string> outputStringList = new List<string>();
-                //WriteLog("###outputfilename "+ templateParser.GetOutputFileName());
                 if(templateParser.AppendToFile() && !singleOutputFileNameMap.ContainsKey(templateParser.GetOutputFileName())){
                    singleOutputFileNameMap.Add(templateParser.GetOutputFileName(), templateParser.GetOutputFileName() + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff"));
                 }
@@ -317,7 +333,7 @@ namespace SmartExportTemplates
 
                 writeToFile(templateParser, outputStringList);
 
-                WriteLog(LOG_PREFIX+ " Smart export completed in " + sw.ElapsedMilliseconds+" ms.");
+                WriteInfoLog(LOG_PREFIX+ " Smart export WriteLog completed in " + sw.ElapsedMilliseconds+" ms.");
 
                 sw.Stop();
 
@@ -326,7 +342,7 @@ namespace SmartExportTemplates
             {
                 returnValue = false;
                 WriteLog(LOG_PREFIX + "Error while processing the template file: " + exp.Message);
-                WriteLog(exp.StackTrace);
+                WriteErrorLog(exp.StackTrace);
 
             }
            
