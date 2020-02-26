@@ -117,7 +117,11 @@ namespace SmartExportTemplates.DCOUtil
             try
             {
                 TDCOLib.DCO page = DCO.FindChild(currentIterationDCO.Parent().ID);
-                if(dcoArray[3] ==currentIterationDCO.ID)
+                if (dcoArray.Length == 2 && DCOTree == "field.name")
+                {
+                    output = currentIterationDCO.ID;
+                }
+                else if (dcoArray[3] ==currentIterationDCO.ID)
                     output = page.FindChild(currentIterationDCO.ID).Text;
                 else
                     ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Looking for field  " +DCOTree+ ", where as the current field is"+ currentIterationDCO.ID);
@@ -192,7 +196,11 @@ namespace SmartExportTemplates.DCOUtil
             try
             {
                 TDCOLib.DCO page = DCO.FindChild(pageID);
-                if (dcoArray[1] == page.Parent().Type && dcoArray[2] == page.Type)
+                if (dcoArray.Length == 2 && DCOTree == "page.name")
+                {
+                    output = page.ID + " - " + page.Type;
+                }
+                else if (dcoArray[1] == page.Parent().Type && dcoArray[2] == page.Type)
                 {
                     output = page.FindChild(dcoArray[3]).Text;
                 }
@@ -284,7 +292,11 @@ namespace SmartExportTemplates.DCOUtil
             try
             {
                 TDCOLib.DCO document = DCO.FindChild(currentIterationDCO.ID);
-                if (dcoArray[1] == document.Type)
+                if (dcoArray.Length == 2 && DCOTree == "document.name")
+                {
+                    output = currentIterationDCO.ID + " - " + currentIterationDCO.Type;
+                }
+                else if (dcoArray[1] == document.Type)
                 {
                     string pageID = getPageIDOfTypeInDocument(DCOTree, currentIterationDCO.ID, dcoArray[2]);
                     output = currentIterationDCO.FindChild(pageID).FindChild(dcoArray[3]).Text;
