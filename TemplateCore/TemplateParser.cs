@@ -18,6 +18,7 @@ namespace SmartExportTemplates.TemplateCore
         bool            HasMoreNodes = false;
         XmlNamespaceManager NameSpcManager = null;
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
+        private dcSmart.SmartNav smartNav = (dcSmart.SmartNav)Globals.Instance.GetData(Constants.GE_SMART_NAV);
         
         public TemplateParser(string TemplateFilePath)
         {
@@ -46,7 +47,7 @@ namespace SmartExportTemplates.TemplateCore
                 }
             } catch (Exception exp)
             {
-                ExportCore.WriteLog(Globals.Instance.GetData("LogPrefix") + "Error while parsing the template file, terminating. Details: " + exp.Message);
+                ExportCore.WriteLog(Globals.Instance.GetData(Constants.GE_LOG_PREFIX) + "Error while parsing the template file, terminating. Details: " + exp.Message);
                 throw new SmartExportException("Error while parsing template file. Please verify the syntax and semantics of the template file.");
             }
             return true;
@@ -110,8 +111,11 @@ namespace SmartExportTemplates.TemplateCore
             XmlNode outputFileNode = TemplateRoot.GetElementsByTagName(Constants.SE_OUTPUT_FILE_NAME)[0];
             if (outputFileNode != null)
             {
-                OutputFileName = (outputFileNode.InnerText != null && !outputFileNode.InnerText.Trim().Equals("")) ?
-                                    outputFileNode.InnerText.Trim() : Constants.GE_DEF_OUTPUT_FILE;
+                string nodeValue = getNodevalue(outputFileNode);
+                if(nodeValue != null && !nodeValue.Equals(Constants.EMPTYSTRING))
+                {
+                   OutputFileName = nodeValue;
+                }
             }
             return OutputFileName;
         }
@@ -130,12 +134,15 @@ namespace SmartExportTemplates.TemplateCore
 
         public string GetLocale()
         {
-            string locale = Constants.LOCALE;
+            string locale = CultureInfo.CurrentUICulture.Name;
             XmlNode localeNode = TemplateRoot.GetElementsByTagName(Constants.SE_LOCALE)[0];
             if (localeNode != null)
             {
-                locale = (localeNode.InnerText != null && !localeNode.InnerText.Trim().Equals("")) ?
-                                    localeNode.InnerText.Trim() : CultureInfo.CurrentUICulture.Name;
+                string nodeValue = getNodevalue(localeNode);
+                if(nodeValue != null && !nodeValue.Equals(Constants.EMPTYSTRING))
+                {
+                   locale = nodeValue;
+                }
             }
             return locale;
         }
@@ -149,8 +156,8 @@ namespace SmartExportTemplates.TemplateCore
             XmlNode outputFolderNode = TemplateRoot.SelectSingleNode("./" + Constants.SE_OUTPUT_DIR_PATH, this.NameSpcManager);
             if (outputFolderNode != null)
             {
-                string path = outputFolderNode.InnerText.Trim();
-                if (path != null && !path.Equals(""))
+                string path = getNodevalue(outputFolderNode);
+                if (path != null && !path.Equals(Constants.EMPTYSTRING))
                 {
                     if (Directory.Exists(path))
                     {
@@ -171,6 +178,28 @@ namespace SmartExportTemplates.TemplateCore
                 }
             }
             return OutputFolder;
+        }
+
+        //This method is used to get the innertext if its child node text node or smart parameter
+        //value its child node is under smart param node
+        private String getNodevalue(XmlNode headerNode){
+           String nodeValue = null;
+                foreach (XmlNode node in headerNode.ChildNodes)
+                {
+                    switch (node.Name)
+                    {
+                        case Constants.TEXT_NODE_NAME:
+                            nodeValue = node.Value.Trim();
+                            break;
+                        case Constants.SE_SMART_PARAM_NODE_NAME:
+                           nodeValue = smartNav.MetaWord(Constants.SMARTP_AT + node.InnerText.Trim());
+                           ExportCore.WriteDebugLog("smart param value for '"+ node.InnerText.Trim() + "' is " + nodeValue);
+                            break;
+                        default:
+                            throw new SmartExportException("Internal error. " + node.Name + " node is not supported inside "+ headerNode.Name  +" node ");
+                    }
+                }
+          return nodeValue;
         }
 
     }
