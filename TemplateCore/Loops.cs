@@ -34,8 +34,9 @@ namespace SmartExportTemplates.TemplateCore
 
             for (int i = 0; i < CurrentDCO.NumOfChildren(); i++){
 
-               //setting the currentIterationDCO , so that it can be used in DCODataRetreiver to get the data.
-               Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, CurrentDCO.GetChild(i));
+                ExportCore.WriteDebugLog(" Current iterating child :" + CurrentDCO.GetChild(i).Type);
+                //setting the currentIterationDCO , so that it can be used in DCODataRetreiver to get the data.
+                Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, CurrentDCO.GetChild(i));
 
                 foreach (XmlNode node in loopNode.ChildNodes)
                 {
