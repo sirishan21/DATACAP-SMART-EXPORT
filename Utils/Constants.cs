@@ -68,7 +68,6 @@ namespace SmartExportTemplates.Utils
         public static string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
         public static string IF_REF_PATTERN = "(and|or)";
         public static string ALLOWED_OPERATORS = "(EQUALS|LESSER-THAN|GREATER-THAN)";
-        public static string IS_FIRST_ITERATION = "isFirstIteration";
         public static string LOCALE = "locale";
         internal const string EMPTYSTRING = "";
         internal const string COMMA = ",";
@@ -88,7 +87,9 @@ namespace SmartExportTemplates.Utils
         public const string SE_VALUE_NODE_NAME = "se:value";
         public const string SE_IMAGE_NAME = "se:imagename";
         public const string SE_FILE_NAME = "se:filename";
+        public const string SE_SMART_PARAM_NODE_NAME = "se:smartParam";
         public const string TAB_SPACE = "\t";
+        public const string SMARTP_AT = "@";
 
         public const string DATE_FORMAT = "dd/MMM/yyyy";
 
