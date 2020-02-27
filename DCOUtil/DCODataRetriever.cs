@@ -315,7 +315,7 @@ namespace SmartExportTemplates.DCOUtil
                 // any flight related input. Alternatively, Flight and Car Rental gets processed but for the Car Rental 
                 // data output, there cannot be any Flight reference
                 ExportCore.WriteLog(Constants.LOG_PREFIX + " Unable to find DCO reference for the document with ID: " + currentIterationDCO.ID);
-                ExportCore.WriteLog(Constants.LOG_PREFIX + " Error while reading DCO reference: " + exp.ToString());
+                ExportCore.WriteErrorLog(Constants.LOG_PREFIX + " Error while reading DCO reference: " + exp.ToString());
             }
 
             return output;
@@ -415,7 +415,7 @@ namespace SmartExportTemplates.DCOUtil
                 currentIterationDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO);
                 objectType = currentIterationDCO.ObjectType();
             }  
-
+            ExportCore.WriteDebugLog(" Current iterating DCO: " + currentIterationDCO.Type);
             if (Constants.Document == objectType)
             {
                 docType = currentIterationDCO == null ? CurrentDCO.Type : currentIterationDCO.Type;
@@ -437,7 +437,7 @@ namespace SmartExportTemplates.DCOUtil
                     + " is of type "+ currentIterationDCO.Type + ".";
                     }
                
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
+                ExportCore.WriteErrorLog(Constants.GE_LOG_PREFIX + message);
                 throw new SmartExportException(message);
             }
 
