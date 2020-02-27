@@ -116,6 +116,18 @@ namespace SmartExportTemplates.TemplateCore
             return OutputFileName;
         }
 
+        public string GetOutputFileExt()
+        {
+            string OutputFileExt = Constants.GE_DEF_OUTPUT_FILE_EXT;
+            XmlNode outputFileExtNode = TemplateRoot.GetElementsByTagName(Constants.SE_OUTPUT_FILE_EXTENSION)[0];
+            if (outputFileExtNode != null)
+            {
+                OutputFileExt = (outputFileExtNode.InnerText != null && !outputFileExtNode.InnerText.Trim().Equals("")) ?
+                                    outputFileExtNode.InnerText.Trim() : Constants.SE_OUTPUT_FILE_EXTENSION;
+            }
+            return OutputFileExt;
+        }
+
         public string GetLocale()
         {
             string locale = Constants.LOCALE;

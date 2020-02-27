@@ -250,6 +250,12 @@ namespace SmartExportTemplates
         {
             // Set the global references into thread local for use by the different modules
             // No need to worry about threads here (given the way CurrentDCO works) and we can use a Singleton Globals class
+            if (CurrentDCO.ObjectType() == Constants.Page)
+            {
+                Globals.Instance.SetData(Constants.IMAGE_NAME, CurrentDCO.ImageName);
+                dcSmart.SmartNav smartObj = new dcSmart.SmartNav(this);
+                Globals.Instance.SetData(Constants.GE_SMART_NAV, smartObj);
+            }
             Globals.Instance.SetData(Constants.GE_CURRENT_DCO, CurrentDCO);
             Globals.Instance.SetData(Constants.GE_DCO, DCO);
             Globals.Instance.SetData(Constants.GE_LOG_PREFIX, LOG_PREFIX);
@@ -270,8 +276,13 @@ namespace SmartExportTemplates
                 return;
             }
             // Write to output file
-            string outputFileName = templateParser.GetOutputFileName() + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff");
-            string outputFilePath = Path.Combine(templateParser.GetOutputDirectory(), templateParser.AppendToFile() ? singleOutputFileNameMap[templateParser.GetOutputFileName()] : outputFileName);
+            string outputFileName = templateParser.GetOutputFileName() + "_" 
+                                        + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff") + '.'  
+                                        + templateParser.GetOutputFileExt();
+            string outputFilePath = Path.Combine(templateParser.GetOutputDirectory(), 
+                                        templateParser.AppendToFile() ? 
+                                            singleOutputFileNameMap[templateParser.GetOutputFileName()] + "." + templateParser.GetOutputFileExt()
+                                            : outputFileName);
 
             //if AppendToFile is false then everytime new file is given then it creates a new file.
             //if AppendToFile is true then everytime singleOutputFileName file is given then it appends to the same file.
@@ -373,7 +384,7 @@ namespace SmartExportTemplates
             {
                 DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("type");
                 XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
-
+               
                 foreach (XmlNode pageNode in pageList)
                 {
                     string pageID = ((XmlElement)pageNode).GetAttribute("type");

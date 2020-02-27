@@ -47,6 +47,7 @@ namespace SmartExportTemplates.Utils
         public static string SE_DATA_NODE_NAME = "se:data";
         public static string SE_APPEND_TO_FILE = "se:appendToFile";
         public static string SE_OUTPUT_FILE_NAME = "se:filename";
+        public static string SE_OUTPUT_FILE_EXTENSION = "se:fileext";
         public static string SE_LOCALE = "se:locale";
         public static string SE_OUTPUT_DIR_PATH = "se:outputFolder";
         public static string SE_ATTRIBUTE_COND_TEST = "test";
@@ -55,12 +56,14 @@ namespace SmartExportTemplates.Utils
         //General
         public static string GE_TEMPLATE_PARSER = "GETemplateParser";
         public static string GE_CURRENT_DCO = "GECurrentDCO";
+        public const string GE_SMART_NAV = "GESmartNav";
         public static string GE_DCO = "GEDCO";
         public static string GE_LOG_PREFIX = "GELogPrefix";
         public static string GE_DCO_REF_PATTERN = "GEDcoRefPattern";
         public static string GE_EXPORT_CORE = "GEExportCore";
         public static string GE_BATCH_DIR_PATH = "GEBatchDirPath";
         public static string GE_DEF_OUTPUT_FILE = "SmartExport";
+        public static string GE_DEF_OUTPUT_FILE_EXT = "txt";
         public static string LOG_PREFIX = "DBA-SmartExport - ";
         public static string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
         public static string IF_REF_PATTERN = "(and|or)";
@@ -75,11 +78,16 @@ namespace SmartExportTemplates.Utils
         public const int Document = 1;
         public const int Page = 2;
         public const int Field = 3;
+        public const string IMAGE_NAME = "ImageName";
+        public const string FILE_NAME = "FileName";
+        
 
         public const string TEXT_NODE_NAME = "#text";
         public const string SE_TAB_NODE_NAME = "se:tab";
         public const string SE_COMMA_NODE_NAME = "se:comma";
         public const string SE_VALUE_NODE_NAME = "se:value";
+        public const string SE_IMAGE_NAME = "se:imagename";
+        public const string SE_FILE_NAME = "se:filename";
         public const string TAB_SPACE = "\t";
 
         public const string DATE_FORMAT = "dd/MMM/yyyy";
