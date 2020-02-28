@@ -145,7 +145,8 @@ namespace SmartExportTemplates
             OutputToLog(5, "ALL: " + sMessage);
         }
 
-       
+        //this object is to access smart parameters.
+        dcSmart.SmartNav smartNav = null;
 
         private bool versionWasLogged = false;
 
@@ -253,8 +254,6 @@ namespace SmartExportTemplates
             if (CurrentDCO.ObjectType() == Constants.Page)
             {
                 Globals.Instance.SetData(Constants.IMAGE_NAME, CurrentDCO.ImageName);
-                dcSmart.SmartNav smartObj = new dcSmart.SmartNav(this);
-                Globals.Instance.SetData(Constants.GE_SMART_NAV, smartObj);
             }
             Globals.Instance.SetData(Constants.GE_CURRENT_DCO, CurrentDCO);
             Globals.Instance.SetData(Constants.GE_DCO, DCO);
@@ -264,7 +263,8 @@ namespace SmartExportTemplates
             string batchXMLFile = this.BatchPilot.DCOFile;
             string batchDirPath = Path.GetDirectoryName(batchXMLFile);
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
-            Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
+            Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);           
+            Globals.Instance.SetData(Constants.GE_SMART_NAV, smartNav);
         }
 
 
@@ -296,11 +296,12 @@ namespace SmartExportTemplates
         }
 
         public bool FormattedDataOutput(string TemplateFilePath)
-        {
+        {   
             bool returnValue = true;
             try
             {
                 Stopwatch sw = Stopwatch.StartNew();
+                smartNav = new dcSmart.SmartNav(this);
 
                 //set thread locals
                 SetGlobals();
@@ -384,7 +385,7 @@ namespace SmartExportTemplates
             {
                 DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("type");
                 XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
-               
+
                 foreach (XmlNode pageNode in pageList)
                 {
                     string pageID = ((XmlElement)pageNode).GetAttribute("type");

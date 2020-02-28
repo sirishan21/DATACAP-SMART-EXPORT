@@ -414,8 +414,9 @@ namespace SmartExportTemplates.DCOUtil
             if(!Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO).Equals(Constants.EMPTYSTRING)){
                 currentIterationDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO);
                 objectType = currentIterationDCO.ObjectType();
+                ExportCore.WriteDebugLog(" Current iterating DCO: " + currentIterationDCO.Type);
             }  
-            ExportCore.WriteDebugLog(" Current iterating DCO: " + currentIterationDCO.Type);
+            
             if (Constants.Document == objectType)
             {
                 docType = currentIterationDCO == null ? CurrentDCO.Type : currentIterationDCO.Type;
