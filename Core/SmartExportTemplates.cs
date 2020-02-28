@@ -1,4 +1,4 @@
-﻿//
+//
 // Licensed Materials - Property of IBM
 //
 // 5725-C15
@@ -333,10 +333,10 @@ namespace SmartExportTemplates
                             outputStringList.AddRange(dataElement.EvaluateData(currentNode));
                             break;
                         case NodeType.If:
-                            conditionEvaluator.EvaluateCondition(currentNode, outputStringList);
+                            outputStringList.AddRange(conditionEvaluator.EvaluateCondition(currentNode));
                             break;
                         case NodeType.ForEach:
-                            loopEvaluator.EvaluateLoop(currentNode, outputStringList);
+                            outputStringList.AddRange(loopEvaluator.EvaluateLoop(currentNode));
                             break;
                         default:
                             if (currentNode.NodeType == XmlNodeType.Element)
