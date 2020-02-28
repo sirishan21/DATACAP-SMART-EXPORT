@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,8 +19,11 @@ namespace SmartExportTemplates
             this.templateParser = (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
         }
 
-        public void EvaluateCondition(XmlNode ConditionNode, List<string> output)
+        public List<string> EvaluateCondition(XmlNode ConditionNode)
         {
+
+            List<string> output = new List<string>();
+
             bool ConditionEvaluated = false;
 
             //Evaluate the IF
@@ -29,7 +32,7 @@ namespace SmartExportTemplates
 
             if (conditionEvaluation.CanEvaluate())
             {
-                processChildNodes(ConditionNode, output);
+                output.AddRange(processChildNodes(ConditionNode));
                 ConditionEvaluated = true;
             }
             
@@ -45,7 +48,7 @@ namespace SmartExportTemplates
                         conditionEvaluation = new ConditionEvaluation(CondText);
                         if (conditionEvaluation.CanEvaluate())
                         {
-                            processChildNodes(elseIfNode, output);
+                            output.AddRange(processChildNodes(elseIfNode));
                             ConditionEvaluated = true;
                             break;
                         }
@@ -66,7 +69,7 @@ namespace SmartExportTemplates
                 {
                     if ( elseNode.Name == Constants.NodeTypeString.SE_ELSE)
                     {
-                        processChildNodes(elseNode, output);
+                        output.AddRange(processChildNodes(elseNode));
                         ConditionEvaluated = true;
                         break;
                     }
@@ -78,10 +81,13 @@ namespace SmartExportTemplates
             {
                 ExportCore.WriteLog(Constants.LOG_PREFIX + "None of the conditions evaluated for the Node with test: " + CondText);
             }
+
+            return output;
         }
 
-        private void processChildNodes(XmlNode parentNode, List<string> output)
+        private List<string> processChildNodes(XmlNode parentNode)
         {
+            List<string> output = new List<string>();
             DataElement dataElement = new DataElement();
 
             XmlNodeList childNodes = parentNode.ChildNodes;
@@ -90,10 +96,12 @@ namespace SmartExportTemplates
                 if (childNode.Name == Constants.NodeTypeString.SE_DATA)
                     output.AddRange(dataElement.EvaluateData(childNode));
                 else if (childNode.Name == Constants.NodeTypeString.SE_IF)
-                    new Conditions().EvaluateCondition(childNode, output);
+                    output.AddRange(new Conditions().EvaluateCondition(childNode));
                 else if (childNode.Name == Constants.NodeTypeString.SE_FOREACH)
-                    new Loops().EvaluateLoop(childNode, output);
+                    output.AddRange(new Loops().EvaluateLoop(childNode));
             }
+
+            return output;
         }
     }
 }
