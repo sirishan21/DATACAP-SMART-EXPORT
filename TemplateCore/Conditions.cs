@@ -76,7 +76,7 @@ namespace SmartExportTemplates
             }
             if (!ConditionEvaluated)
             {
-                ExportCore.WriteLog(Constants.LOG_PREFIX + "None of the conditions evaluated for the Node with test: " + CondText);
+                ExportCore.WriteLog("None of the conditions evaluated for the Node with test: " + CondText);
             }
         }
 

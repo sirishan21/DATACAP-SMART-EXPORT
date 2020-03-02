@@ -32,7 +32,7 @@ namespace SmartExportTemplates.DCOUtil
             {
                 case Constants.Batch:
                     string message = "Unable to find DCO reference at batch level due to ambiguity.";
-                    ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
+                    ExportCore.WriteLog(message);
                     throw new SmartExportException(message);
                 case Constants.Document:
                     output = currentIterationDCO == null ? getDCOValueForDocument(DCOTree) : 
@@ -80,7 +80,7 @@ namespace SmartExportTemplates.DCOUtil
                 }
                 else
                 {
-                    ExportCore.WriteLog(Constants.LOG_PREFIX + " Current field "+ CurrentDCO.ID +
+                    ExportCore.WriteLog(" Current field "+ CurrentDCO.ID +
                         " is  different from required field which is" + DCOTree);
                 }
             }
@@ -90,8 +90,8 @@ namespace SmartExportTemplates.DCOUtil
                 // Template in TravelDocs can have reference to a field under Flight but the current batch doesn't have 
                 // any flight related input. Alternatively, Flight and Car Rental gets processed but for the Car Rental 
                 // data output, there cannot be any Flight reference
-                ExportCore.WriteLog(Constants.LOG_PREFIX + " Unable to find DCO reference for the field : " + DCOTree);
-                ExportCore.WriteLog(Constants.LOG_PREFIX + " Error while reading DCO reference: " + exp.ToString());
+                ExportCore.WriteErrorLog(" Unable to find DCO reference for the field : " + DCOTree);
+                ExportCore.WriteErrorLog(" Error while reading DCO reference: " + exp.ToString());
             }
 
             return output;
@@ -124,13 +124,13 @@ namespace SmartExportTemplates.DCOUtil
                 else if (dcoArray[3] ==currentIterationDCO.ID)
                     output = page.FindChild(currentIterationDCO.ID).Text;
                 else
-                    ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Looking for field  " +DCOTree+ ", where as the current field is"+ currentIterationDCO.ID);
+                    ExportCore.WriteLog(" Looking for field  " +DCOTree+ ", where as the current field is"+ currentIterationDCO.ID);
 
             }
             catch (Exception exp)
             {
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Unable to find field reference for the page with ID: " + currentIterationDCO.Parent().ID);
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Error while reading field reference: " + exp.ToString());
+                ExportCore.WriteErrorLog(" Unable to find field reference for the page with ID: " + currentIterationDCO.Parent().ID);
+                ExportCore.WriteErrorLog(" Error while reading field reference: " + exp.ToString());
             }
 
             return output;
@@ -160,7 +160,7 @@ namespace SmartExportTemplates.DCOUtil
                 }
                 else
                 {
-                    ExportCore.WriteLog(Constants.LOG_PREFIX + " The expression   " + DCOTree+ " is not valid for page  " + CurrentDCO.ID);
+                    ExportCore.WriteLog(" The expression   " + DCOTree+ " is not valid for page  " + CurrentDCO.ID);
                 }
                 
             }
@@ -170,8 +170,8 @@ namespace SmartExportTemplates.DCOUtil
                 // Template in TravelDocs can have reference to a field under Flight but the current batch doesn't have 
                 // any flight related input. Alternatively, Flight and Car Rental gets processed but for the Car Rental 
                 // data output, there cannot be any Flight reference
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Unable to find DCO reference for the page with ID: " + CurrentDCO.ID);
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Error while reading DCO reference: " + exp.ToString());
+                ExportCore.WriteLog(" Unable to find DCO reference for the page with ID: " + CurrentDCO.ID);
+                ExportCore.WriteLog(" Error while reading DCO reference: " + exp.ToString());
             }
 
             return output;
@@ -206,7 +206,7 @@ namespace SmartExportTemplates.DCOUtil
                 }
                 else
                 {
-                    ExportCore.WriteLog(Constants.LOG_PREFIX + " The expression   " + DCOTree + " is not valid for page  " + pageID);
+                    ExportCore.WriteLog(" The expression   " + DCOTree + " is not valid for page  " + pageID);
                 }
 
             }
@@ -216,8 +216,8 @@ namespace SmartExportTemplates.DCOUtil
                 // Template in TravelDocs can have reference to a field under Flight but the current batch doesn't have 
                 // any flight related input. Alternatively, Flight and Car Rental gets processed but for the Car Rental 
                 // data output, there cannot be any Flight reference
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Unable to find DCO reference for the page with ID: " + pageID);
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Error while reading DCO reference: " + exp.ToString());
+                ExportCore.WriteErrorLog(" Unable to find DCO reference for the page with ID: " + pageID);
+                ExportCore.WriteErrorLog(" Error while reading DCO reference: " + exp.ToString());
             }
 
             return output;
@@ -251,7 +251,7 @@ namespace SmartExportTemplates.DCOUtil
                 }
                 else
                 {
-                    ExportCore.WriteLog(Constants.LOG_PREFIX + " The expression   " + DCOTree + " is not valid for document  " + CurrentDCO.ID);
+                    ExportCore.WriteLog(" The expression   " + DCOTree + " is not valid for document  " + CurrentDCO.ID);
 
                 }
 
@@ -262,8 +262,8 @@ namespace SmartExportTemplates.DCOUtil
                 // Template in TravelDocs can have reference to a field under Flight but the current batch doesn't have 
                 // any flight related input. Alternatively, Flight and Car Rental gets processed but for the Car Rental 
                 // data output, there cannot be any Flight reference
-                ExportCore.WriteLog(Constants.LOG_PREFIX + " Unable to find DCO reference for the document with ID: " + CurrentDCO.ID);
-                ExportCore.WriteLog(Constants.LOG_PREFIX + " Error while reading DCO reference: " + exp.ToString());
+                ExportCore.WriteErrorLog(" Unable to find DCO reference for the document with ID: " + CurrentDCO.ID);
+                ExportCore.WriteErrorLog(" Error while reading DCO reference: " + exp.ToString());
             }
 
             return output;
@@ -303,7 +303,7 @@ namespace SmartExportTemplates.DCOUtil
                 }
                 else
                 {
-                    ExportCore.WriteLog(Constants.LOG_PREFIX + " The expression   " + DCOTree + " is not valid for document  " + currentIterationDCO.ID);
+                    ExportCore.WriteLog(" The expression   " + DCOTree + " is not valid for document  " + currentIterationDCO.ID);
 
                 }
 
@@ -314,8 +314,8 @@ namespace SmartExportTemplates.DCOUtil
                 // Template in TravelDocs can have reference to a field under Flight but the current batch doesn't have 
                 // any flight related input. Alternatively, Flight and Car Rental gets processed but for the Car Rental 
                 // data output, there cannot be any Flight reference
-                ExportCore.WriteLog(Constants.LOG_PREFIX + " Unable to find DCO reference for the document with ID: " + currentIterationDCO.ID);
-                ExportCore.WriteErrorLog(Constants.LOG_PREFIX + " Error while reading DCO reference: " + exp.ToString());
+                ExportCore.WriteErrorLog(" Unable to find DCO reference for the document with ID: " + currentIterationDCO.ID);
+                ExportCore.WriteErrorLog(" Error while reading DCO reference: " + exp.ToString());
             }
 
             return output;
@@ -353,7 +353,7 @@ namespace SmartExportTemplates.DCOUtil
                 if (1 < pageIDs.Count)
                 {
                     string message = " There is more than one page of type " + pageType + " in the document " + documentID;
-                    ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
+                    ExportCore.WriteLog(message);
                     throw new SmartExportException(message);
                 }
             }
@@ -361,7 +361,7 @@ namespace SmartExportTemplates.DCOUtil
             if (0 == pageIDs.Count)
             {
                 string message = " There is no page of type " + pageType + " in the document " + documentID;
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
+                ExportCore.WriteLog(message);
             }
 
             return pageID;
@@ -397,7 +397,7 @@ namespace SmartExportTemplates.DCOUtil
                   message =  "  Page Type can be determined at   page / field level only. " + currentIterationDCO.ID
                     + " is of type " + currentIterationDCO.Type + ".";
                     }
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
+                ExportCore.WriteLog(message);
                 throw new SmartExportException(message);
             }
 
@@ -414,6 +414,8 @@ namespace SmartExportTemplates.DCOUtil
             if(!Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO).Equals(Constants.EMPTYSTRING)){
                 currentIterationDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO);
                 objectType = currentIterationDCO.ObjectType();
+                //anything getter related to currentIterationDCO object must be added here or after null check , 
+                //if not there is a risk of null pointer exception.
                 ExportCore.WriteDebugLog(" Current iterating DCO: " + currentIterationDCO.Type);
             }  
             
@@ -438,7 +440,7 @@ namespace SmartExportTemplates.DCOUtil
                     + " is of type "+ currentIterationDCO.Type + ".";
                     }
                
-                ExportCore.WriteErrorLog(Constants.GE_LOG_PREFIX + message);
+                ExportCore.WriteErrorLog(message);
                 throw new SmartExportException(message);
             }
 

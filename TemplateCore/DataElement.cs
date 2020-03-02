@@ -42,10 +42,6 @@ namespace SmartExportTemplates.TemplateCore
                         case Constants.SE_COMMA_NODE_NAME:
                             text.Append(Constants.COMMA);
                             break;
-                        case Constants.SE_IMAGE_NAME:
-                            //text.Append(Globals.Instance.GetData(Constants.IMAGE_NAME));
-                            text.Append(SmartNav.MetaWord("@P.ScanSrcPath"));
-                            break;
                         case Constants.SE_VALUE_NODE_NAME:
                             text.Append(dCODataRetriever.getDCOValue(node.Attributes["select"].Value));
                             break;

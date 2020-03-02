@@ -58,13 +58,16 @@ namespace SmartExportTemplates.Utils
         public static string GE_CURRENT_DCO = "GECurrentDCO";
         public const string GE_SMART_NAV = "GESmartNav";
         public static string GE_DCO = "GEDCO";
-        public static string GE_LOG_PREFIX = "GELogPrefix";
+        public static string GE_ALL_LOG_PREFIX = "ALL: GELogPrefix :";
+        public static string GE_DEBUG_LOG_PREFIX = "DEBUG: GELogPrefix :";
+        public static string GE_INFO_LOG_PREFIX = "INFO: GELogPrefix :";
+        public static string GE_ERROR_LOG_PREFIX = "ERROR: GELogPrefix :";
         public static string GE_DCO_REF_PATTERN = "GEDcoRefPattern";
         public static string GE_EXPORT_CORE = "GEExportCore";
         public static string GE_BATCH_DIR_PATH = "GEBatchDirPath";
         public static string GE_DEF_OUTPUT_FILE = "SmartExport";
         public static string GE_DEF_OUTPUT_FILE_EXT = "txt";
-        public static string LOG_PREFIX = "DBA-SmartExport - ";
+        //public static string LOG_PREFIX = "DBA-SmartExport - ";
         public static string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
         public static string IF_REF_PATTERN = "(and|or)";
         public static string ALLOWED_OPERATORS = "(EQUALS|LESSER-THAN|GREATER-THAN)";
@@ -77,7 +80,6 @@ namespace SmartExportTemplates.Utils
         public const int Document = 1;
         public const int Page = 2;
         public const int Field = 3;
-        public const string IMAGE_NAME = "ImageName";
         public const string FILE_NAME = "FileName";
         
 

@@ -64,7 +64,7 @@ namespace SmartExportTemplates.TemplateCore
 
         private bool EvaluateIndividualCondition(string conditionText)
         {
-            ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Evaluating condition " + conditionText);
+            ExportCore.WriteLog(" Evaluating condition " + conditionText);
 
             bool response = false;
             List<string> operands
@@ -90,8 +90,7 @@ namespace SmartExportTemplates.TemplateCore
                     operands[i] = dCODataRetriever.getDCOValue(operands[i].Trim());
                     if ("" == operands[i])
                     {
-                        ExportCore.WriteLog(Constants.GE_LOG_PREFIX +
-                            "Could not find value for  " + expr + " in " + conditionText);
+                        ExportCore.WriteLog("Could not find value for  " + expr + " in " + conditionText);
                         return false;
                     }
                 }
@@ -136,12 +135,12 @@ namespace SmartExportTemplates.TemplateCore
                 // If conditions do not evaluate properly, write log and skip the condition
                 // TODO: Lexical parser to get the conditions and transform them to c# code constructs
                 string message = "Condition evalution failed for condition:" + conditionText;
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + message);
-                ExportCore.WriteLog(Constants.GE_LOG_PREFIX + exp.StackTrace);
+                ExportCore.WriteErrorLog(message);
+                ExportCore.WriteErrorLog(exp.StackTrace);
                 throw new SmartExportException(message);
 
             }
-            ExportCore.WriteLog(Constants.GE_LOG_PREFIX + " Condition  " + conditionText + " is evaluated as " + response);
+            ExportCore.WriteLog(" Condition  " + conditionText + " is evaluated as " + response);
 
             return response;
         }
