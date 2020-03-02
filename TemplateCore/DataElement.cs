@@ -28,7 +28,7 @@ namespace SmartExportTemplates.TemplateCore
 
             if (DataNode.HasChildNodes)
             {
-                StringBuilder text = new StringBuilder("");
+                StringBuilder text = new StringBuilder(Constants.EMPTYSTRING);
                 foreach (XmlNode node in DataNode.ChildNodes)
                 {
                     switch (node.Name)
