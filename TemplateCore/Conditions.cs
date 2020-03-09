@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,9 +21,7 @@ namespace SmartExportTemplates
 
         public List<string> EvaluateCondition(XmlNode ConditionNode)
         {
-
             List<string> output = new List<string>();
-
             bool ConditionEvaluated = false;
 
             //Evaluate the IF

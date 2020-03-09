@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,28 +24,22 @@ namespace SmartExportTemplates.TemplateCore
         ///       <param name="output">List of strings to be printed in the output file.</param>
         ///       </summary>
         public List<string> EvaluateLoop(XmlNode loopNode)
-        {           
-             return EvaluateLoop(loopNode, null);
+        {
+            return EvaluateLoop(loopNode, CurrentDCO);
+            
         }
 
         ///       <summary>
         ///       The method Evaluates for loop.
         ///       <param name="loopNode">XML node of Foreach</param>
         ///       <param name="DCO">Current iteration DCO of the parent for-each loop</param>
-        ///       <param name="output">List of strings to be printed in the output file.</param>
         ///       </summary>
-        private List<string> EvaluateLoop(XmlNode loopNode, TDCOLib.IDCO DCO )
+        public List<string> EvaluateLoop(XmlNode loopNode, TDCOLib.IDCO DCO)
         {
-
             List<string> output = new List<string>();
 
             DataElement dataElement = new DataElement();
             Conditions conditionEvaluator = new Conditions();
-
-            if(DCO ==null)
-            {
-                DCO = CurrentDCO;
-            }
 
             int forEachlevel = getIntValueForEachObjectType(loopNode.Attributes["select"].Value);
             nestingLevel = setAndValidateNestingLevel(loopNode);
@@ -82,7 +76,9 @@ namespace SmartExportTemplates.TemplateCore
                 //setting it to empty after every iteration.
                 Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
             }
+
             return output;
+
         }
 
         ///       <summary>
@@ -109,7 +105,7 @@ namespace SmartExportTemplates.TemplateCore
                 {
                     int currentForEachlevel = getIntValueForEachObjectType(loopNode.Attributes["select"].Value);
                     int parentForEachlevel = getIntValueForEachObjectType(parentNode.Attributes["select"].Value);
-                    if (currentForEachlevel != parentForEachlevel + 1)
+                    if (currentForEachlevel != parentForEachlevel + 1 )
                     {
                         throw new SmartExportException(Constants.LOG_PREFIX
                             + " ForEach nesting is invalid.");
@@ -120,6 +116,7 @@ namespace SmartExportTemplates.TemplateCore
            
             return nestingLevel;
         }
+
 
         ///       <summary>
         ///       The method returns integer value of the object type passed.
@@ -150,7 +147,6 @@ namespace SmartExportTemplates.TemplateCore
         ///       </summary>
         private void validateForLoop(int forEachlevel, TDCOLib.IDCO DCO)
         {
-            
             if(DCO == null)
             {
                 throw new SmartExportException(Constants.LOG_PREFIX + " DCO associated with the for-each loop cannot be determined.");
