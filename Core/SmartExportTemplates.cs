@@ -1,4 +1,4 @@
-﻿//
+//
 // Licensed Materials - Property of IBM
 //
 // 5725-C15
@@ -137,7 +137,7 @@ namespace SmartExportTemplates
         //to log debug errors
         public void WriteDebugLog(string sMessage)
         {
-            OutputToLog(3, "DEBUG: " +sMessage);
+            OutputToLog(3, "DEBUG: " + sMessage);
         }
         //to log full/All errors
         public void WriteLog(string sMessage)
@@ -240,12 +240,12 @@ namespace SmartExportTemplates
         //Global variables
         // document ID reference used by the child methods during processing.
         string DocumentID = null;
-   
+
         // List of valid DCO expressions that can be used within the template
         List<string> DCOPatterns = new List<string>();
-       
+
         //Map containing file names used when output is written to single file.
-        Dictionary<string,string> singleOutputFileNameMap = new Dictionary<string,string>();
+        Dictionary<string, string> singleOutputFileNameMap = new Dictionary<string, string>();
 
         private void SetGlobals()
         {
@@ -259,16 +259,16 @@ namespace SmartExportTemplates
             Globals.Instance.SetData(Constants.GE_DCO, DCO);
             Globals.Instance.SetData(Constants.GE_LOG_PREFIX, LOG_PREFIX);
             Globals.Instance.SetData(Constants.GE_DCO_REF_PATTERN, Constants.DCO_REF_PATTERN);
-            Globals.Instance.SetData(Constants.GE_EXPORT_CORE, this); 
+            Globals.Instance.SetData(Constants.GE_EXPORT_CORE, this);
             string batchXMLFile = this.BatchPilot.DCOFile;
             string batchDirPath = Path.GetDirectoryName(batchXMLFile);
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
-            Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);           
+            Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
             Globals.Instance.SetData(Constants.GE_SMART_NAV, smartNav);
         }
 
 
-        private void writeToFile(TemplateParser templateParser,List<string> OutputData)
+        private void writeToFile(TemplateParser templateParser, List<string> OutputData)
         {
             if (OutputData.Count == 0)
             {
@@ -276,11 +276,11 @@ namespace SmartExportTemplates
                 return;
             }
             // Write to output file
-            string outputFileName = templateParser.GetOutputFileName() + "_" 
-                                        + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff") + '.'  
+            string outputFileName = templateParser.GetOutputFileName() + "_"
+                                        + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff") + '.'
                                         + templateParser.GetOutputFileExt();
-            string outputFilePath = Path.Combine(templateParser.GetOutputDirectory(), 
-                                        templateParser.AppendToFile() ? 
+            string outputFilePath = Path.Combine(templateParser.GetOutputDirectory(),
+                                        templateParser.AppendToFile() ?
                                             singleOutputFileNameMap[templateParser.GetOutputFileName()] + "." + templateParser.GetOutputFileExt()
                                             : outputFileName);
 
@@ -296,7 +296,7 @@ namespace SmartExportTemplates
         }
 
         public bool FormattedDataOutput(string TemplateFilePath)
-        {   
+        {
             bool returnValue = true;
             try
             {
@@ -309,7 +309,7 @@ namespace SmartExportTemplates
                 //Initialize the parser
                 TemplateParser templateParser = new TemplateParser(TemplateFilePath);
                 templateParser.Parse();
-                ValidateExpressions(TemplateFilePath);               
+                ValidateExpressions(TemplateFilePath);
 
                 //Node Parsers
                 DataElement dataElement = new DataElement();
@@ -318,8 +318,9 @@ namespace SmartExportTemplates
 
                 // String list to accumulate output
                 List<string> outputStringList = new List<string>();
-                if(templateParser.AppendToFile() && !singleOutputFileNameMap.ContainsKey(templateParser.GetOutputFileName())){
-                   singleOutputFileNameMap.Add(templateParser.GetOutputFileName(), templateParser.GetOutputFileName() + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff"));
+                if (templateParser.AppendToFile() && !singleOutputFileNameMap.ContainsKey(templateParser.GetOutputFileName()))
+                {
+                    singleOutputFileNameMap.Add(templateParser.GetOutputFileName(), templateParser.GetOutputFileName() + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff"));
                 }
                 string locale = templateParser.GetLocale();
                 Globals.Instance.SetData(Constants.LOCALE, locale);
@@ -334,10 +335,10 @@ namespace SmartExportTemplates
                             outputStringList.AddRange(dataElement.EvaluateData(currentNode));
                             break;
                         case NodeType.If:
-                            conditionEvaluator.EvaluateCondition(currentNode, outputStringList);
+                            outputStringList.AddRange(conditionEvaluator.EvaluateCondition(currentNode));
                             break;
                         case NodeType.ForEach:
-                            loopEvaluator.EvaluateLoop(currentNode, outputStringList);
+                            outputStringList.AddRange(loopEvaluator.EvaluateLoop(currentNode));
                             break;
                         default:
                             if (currentNode.NodeType == XmlNodeType.Element)
@@ -350,7 +351,7 @@ namespace SmartExportTemplates
 
                 writeToFile(templateParser, outputStringList);
 
-                WriteInfoLog(LOG_PREFIX+ " Smart export WriteLog completed in " + sw.ElapsedMilliseconds+" ms.");
+                WriteInfoLog(LOG_PREFIX + " Smart export WriteLog completed in " + sw.ElapsedMilliseconds + " ms.");
 
                 sw.Stop();
 
@@ -362,7 +363,7 @@ namespace SmartExportTemplates
                 WriteErrorLog(exp.StackTrace);
 
             }
-           
+
             // TODO: Catch the important exceptions here...
             return returnValue;
         }
