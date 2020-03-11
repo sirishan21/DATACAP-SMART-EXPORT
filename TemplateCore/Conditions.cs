@@ -83,7 +83,7 @@ namespace SmartExportTemplates
                 ExportCore.WriteLog("None of the conditions evaluated for the Node with test: " + CondText);
             }
 
-            ExportCore.WriteLog(" EvaluateCondition("+ConditionNode+") completed in " + sw.ElapsedMilliseconds + " ms.");
+            ExportCore.WriteDebugLog(" EvaluateCondition("+ConditionNode+") completed in " + sw.ElapsedMilliseconds + " ms.");
 
             sw.Stop();
 

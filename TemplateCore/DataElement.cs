@@ -62,7 +62,7 @@ namespace SmartExportTemplates.TemplateCore
                 }
 
             }
-            ExportCore.WriteLog(" EvaluateData(" + DataNode + ") completed in " + sw.ElapsedMilliseconds + " ms.");
+            ExportCore.WriteDebugLog(" EvaluateData(" + DataNode + ") completed in " + sw.ElapsedMilliseconds + " ms.");
 
             sw.Stop();
             return output;

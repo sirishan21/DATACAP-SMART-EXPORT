@@ -51,7 +51,7 @@ namespace SmartExportTemplates.DCOUtil
                     break;
  
             }
-            ExportCore.WriteLog(" getDCOValue(" + DCOTree + ") completed in " + sw.ElapsedMilliseconds + " ms.");
+            ExportCore.WriteDebugLog(" getDCOValue(" + DCOTree + ") completed in " + sw.ElapsedMilliseconds + " ms.");
             sw.Stop();
             return output;
         }
@@ -404,7 +404,7 @@ namespace SmartExportTemplates.DCOUtil
                 ExportCore.WriteLog(message);
                 throw new SmartExportException(message);
             }
-            ExportCore.WriteLog(" getPageType() completed in " + sw.ElapsedMilliseconds + " ms.");
+            ExportCore.WriteDebugLog(" getPageType() completed in " + sw.ElapsedMilliseconds + " ms.");
             sw.Stop();
 
             return pageType;
@@ -451,7 +451,7 @@ namespace SmartExportTemplates.DCOUtil
                 ExportCore.WriteErrorLog(message);
                 throw new SmartExportException(message);
             }
-            ExportCore.WriteLog(" getDocumentType() completed in " + sw.ElapsedMilliseconds + " ms.");
+            ExportCore.WriteDebugLog(" getDocumentType() completed in " + sw.ElapsedMilliseconds + " ms.");
             sw.Stop();
 
             return docType;

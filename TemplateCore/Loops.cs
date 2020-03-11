@@ -80,7 +80,7 @@ namespace SmartExportTemplates.TemplateCore
                 Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
             }
 
-            ExportCore.WriteLog(" EvaluateLoop " + loopNode + "  completed in " + sw.ElapsedMilliseconds + " ms.");
+            ExportCore.WriteDebugLog(" EvaluateLoop " + loopNode + "  completed in " + sw.ElapsedMilliseconds + " ms.");
 
             sw.Stop();
 
