@@ -102,6 +102,7 @@
     <Compile Include="Utils\Globals.cs" />
     <Compile Include="Utils\SmartExportException.cs" />
     <Compile Include="Utils\DataTypeChecker.cs" />
+    <Compile Include="Utils\SmartExportUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\TheRRX.rrx">

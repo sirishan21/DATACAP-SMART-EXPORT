@@ -30,7 +30,8 @@ namespace SmartExportTemplates
 
             if (conditionEvaluation.CanEvaluate())
             {
-                output.AddRange(processChildNodes(ConditionNode));
+                output = SmartExportUtil.addToOutPutList(processChildNodes(ConditionNode), output);
+                //output.AddRange(processChildNodes(ConditionNode));
                 ConditionEvaluated = true;
             }
             
@@ -46,7 +47,8 @@ namespace SmartExportTemplates
                         conditionEvaluation = new ConditionEvaluation(CondText);
                         if (conditionEvaluation.CanEvaluate())
                         {
-                            output.AddRange(processChildNodes(elseIfNode));
+                            output = SmartExportUtil.addToOutPutList(processChildNodes(elseIfNode), output);
+                           // output.AddRange(processChildNodes(elseIfNode));
                             ConditionEvaluated = true;
                             break;
                         }
@@ -67,7 +69,8 @@ namespace SmartExportTemplates
                 {
                     if ( elseNode.Name == Constants.NodeTypeString.SE_ELSE)
                     {
-                        output.AddRange(processChildNodes(elseNode));
+                        output = SmartExportUtil.addToOutPutList(processChildNodes(elseNode), output);
+                       // output.AddRange(processChildNodes(elseNode));
                         ConditionEvaluated = true;
                         break;
                     }
@@ -92,11 +95,14 @@ namespace SmartExportTemplates
             foreach (XmlNode childNode in childNodes)
             {
                 if (childNode.Name == Constants.NodeTypeString.SE_DATA)
-                    output.AddRange(dataElement.EvaluateData(childNode));
+                    output = SmartExportUtil.addToOutPutList(dataElement.EvaluateData(childNode), output);
+                   // output.AddRange(dataElement.EvaluateData(childNode));
                 else if (childNode.Name == Constants.NodeTypeString.SE_IF)
-                    output.AddRange(new Conditions().EvaluateCondition(childNode));
+                    output = SmartExportUtil.addToOutPutList(new Conditions().EvaluateCondition(childNode), output);
+                    //output.AddRange(new Conditions().EvaluateCondition(childNode));
                 else if (childNode.Name == Constants.NodeTypeString.SE_FOREACH)
-                    output.AddRange(new Loops().EvaluateLoop(childNode));
+                    output = SmartExportUtil.addToOutPutList(new Loops().EvaluateLoop(childNode), output);
+                   // output.AddRange(new Loops().EvaluateLoop(childNode));
             }
 
             return output;

@@ -56,14 +56,17 @@ namespace SmartExportTemplates.TemplateCore
                     switch (node.Name)
                     {
                         case Constants.NodeTypeString.SE_IF:
-                            output.AddRange(conditionEvaluator.EvaluateCondition(node));
+                            output = SmartExportUtil.addToOutPutList(conditionEvaluator.EvaluateCondition(node), output);
+                           // output.AddRange(conditionEvaluator.EvaluateCondition(node));
                             break;
                         case Constants.NodeTypeString.SE_FOREACH:
                             Loops loopEvaluator = new Loops();
-                            output.AddRange(loopEvaluator.EvaluateLoop(node, DCO.GetChild(i)));
+                            output = SmartExportUtil.addToOutPutList(loopEvaluator.EvaluateLoop(node, DCO.GetChild(i)), output);
+                            //output.AddRange(loopEvaluator.EvaluateLoop(node, DCO.GetChild(i)));
                             break;
                         case Constants.NodeTypeString.SE_DATA:
-                            output.AddRange(dataElement.EvaluateData(node));
+                            output = SmartExportUtil.addToOutPutList(dataElement.EvaluateData(node), output);
+                            //output.AddRange(dataElement.EvaluateData(node));
                             break;
                         default:
                             if (node.NodeType == XmlNodeType.Element)

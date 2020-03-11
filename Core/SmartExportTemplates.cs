@@ -242,6 +242,7 @@ namespace SmartExportTemplates
         List<string> DCOPatterns = new List<string>();
 
         //Map containing file names used when output is written to single file.
+        //key - outputfilename: value - outputfile
         Dictionary<string, string> singleOutputFileNameMap = new Dictionary<string, string>();
 
         private void SetGlobals()
@@ -257,12 +258,16 @@ namespace SmartExportTemplates
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
             Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
             Globals.Instance.SetData(Constants.GE_SMART_NAV, smartNav);
+            if (!Globals.Instance.HasData(Constants.GE_TEMP_FILE_MAP)) { 
+                Globals.Instance.SetData(Constants.GE_TEMP_FILE_MAP, new Dictionary<String, String>());
+            }
         }
 
 
         private void writeToFile(TemplateParser templateParser, List<string> OutputData)
         {
-            if (OutputData.Count == 0)
+            Dictionary<string, string> tempFileNameMap = (Dictionary<String, String>)Globals.Instance.GetData(Constants.GE_TEMP_FILE_MAP);
+            if (OutputData.Count == 0 && !tempFileNameMap.ContainsKey(templateParser.GetOutputFileName()))
             {
                 WriteLog("Empty content. Skipping writing to file: " + templateParser.GetOutputFileName());
                 return;
@@ -275,7 +280,26 @@ namespace SmartExportTemplates
                                         templateParser.AppendToFile() ?
                                             singleOutputFileNameMap[templateParser.GetOutputFileName()] + "." + templateParser.GetOutputFileExt()
                                             : outputFileName);
+            //If append to file is false and one iteration is complete, then code will rename temp file to actual file name
+            //and delete the entry in the map, so in next iteration new temp file is created for this template 
+            //as append to file is false
+            if (!templateParser.AppendToFile() && tempFileNameMap.ContainsKey(templateParser.GetOutputFileName())) {
+                string tempPath = tempFileNameMap[templateParser.GetOutputFileName()];
+                File.Move(tempPath, outputFilePath);
+                tempFileNameMap.Remove(templateParser.GetOutputFileName());
+            }
 
+            //if appendtofile is true and temp map has an entry of the that, for first iteration it is written in temp file 
+            //and then renamed to actual file, for all next iteration the data from the list is added to the actual file 
+            //not in temp file.
+            if (templateParser.AppendToFile() && tempFileNameMap.ContainsKey(templateParser.GetOutputFileName())) {
+                string tempPath = tempFileNameMap[templateParser.GetOutputFileName()];
+                if (!File.Exists(outputFilePath)) {
+                    File.Move(tempPath, outputFilePath);
+                    tempFileNameMap[templateParser.GetOutputFileName()] = outputFilePath;
+                }
+                
+            }
             //if AppendToFile is false then everytime new file is given then it creates a new file.
             //if AppendToFile is true then everytime singleOutputFileName file is given then it appends to the same file.
             using (StreamWriter outputFile = File.AppendText(outputFilePath))
@@ -308,6 +332,8 @@ namespace SmartExportTemplates
                 Conditions conditionEvaluator = new Conditions();
                 Loops loopEvaluator = new Loops();
 
+                Globals.Instance.SetData("parser", templateParser);
+
                 // String list to accumulate output
                 List<string> outputStringList = new List<string>();
                 if (templateParser.AppendToFile() && !singleOutputFileNameMap.ContainsKey(templateParser.GetOutputFileName()))
@@ -324,13 +350,15 @@ namespace SmartExportTemplates
                     switch (templateParser.GetNodeType(currentNode))
                     {
                         case NodeType.Data:
-                            outputStringList.AddRange(dataElement.EvaluateData(currentNode));
+                            outputStringList = SmartExportUtil.addToOutPutList(dataElement.EvaluateData(currentNode), outputStringList);
                             break;
                         case NodeType.If:
-                            outputStringList.AddRange(conditionEvaluator.EvaluateCondition(currentNode));
+                            outputStringList = SmartExportUtil.addToOutPutList(conditionEvaluator.EvaluateCondition(currentNode), outputStringList);
+                           // outputStringList.AddRange(conditionEvaluator.EvaluateCondition(currentNode));
                             break;
                         case NodeType.ForEach:
-                            outputStringList.AddRange(loopEvaluator.EvaluateLoop(currentNode));
+                            outputStringList = SmartExportUtil.addToOutPutList(loopEvaluator.EvaluateLoop(currentNode), outputStringList);
+                           // outputStringList.AddRange(loopEvaluator.EvaluateLoop(currentNode));
                             break;
                         default:
                             if (currentNode.NodeType == XmlNodeType.Element)
