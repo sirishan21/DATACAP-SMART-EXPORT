@@ -58,10 +58,10 @@ namespace SmartExportTemplates.Utils
         public static string GE_CURRENT_DCO = "GECurrentDCO";
         public const string GE_SMART_NAV = "GESmartNav";
         public static string GE_DCO = "GEDCO";
-        public static string GE_ALL_LOG_PREFIX = "ALL: GELogPrefix :";
-        public static string GE_DEBUG_LOG_PREFIX = "DEBUG: GELogPrefix :";
-        public static string GE_INFO_LOG_PREFIX = "INFO: GELogPrefix :";
-        public static string GE_ERROR_LOG_PREFIX = "ERROR: GELogPrefix :";
+        public static string GE_ALL_LOG_PREFIX = "ALL: SmartExport :";
+        public static string GE_DEBUG_LOG_PREFIX = "DEBUG: SmartExport :";
+        public static string GE_INFO_LOG_PREFIX = "INFO: SmartExport :";
+        public static string GE_ERROR_LOG_PREFIX = "ERROR: SmartExport :";
         public static string GE_DCO_REF_PATTERN = "GEDcoRefPattern";
         public static string GE_EXPORT_CORE = "GEExportCore";
         public static string GE_BATCH_DIR_PATH = "GEBatchDirPath";
