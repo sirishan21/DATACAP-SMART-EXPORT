@@ -47,7 +47,7 @@ namespace SmartExportTemplates.TemplateCore
                 }
             } catch (Exception exp)
             {
-                ExportCore.WriteLog(Globals.Instance.GetData(Constants.GE_LOG_PREFIX) + "Error while parsing the template file, terminating. Details: " + exp.Message);
+                ExportCore.WriteErrorLog("Error while parsing the template file, terminating. Details: " + exp.Message);
                 throw new SmartExportException("Error while parsing template file. Please verify the syntax and semantics of the template file.");
             }
             return true;
@@ -172,7 +172,7 @@ namespace SmartExportTemplates.TemplateCore
                         catch (Exception)
                         {
                             // Log exception and use the batches folder. Ignore the exception
-                            ExportCore.WriteLog(Constants.GE_LOG_PREFIX + "Invalid output folder path provided, using batches folder as output dir.");
+                            ExportCore.WriteErrorLog("Invalid output folder path provided, using batches folder as output dir.");
                         }
                     }
                 }
@@ -183,23 +183,24 @@ namespace SmartExportTemplates.TemplateCore
         //This method is used to get the innertext if its child node text node or smart parameter
         //value its child node is under smart param node
         private String getNodevalue(XmlNode headerNode){
-           String nodeValue = null;
+           StringBuilder nodeValue = new StringBuilder(Constants.EMPTYSTRING);
                 foreach (XmlNode node in headerNode.ChildNodes)
                 {
                     switch (node.Name)
                     {
                         case Constants.TEXT_NODE_NAME:
-                            nodeValue = node.Value.Trim();
+                            nodeValue.Append(node.Value.Trim());
                             break;
                         case Constants.SE_SMART_PARAM_NODE_NAME:
-                           nodeValue = smartNav.MetaWord(Constants.SMARTP_AT + node.InnerText.Trim());
-                           ExportCore.WriteDebugLog("smart param value for '"+ node.InnerText.Trim() + "' is " + nodeValue);
+                           nodeValue.Append(smartNav.MetaWord(Constants.SMARTP_AT + node.InnerText.Trim()));
+                           ExportCore.WriteDebugLog("smart param value for '"+ node.InnerText.Trim() + "' is " + 
+                                    smartNav.MetaWord(Constants.SMARTP_AT + node.InnerText.Trim()));
                             break;
                         default:
                             throw new SmartExportException("Internal error. " + node.Name + " node is not supported inside "+ headerNode.Name  +" node ");
                     }
                 }
-          return nodeValue;
+          return nodeValue.ToString();
         }
 
     }

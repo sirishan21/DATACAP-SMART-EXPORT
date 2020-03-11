@@ -107,8 +107,7 @@ namespace SmartExportTemplates.TemplateCore
                     int parentForEachlevel = getIntValueForEachObjectType(parentNode.Attributes["select"].Value);
                     if (currentForEachlevel != parentForEachlevel + 1 )
                     {
-                        throw new SmartExportException(Constants.LOG_PREFIX
-                            + " ForEach nesting is invalid.");
+                        throw new SmartExportException(" ForEach nesting is invalid.");
                     }
                 }
                 loopNode = parentNode;                
@@ -149,17 +148,17 @@ namespace SmartExportTemplates.TemplateCore
         {
             if(DCO == null)
             {
-                throw new SmartExportException(Constants.LOG_PREFIX + " DCO associated with the for-each loop cannot be determined.");
+                throw new SmartExportException(" DCO associated with the for-each loop cannot be determined.");
             }
             if (forEachlevel == 4 || forEachlevel == Constants.Batch)
             {
-                throw new SmartExportException(Constants.LOG_PREFIX + " Assigned level of ForEach loop is wrong"); 
+                throw new SmartExportException(" Assigned level of ForEach loop is wrong"); 
             }
            if(forEachlevel == DCO.ObjectType()){
-                throw new SmartExportException(Constants.LOG_PREFIX + " ForEach loop level must not be same to the Datacap assigned level"); 
+                throw new SmartExportException(" ForEach loop level must not be same to the Datacap assigned level"); 
             }
            if(!(forEachlevel == (DCO.ObjectType()+1))){
-                throw new SmartExportException(Constants.LOG_PREFIX + " ForEach loop must be one level lower from the Datacap assigned level "); 
+                throw new SmartExportException(" ForEach loop must be one level lower from the Datacap assigned level "); 
             }
         }
 

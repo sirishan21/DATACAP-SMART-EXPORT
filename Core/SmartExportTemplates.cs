@@ -127,22 +127,22 @@ namespace SmartExportTemplates
         //to log errors
         public void WriteErrorLog(string sMessage)
         {
-            OutputToLog(1, "ERROR: " + sMessage);
+            OutputToLog(1, Constants.GE_ERROR_LOG_PREFIX + sMessage);
         }
-        //to log info errors
+        //to log info 
         public void WriteInfoLog(string sMessage)
         {
-            OutputToLog(2, "INFO: " + sMessage);
+            OutputToLog(2, Constants.GE_INFO_LOG_PREFIX + sMessage);
         }
-        //to log debug errors
+        //to log debug 
         public void WriteDebugLog(string sMessage)
         {
-            OutputToLog(3, "DEBUG: " + sMessage);
+            OutputToLog(3, Constants.GE_DEBUG_LOG_PREFIX +sMessage);
         }
-        //to log full/All errors
+        //to log full/All 
         public void WriteLog(string sMessage)
         {
-            OutputToLog(5, "ALL: " + sMessage);
+            OutputToLog(5, Constants.GE_ALL_LOG_PREFIX + sMessage);
         }
 
         //this object is to access smart parameters.
@@ -234,9 +234,6 @@ namespace SmartExportTemplates
             internal const int Invalid = 2147482647;
         }
 
-        // Global constants
-        readonly string LOG_PREFIX = "DBA-SmartExport - ";
-
         //Global variables
         // document ID reference used by the child methods during processing.
         string DocumentID = null;
@@ -250,14 +247,9 @@ namespace SmartExportTemplates
         private void SetGlobals()
         {
             // Set the global references into thread local for use by the different modules
-            // No need to worry about threads here (given the way CurrentDCO works) and we can use a Singleton Globals class
-            if (CurrentDCO.ObjectType() == Constants.Page)
-            {
-                Globals.Instance.SetData(Constants.IMAGE_NAME, CurrentDCO.ImageName);
-            }
+            // No need to worry about threads here (given the way CurrentDCO works) and we can use a Singleton Globals class           
             Globals.Instance.SetData(Constants.GE_CURRENT_DCO, CurrentDCO);
             Globals.Instance.SetData(Constants.GE_DCO, DCO);
-            Globals.Instance.SetData(Constants.GE_LOG_PREFIX, LOG_PREFIX);
             Globals.Instance.SetData(Constants.GE_DCO_REF_PATTERN, Constants.DCO_REF_PATTERN);
             Globals.Instance.SetData(Constants.GE_EXPORT_CORE, this);
             string batchXMLFile = this.BatchPilot.DCOFile;
@@ -272,7 +264,7 @@ namespace SmartExportTemplates
         {
             if (OutputData.Count == 0)
             {
-                WriteLog(LOG_PREFIX + "Empty content. Skipping writing to file: " + templateParser.GetOutputFileName());
+                WriteLog("Empty content. Skipping writing to file: " + templateParser.GetOutputFileName());
                 return;
             }
             // Write to output file
@@ -343,7 +335,7 @@ namespace SmartExportTemplates
                         default:
                             if (currentNode.NodeType == XmlNodeType.Element)
                             {
-                                WriteLog(LOG_PREFIX + "Node type [" + ((XmlElement)currentNode).Name + "] not supported. Will be ignored");
+                                WriteLog("Node type [" + ((XmlElement)currentNode).Name + "] not supported. Will be ignored");
                             }
                             break;
                     }
@@ -351,7 +343,7 @@ namespace SmartExportTemplates
 
                 writeToFile(templateParser, outputStringList);
 
-                WriteInfoLog(LOG_PREFIX + " Smart export WriteLog completed in " + sw.ElapsedMilliseconds + " ms.");
+                WriteInfoLog(" Smart export WriteLog completed in " + sw.ElapsedMilliseconds+" ms.");
 
                 sw.Stop();
 
@@ -359,7 +351,7 @@ namespace SmartExportTemplates
             catch (System.Exception exp)
             {
                 returnValue = false;
-                WriteLog(LOG_PREFIX + "Error while processing the template file: " + exp.Message);
+                WriteErrorLog("Error while processing the template file: " + exp.Message);
                 WriteErrorLog(exp.StackTrace);
 
             }
@@ -433,7 +425,7 @@ namespace SmartExportTemplates
                 DCOTree = DCOTree.Replace("[", "").Replace("]", "").Replace("DCO.", "");
                 if (!DCOPatterns.Contains(DCOTree))
                 {
-                    WriteLog(LOG_PREFIX + "DCO reference is invalid. " +
+                    WriteLog("DCO reference is invalid. " +
                                 Pattern.Value);
                     throw new System.ArgumentException("DCO reference invalid. Check detailed logs", Pattern.Value);
                 }
