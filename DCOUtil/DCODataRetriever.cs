@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml;
 using SmartExportTemplates.Utils;
+using System.Diagnostics;
 
 namespace SmartExportTemplates.DCOUtil
 {
@@ -18,6 +19,8 @@ namespace SmartExportTemplates.DCOUtil
         ///       </summary>
          public string getDCOValue(string DCOTree)        
         {
+            Stopwatch sw = Stopwatch.StartNew();
+
             string output = "";
             TDCOLib.IDCO currentIterationDCO = null;
             int objectType = CurrentDCO.ObjectType();
@@ -46,10 +49,10 @@ namespace SmartExportTemplates.DCOUtil
                     output = currentIterationDCO == null ? getDCOValueForField(DCOTree) : 
                         getDCOValueForField(currentIterationDCO, DCOTree);
                     break;
-               
-
-
+ 
             }
+            ExportCore.WriteLog(" getDCOValue(" + DCOTree + ") completed in " + sw.ElapsedMilliseconds + " ms.");
+            sw.Stop();
             return output;
         }
 
@@ -370,6 +373,7 @@ namespace SmartExportTemplates.DCOUtil
 
         public string getPageType()
         {
+            Stopwatch sw = Stopwatch.StartNew();
 
             string pageType = "";
             TDCOLib.IDCO currentIterationDCO = null;
@@ -400,12 +404,16 @@ namespace SmartExportTemplates.DCOUtil
                 ExportCore.WriteLog(message);
                 throw new SmartExportException(message);
             }
+            ExportCore.WriteLog(" getPageType() completed in " + sw.ElapsedMilliseconds + " ms.");
+            sw.Stop();
 
             return pageType;
         }
 
         public string getDocumentType()
         {
+            Stopwatch sw = Stopwatch.StartNew();
+
             string docType = "";
             TDCOLib.IDCO currentIterationDCO = null;
             int objectType = CurrentDCO.ObjectType();
@@ -443,6 +451,8 @@ namespace SmartExportTemplates.DCOUtil
                 ExportCore.WriteErrorLog(message);
                 throw new SmartExportException(message);
             }
+            ExportCore.WriteLog(" getDocumentType() completed in " + sw.ElapsedMilliseconds + " ms.");
+            sw.Stop();
 
             return docType;
         }
