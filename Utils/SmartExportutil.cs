@@ -12,31 +12,31 @@ namespace SmartExportTemplates.Utils
         private List<String> outputStringList = null;
 
         private TemplateParser templateParser = null;       
-
+        //It holds temp file paths with key as output file name.
         Dictionary<string, string> tempFileNameMap = new Dictionary<String, String>();
 
-        private SmartExportTemplates.SmartExport exportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
+        private SmartExportTemplates.SmartExport exportCore = null;
 
+        //this method sets context for this util class, this is called for every iteration
+        //and for every iteration output list is reseted
         public void setContext(TemplateParser parser) {
             outputStringList = new List<String>();
             this.templateParser = parser;
+            this.exportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         }
 
+        //this method is used to add data to list and flushes data to temp file if size is more than default size.
         public void addToOutPutList(String outputData) {
 	
-			//List<string> outputStringList = (List<String>)Globals.Instance.GetData("outputStringList");
 			outputStringList.Add(outputData);
 			if (outputStringList.Count >= templateParser.GetOutputMemorySize()) {
 				writeTempFile();
 				outputStringList.Clear();
 			}
-			//Globals.Instance.SetData("outputStringList", outputStringList);
 		}
-
+        //this methods write data to temp file.
 		public void writeTempFile()
 		{
-			//Dictionary<string, string> tempFileNameMap = (Dictionary<String, String>)Globals.Instance.GetData(Constants.GE_TEMP_FILE_MAP);
-			//TemplateParser templateParser = (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
 
 			if (!tempFileNameMap.ContainsKey(templateParser.GetOutputFileName()))
 			{
@@ -44,7 +44,6 @@ namespace SmartExportTemplates.Utils
 					Constants.GE_TEMP_FILE_PREFIX + templateParser.GetOutputFileName() + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff"));
 				tempFileNameMap.Add(templateParser.GetOutputFileName(), tempFilePath);
 			}
-            //Globals.Instance.SetData(Constants.GE_TEMP_FILE_MAP, tempFileNameMap);
 
             createOrAppendToFile(tempFileNameMap[templateParser.GetOutputFileName()]);
            
@@ -52,7 +51,7 @@ namespace SmartExportTemplates.Utils
 
         public void writeToFile(Dictionary<String,String> singleOutputFileNameMap)
         {
-           // Dictionary<string, string> tempFileNameMap = (Dictionary<String, String>)Globals.Instance.GetData(Constants.GE_TEMP_FILE_MAP);
+           // this ckeck is done to prevent empty file getting generated
             if (outputStringList.Count == 0 && !tempFileNameMap.ContainsKey(templateParser.GetOutputFileName()))
             {
                 exportCore.WriteLog("Empty content. Skipping writing to file: " + templateParser.GetOutputFileName());
@@ -72,25 +71,28 @@ namespace SmartExportTemplates.Utils
             if (!templateParser.AppendToFile() && tempFileNameMap.ContainsKey(templateParser.GetOutputFileName()))
             {
                 string tempPath = tempFileNameMap[templateParser.GetOutputFileName()];
+                createOrAppendToFile(tempPath);
                 File.Move(tempPath, outputFilePath);
                 tempFileNameMap.Remove(templateParser.GetOutputFileName());
+                return;
             }
 
-            //if appendtofile is true and temp map has an entry of the that, for first iteration it is written in temp file 
+            //if appendtofile is true and temp map has an entry for temp file, for first iteration data is written in temp file 
             //and then renamed to actual file, for all next iteration the data from the list is added to the actual file 
             //not in temp file.
-            if (templateParser.AppendToFile() && tempFileNameMap.ContainsKey(templateParser.GetOutputFileName()))
+            //this condition will pass only for first iteration.
+            if (templateParser.AppendToFile() && tempFileNameMap.ContainsKey(templateParser.GetOutputFileName()) && !File.Exists(outputFilePath))
             {
                 string tempPath = tempFileNameMap[templateParser.GetOutputFileName()];
-                if (!File.Exists(outputFilePath))
-                {
-                    File.Move(tempPath, outputFilePath);
-                    tempFileNameMap[templateParser.GetOutputFileName()] = outputFilePath;
-                }
-
+                createOrAppendToFile(tempPath);
+                File.Move(tempPath, outputFilePath);
+                tempFileNameMap[templateParser.GetOutputFileName()] = outputFilePath;
+                return;
             }
 
+            //if there are no temp file created then data is flushed to output file here.
             createOrAppendToFile(outputFilePath);
+
         }
 
         //this method is used to create or append data to given file

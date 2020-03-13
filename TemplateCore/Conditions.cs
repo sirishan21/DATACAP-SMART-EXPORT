@@ -47,7 +47,6 @@ namespace SmartExportTemplates
                         if (conditionEvaluation.CanEvaluate())
                         {
                             processChildNodes(elseIfNode);
-                           // output.AddRange(processChildNodes(elseIfNode));
                             ConditionEvaluated = true;
                             break;
                         }
@@ -69,7 +68,6 @@ namespace SmartExportTemplates
                     if ( elseNode.Name == Constants.NodeTypeString.SE_ELSE)
                     {
                         processChildNodes(elseNode);
-                       // output.AddRange(processChildNodes(elseNode));
                         ConditionEvaluated = true;
                         break;
                     }
@@ -92,13 +90,10 @@ namespace SmartExportTemplates
             {
                 if (childNode.Name == Constants.NodeTypeString.SE_DATA)
                     dataElement.EvaluateData(childNode);
-                   // output.AddRange(dataElement.EvaluateData(childNode));
                 else if (childNode.Name == Constants.NodeTypeString.SE_IF)
                     new Conditions().EvaluateCondition(childNode);
-                    //output.AddRange(new Conditions().EvaluateCondition(childNode));
                 else if (childNode.Name == Constants.NodeTypeString.SE_FOREACH)
                     new Loops().EvaluateLoop(childNode);
-                   // output.AddRange(new Loops().EvaluateLoop(childNode));
             }
 
         }

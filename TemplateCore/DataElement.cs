@@ -34,7 +34,7 @@ namespace SmartExportTemplates.TemplateCore
                     switch (node.Name)
                     {
                         case Constants.TEXT_NODE_NAME:
-                            text.Append(node.Value);
+                            text.Append(node.Value.Trim());
                             break;
                         case Constants.SE_TAB_NODE_NAME:
                             text.Append(Constants.TAB_SPACE);
@@ -43,10 +43,10 @@ namespace SmartExportTemplates.TemplateCore
                             text.Append(Constants.COMMA);
                             break;
                         case Constants.SE_VALUE_NODE_NAME:
-                            text.Append(dCODataRetriever.getDCOValue(node.Attributes["select"].Value));
+                            text.Append(dCODataRetriever.getDCOValue(node.Attributes["select"].Value).Trim());
                             break;
                         case Constants.SE_SMART_PARAM_NODE_NAME:
-                           text.Append(SmartNav.MetaWord(Constants.SMARTP_AT + node.InnerText.Trim()));
+                           text.Append(SmartNav.MetaWord(Constants.SMARTP_AT + node.InnerText.Trim()).Trim());
                            ExportCore.WriteDebugLog("smart param value for '"+ node.InnerText.Trim() + "' is " + text);
                            break;
                         default:

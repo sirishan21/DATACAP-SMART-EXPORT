@@ -245,6 +245,7 @@ namespace SmartExportTemplates
         //key - outputfilename: value - outputfile
         Dictionary<string, string> singleOutputFileNameMap = new Dictionary<string, string>();
 
+        //util class to write output file
         private SmartExportUtil exportUtil = new SmartExportUtil();
 
         public SmartExportUtil getExportUtil {
@@ -267,9 +268,6 @@ namespace SmartExportTemplates
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
             Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
             Globals.Instance.SetData(Constants.GE_SMART_NAV, smartNav);
-          //  if (!Globals.Instance.HasData(Constants.GE_TEMP_FILE_MAP)) { 
-            //    Globals.Instance.SetData(Constants.GE_TEMP_FILE_MAP, new Dictionary<String, String>());
-            //}
 
         }
 
@@ -296,12 +294,7 @@ namespace SmartExportTemplates
                 Conditions conditionEvaluator = new Conditions();
                 Loops loopEvaluator = new Loops();
 
-               // Globals.Instance.SetData("parser", templateParser);
                 exportUtil.setContext(templateParser);
-
-                // String list to accumulate output
-               // List<string> outputStringList = new List<string>();
-               // Globals.Instance.SetData("exportUtil", exportUtil);
 
                 if (templateParser.AppendToFile() && !singleOutputFileNameMap.ContainsKey(templateParser.GetOutputFileName()))
                 {
@@ -321,11 +314,9 @@ namespace SmartExportTemplates
                             break;
                         case NodeType.If:
                             conditionEvaluator.EvaluateCondition(currentNode);
-                           // outputStringList.AddRange(conditionEvaluator.EvaluateCondition(currentNode));
                             break;
                         case NodeType.ForEach:
                             loopEvaluator.EvaluateLoop(currentNode);
-                           // outputStringList.AddRange(loopEvaluator.EvaluateLoop(currentNode));
                             break;
                         default:
                             if (currentNode.NodeType == XmlNodeType.Element)

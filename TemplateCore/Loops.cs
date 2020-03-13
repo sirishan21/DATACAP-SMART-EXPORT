@@ -36,7 +36,6 @@ namespace SmartExportTemplates.TemplateCore
         ///       </summary>
         public void EvaluateLoop(XmlNode loopNode, TDCOLib.IDCO DCO)
         {
-            List<string> output = new List<string>();
 
             DataElement dataElement = new DataElement();
             Conditions conditionEvaluator = new Conditions();
@@ -57,16 +56,13 @@ namespace SmartExportTemplates.TemplateCore
                     {
                         case Constants.NodeTypeString.SE_IF:
                             conditionEvaluator.EvaluateCondition(node);
-                           // output.AddRange(conditionEvaluator.EvaluateCondition(node));
                             break;
                         case Constants.NodeTypeString.SE_FOREACH:
                             Loops loopEvaluator = new Loops();
                             loopEvaluator.EvaluateLoop(node, DCO.GetChild(i));
-                            //output.AddRange(loopEvaluator.EvaluateLoop(node, DCO.GetChild(i)));
                             break;
                         case Constants.NodeTypeString.SE_DATA:
                             dataElement.EvaluateData(node);
-                            //output.AddRange(dataElement.EvaluateData(node));
                             break;
                         default:
                             if (node.NodeType == XmlNodeType.Element)
