@@ -10,7 +10,7 @@ using System.Globalization;
 
 namespace SmartExportTemplates.TemplateCore
 {
-    class TemplateParser
+    public class TemplateParser
     {
         private string  TemplateFilePath = null;
         XmlElement      TemplateRoot = null;
@@ -202,6 +202,19 @@ namespace SmartExportTemplates.TemplateCore
                     }
                 }
           return nodeValue.ToString();
+        }
+
+        
+        public int GetOutputMemorySize()
+        {
+            String OutputMemorySize = Constants.GE_DEFAULT_OUTPUT_MEMORY_SIZE;
+            XmlNode OutputMemorySizeNode = TemplateRoot.GetElementsByTagName(Constants.SE_OUTPUT_MEM_SIZE)[0];
+            if (OutputMemorySizeNode != null)
+            {
+                OutputMemorySize = (OutputMemorySizeNode.InnerText != null && !OutputMemorySizeNode.InnerText.Trim().Equals("")) ?
+                                    OutputMemorySizeNode.InnerText.Trim() :Constants.GE_DEFAULT_OUTPUT_MEMORY_SIZE;
+            }
+            return int.Parse(OutputMemorySize);
         }
 
     }

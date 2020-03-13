@@ -23,9 +23,9 @@ namespace SmartExportTemplates.TemplateCore
         ///       <param name="loopNode">XML node of Foreach</param>
         ///       <param name="output">List of strings to be printed in the output file.</param>
         ///       </summary>
-        public List<string> EvaluateLoop(XmlNode loopNode)
+        public void EvaluateLoop(XmlNode loopNode)
         {
-            return EvaluateLoop(loopNode, CurrentDCO);
+            EvaluateLoop(loopNode, CurrentDCO);
             
         }
 
@@ -34,7 +34,7 @@ namespace SmartExportTemplates.TemplateCore
         ///       <param name="loopNode">XML node of Foreach</param>
         ///       <param name="DCO">Current iteration DCO of the parent for-each loop</param>
         ///       </summary>
-        public List<string> EvaluateLoop(XmlNode loopNode, TDCOLib.IDCO DCO)
+        public void EvaluateLoop(XmlNode loopNode, TDCOLib.IDCO DCO)
         {
             List<string> output = new List<string>();
 
@@ -56,16 +56,16 @@ namespace SmartExportTemplates.TemplateCore
                     switch (node.Name)
                     {
                         case Constants.NodeTypeString.SE_IF:
-                            output = SmartExportUtil.addToOutPutList(conditionEvaluator.EvaluateCondition(node), output);
+                            conditionEvaluator.EvaluateCondition(node);
                            // output.AddRange(conditionEvaluator.EvaluateCondition(node));
                             break;
                         case Constants.NodeTypeString.SE_FOREACH:
                             Loops loopEvaluator = new Loops();
-                            output = SmartExportUtil.addToOutPutList(loopEvaluator.EvaluateLoop(node, DCO.GetChild(i)), output);
+                            loopEvaluator.EvaluateLoop(node, DCO.GetChild(i));
                             //output.AddRange(loopEvaluator.EvaluateLoop(node, DCO.GetChild(i)));
                             break;
                         case Constants.NodeTypeString.SE_DATA:
-                            output = SmartExportUtil.addToOutPutList(dataElement.EvaluateData(node), output);
+                            dataElement.EvaluateData(node);
                             //output.AddRange(dataElement.EvaluateData(node));
                             break;
                         default:
@@ -79,8 +79,6 @@ namespace SmartExportTemplates.TemplateCore
                 //setting it to empty after every iteration.
                 Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
             }
-
-            return output;
 
         }
 

@@ -21,9 +21,9 @@ namespace SmartExportTemplates.TemplateCore
 
         }
 
-        public List<string> EvaluateData(XmlNode DataNode)
+        public void EvaluateData(XmlNode DataNode)
         {
-            List<string> output = new List<string>();
+ 
             string NodeName = ((XmlElement)DataNode).Name;
 
             if (DataNode.HasChildNodes)
@@ -50,16 +50,16 @@ namespace SmartExportTemplates.TemplateCore
                            ExportCore.WriteDebugLog("smart param value for '"+ node.InnerText.Trim() + "' is " + text);
                            break;
                         default:
-                            throw new SmartExportException("Internal error. " + node.Name + " node is not supported inside data node ");
+                            ExportCore.WriteInfoLog("Node type [" + node.Name + "] is not supported inside data node. Will be ignored ");
+                            break;
                     }
                 }
                 if (text.Length > 0)
                 {
-                    output.Add(text.ToString());
+                    ExportCore.getExportUtil.addToOutPutList(text.ToString());
                 }
 
             }
-            return output;
         }
     }
 }
