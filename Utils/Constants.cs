@@ -70,7 +70,7 @@ namespace SmartExportTemplates.Utils
         public static string GE_DEF_OUTPUT_FILE_EXT = "txt";
         public static string GE_TEMP_FILE_PREFIX = "Temp";
         public static string GE_TEMP_FILE_MAP = "tempFileMap";
-        public const string GE_DEFAULT_OUTPUT_MEMORY_SIZE = "3";
+        public const string GE_DEFAULT_OUTPUT_MEMORY_SIZE = "3000";
         public static string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
         public static string IF_REF_PATTERN = "(and|or)";
         public static string ALLOWED_OPERATORS = "(EQUALS|LESSER-THAN|GREATER-THAN)";

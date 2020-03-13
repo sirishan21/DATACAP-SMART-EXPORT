@@ -30,7 +30,6 @@ namespace SmartExportTemplates
             if (conditionEvaluation.CanEvaluate())
             {
                 processChildNodes(ConditionNode);
-                //output.AddRange(processChildNodes(ConditionNode));
                 ConditionEvaluated = true;
             }
             
