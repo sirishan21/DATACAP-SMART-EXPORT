@@ -51,6 +51,7 @@ namespace SmartExportTemplates.Utils
         public static string SE_LOCALE = "se:locale";
         public static string SE_OUTPUT_DIR_PATH = "se:outputFolder";
         public static string SE_ATTRIBUTE_COND_TEST = "test";
+        public static string SE_OUTPUT_MEM_CACHE_LINES = "se:memCacheLines";
 
 
         //General
@@ -67,7 +68,9 @@ namespace SmartExportTemplates.Utils
         public static string GE_BATCH_DIR_PATH = "GEBatchDirPath";
         public static string GE_DEF_OUTPUT_FILE = "SmartExport";
         public static string GE_DEF_OUTPUT_FILE_EXT = "txt";
-        //public static string LOG_PREFIX = "DBA-SmartExport - ";
+        public static string GE_TEMP_FILE_PREFIX = "Temp";
+        public static string GE_TEMP_FILE_MAP = "tempFileMap";
+        public const string GE_DEFAULT_OUTPUT_MEMORY_CACHE_LINES = "3000";
         public static string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
         public static string IF_REF_PATTERN = "(and|or)";
         public static string ALLOWED_OPERATORS = "(EQUALS|LESSER-THAN|GREATER-THAN)";

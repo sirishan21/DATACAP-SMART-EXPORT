@@ -24,9 +24,9 @@ namespace SmartExportTemplates.TemplateCore
         ///       <param name="loopNode">XML node of Foreach</param>
         ///       <param name="output">List of strings to be printed in the output file.</param>
         ///       </summary>
-        public List<string> EvaluateLoop(XmlNode loopNode)
+        public void EvaluateLoop(XmlNode loopNode)
         {
-            return EvaluateLoop(loopNode, CurrentDCO);
+            EvaluateLoop(loopNode, CurrentDCO);
             
         }
 
@@ -35,11 +35,11 @@ namespace SmartExportTemplates.TemplateCore
         ///       <param name="loopNode">XML node of Foreach</param>
         ///       <param name="DCO">Current iteration DCO of the parent for-each loop</param>
         ///       </summary>
-        public List<string> EvaluateLoop(XmlNode loopNode, TDCOLib.IDCO DCO)
+        public void EvaluateLoop(XmlNode loopNode, TDCOLib.IDCO DCO)
         {
+
             Stopwatch sw = Stopwatch.StartNew();
 
-            List<string> output = new List<string>();
 
             DataElement dataElement = new DataElement();
             Conditions conditionEvaluator = new Conditions();
@@ -59,14 +59,14 @@ namespace SmartExportTemplates.TemplateCore
                     switch (node.Name)
                     {
                         case Constants.NodeTypeString.SE_IF:
-                            output.AddRange(conditionEvaluator.EvaluateCondition(node));
+                            conditionEvaluator.EvaluateCondition(node);
                             break;
                         case Constants.NodeTypeString.SE_FOREACH:
                             Loops loopEvaluator = new Loops();
-                            output.AddRange(loopEvaluator.EvaluateLoop(node, DCO.GetChild(i)));
+                            loopEvaluator.EvaluateLoop(node, DCO.GetChild(i));
                             break;
                         case Constants.NodeTypeString.SE_DATA:
-                            output.AddRange(dataElement.EvaluateData(node));
+                            dataElement.EvaluateData(node);
                             break;
                         default:
                             if (node.NodeType == XmlNodeType.Element)
@@ -80,12 +80,10 @@ namespace SmartExportTemplates.TemplateCore
                 Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
             }
 
+
             ExportCore.WriteDebugLog(" EvaluateLoop " + loopNode + "  completed in " + sw.ElapsedMilliseconds + " ms.");
 
             sw.Stop();
-
-            return output;
-
         }
 
         ///       <summary>

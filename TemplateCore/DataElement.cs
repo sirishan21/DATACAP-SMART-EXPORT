@@ -22,11 +22,11 @@ namespace SmartExportTemplates.TemplateCore
 
         }
 
-        public List<string> EvaluateData(XmlNode DataNode)
+        public void EvaluateData(XmlNode DataNode)
         {
+
             Stopwatch sw = Stopwatch.StartNew();
 
-            List<string> output = new List<string>();
             string NodeName = ((XmlElement)DataNode).Name;
 
             if (DataNode.HasChildNodes)
@@ -37,7 +37,7 @@ namespace SmartExportTemplates.TemplateCore
                     switch (node.Name)
                     {
                         case Constants.TEXT_NODE_NAME:
-                            text.Append(node.Value);
+                            text.Append(node.Value.Trim());
                             break;
                         case Constants.SE_TAB_NODE_NAME:
                             text.Append(Constants.TAB_SPACE);
@@ -46,26 +46,28 @@ namespace SmartExportTemplates.TemplateCore
                             text.Append(Constants.COMMA);
                             break;
                         case Constants.SE_VALUE_NODE_NAME:
-                            text.Append(dCODataRetriever.getDCOValue(node.Attributes["select"].Value));
+                            text.Append(dCODataRetriever.getDCOValue(node.Attributes["select"].Value).Trim());
                             break;
                         case Constants.SE_SMART_PARAM_NODE_NAME:
-                           text.Append(SmartNav.MetaWord(Constants.SMARTP_AT + node.InnerText.Trim()));
+                           text.Append(SmartNav.MetaWord(Constants.SMARTP_AT + node.InnerText.Trim()).Trim());
                            ExportCore.WriteDebugLog("smart param value for '"+ node.InnerText.Trim() + "' is " + text);
                            break;
                         default:
-                            throw new SmartExportException("Internal error. " + node.Name + " node is not supported inside data node ");
+                            ExportCore.WriteInfoLog("Node type [" + node.Name + "] is not supported inside data node. Will be ignored ");
+                            break;
                     }
                 }
                 if (text.Length > 0)
                 {
-                    output.Add(text.ToString());
+                    ExportCore.getExportUtil.addToOutPutList(text.ToString());
                 }
 
             }
+
             ExportCore.WriteDebugLog(" EvaluateData(" + DataNode + ") completed in " + sw.ElapsedMilliseconds + " ms.");
 
             sw.Stop();
-            return output;
+
         }
     }
 }

@@ -20,11 +20,10 @@ namespace SmartExportTemplates
             this.templateParser = (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
         }
 
-        public List<string> EvaluateCondition(XmlNode ConditionNode)
+        public void EvaluateCondition(XmlNode ConditionNode)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
-            List<string> output = new List<string>();
             bool ConditionEvaluated = false;
 
             //Evaluate the IF
@@ -33,7 +32,7 @@ namespace SmartExportTemplates
 
             if (conditionEvaluation.CanEvaluate())
             {
-                output.AddRange(processChildNodes(ConditionNode));
+                processChildNodes(ConditionNode);
                 ConditionEvaluated = true;
             }
             
@@ -49,7 +48,7 @@ namespace SmartExportTemplates
                         conditionEvaluation = new ConditionEvaluation(CondText);
                         if (conditionEvaluation.CanEvaluate())
                         {
-                            output.AddRange(processChildNodes(elseIfNode));
+                            processChildNodes(elseIfNode);
                             ConditionEvaluated = true;
                             break;
                         }
@@ -70,7 +69,7 @@ namespace SmartExportTemplates
                 {
                     if ( elseNode.Name == Constants.NodeTypeString.SE_ELSE)
                     {
-                        output.AddRange(processChildNodes(elseNode));
+                        processChildNodes(elseNode);
                         ConditionEvaluated = true;
                         break;
                     }
@@ -86,27 +85,23 @@ namespace SmartExportTemplates
             ExportCore.WriteDebugLog(" EvaluateCondition("+ConditionNode+") completed in " + sw.ElapsedMilliseconds + " ms.");
 
             sw.Stop();
-
-            return output;
         }
 
-        private List<string> processChildNodes(XmlNode parentNode)
+        private void processChildNodes(XmlNode parentNode)
         {
-            List<string> output = new List<string>();
             DataElement dataElement = new DataElement();
 
             XmlNodeList childNodes = parentNode.ChildNodes;
             foreach (XmlNode childNode in childNodes)
             {
                 if (childNode.Name == Constants.NodeTypeString.SE_DATA)
-                    output.AddRange(dataElement.EvaluateData(childNode));
+                    dataElement.EvaluateData(childNode);
                 else if (childNode.Name == Constants.NodeTypeString.SE_IF)
-                    output.AddRange(new Conditions().EvaluateCondition(childNode));
+                    new Conditions().EvaluateCondition(childNode);
                 else if (childNode.Name == Constants.NodeTypeString.SE_FOREACH)
-                    output.AddRange(new Loops().EvaluateLoop(childNode));
+                    new Loops().EvaluateLoop(childNode);
             }
 
-            return output;
         }
     }
 }

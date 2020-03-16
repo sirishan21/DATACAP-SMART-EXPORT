@@ -10,7 +10,7 @@ using System.Globalization;
 
 namespace SmartExportTemplates.TemplateCore
 {
-    class TemplateParser
+    public class TemplateParser
     {
         private string  TemplateFilePath = null;
         XmlElement      TemplateRoot = null;
@@ -37,6 +37,7 @@ namespace SmartExportTemplates.TemplateCore
             {
                 XmlDocument templateXML = new XmlDocument();
                 templateXML.Load(TemplateFilePath);
+                ExportCore.WriteInfoLog("template file :" + TemplateFilePath);
                 this.NameSpcManager = new XmlNamespaceManager(templateXML.NameTable);
                 this.NameSpcManager.AddNamespace(Constants.SE_NAMESPACE_NAME, Constants.SE_NAMESPACE_URL);
                 this.TemplateRoot = templateXML.DocumentElement;
@@ -180,8 +181,8 @@ namespace SmartExportTemplates.TemplateCore
             return OutputFolder;
         }
 
-        //This method is used to get the innertext if its child node text node or smart parameter
-        //value its child node is under smart param node
+        //This method is used to get the innertext if its child node text node or 
+        // smart parameter value its child node is under smart param node
         private String getNodevalue(XmlNode headerNode){
            StringBuilder nodeValue = new StringBuilder(Constants.EMPTYSTRING);
                 foreach (XmlNode node in headerNode.ChildNodes)
@@ -201,6 +202,19 @@ namespace SmartExportTemplates.TemplateCore
                     }
                 }
           return nodeValue.ToString();
+        }
+
+        
+        public int GetOutputMemorySize()
+        {
+            String OutputMemorySize = Constants.GE_DEFAULT_OUTPUT_MEMORY_CACHE_LINES;
+            XmlNode OutputMemorySizeNode = TemplateRoot.GetElementsByTagName(Constants.SE_OUTPUT_MEM_CACHE_LINES)[0];
+            if (OutputMemorySizeNode != null)
+            {
+                OutputMemorySize = (OutputMemorySizeNode.InnerText != null && !OutputMemorySizeNode.InnerText.Trim().Equals("")) ?
+                                    OutputMemorySizeNode.InnerText.Trim() :Constants.GE_DEFAULT_OUTPUT_MEMORY_CACHE_LINES;
+            }
+            return int.Parse(OutputMemorySize);
         }
 
     }

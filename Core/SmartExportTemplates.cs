@@ -242,7 +242,18 @@ namespace SmartExportTemplates
         List<string> DCOPatterns = new List<string>();
 
         //Map containing file names used when output is written to single file.
+        //key - outputfilename: value - outputfile
         Dictionary<string, string> singleOutputFileNameMap = new Dictionary<string, string>();
+
+        //util class to write output file
+        private SmartExportUtil exportUtil = new SmartExportUtil();
+
+        public SmartExportUtil getExportUtil {
+            get
+            {
+                return this.exportUtil;
+            }
+        }
 
         private void SetGlobals()
         {
@@ -257,35 +268,10 @@ namespace SmartExportTemplates
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
             Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
             Globals.Instance.SetData(Constants.GE_SMART_NAV, smartNav);
+
         }
 
-
-        private void writeToFile(TemplateParser templateParser, List<string> OutputData)
-        {
-            if (OutputData.Count == 0)
-            {
-                WriteLog("Empty content. Skipping writing to file: " + templateParser.GetOutputFileName());
-                return;
-            }
-            // Write to output file
-            string outputFileName = templateParser.GetOutputFileName() + "_"
-                                        + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff") + '.'
-                                        + templateParser.GetOutputFileExt();
-            string outputFilePath = Path.Combine(templateParser.GetOutputDirectory(),
-                                        templateParser.AppendToFile() ?
-                                            singleOutputFileNameMap[templateParser.GetOutputFileName()] + "." + templateParser.GetOutputFileExt()
-                                            : outputFileName);
-
-            //if AppendToFile is false then everytime new file is given then it creates a new file.
-            //if AppendToFile is true then everytime singleOutputFileName file is given then it appends to the same file.
-            using (StreamWriter outputFile = File.AppendText(outputFilePath))
-            {
-                foreach (string line in OutputData)
-                {
-                    outputFile.WriteLine(line);
-                }
-            }
-        }
+       
 
         public bool FormattedDataOutput(string TemplateFilePath)
         {
@@ -308,8 +294,8 @@ namespace SmartExportTemplates
                 Conditions conditionEvaluator = new Conditions();
                 Loops loopEvaluator = new Loops();
 
-                // String list to accumulate output
-                List<string> outputStringList = new List<string>();
+                exportUtil.setContext(templateParser);
+
                 if (templateParser.AppendToFile() && !singleOutputFileNameMap.ContainsKey(templateParser.GetOutputFileName()))
                 {
                     singleOutputFileNameMap.Add(templateParser.GetOutputFileName(), templateParser.GetOutputFileName() + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff"));
@@ -324,13 +310,13 @@ namespace SmartExportTemplates
                     switch (templateParser.GetNodeType(currentNode))
                     {
                         case NodeType.Data:
-                            outputStringList.AddRange(dataElement.EvaluateData(currentNode));
+                            dataElement.EvaluateData(currentNode);
                             break;
                         case NodeType.If:
-                            outputStringList.AddRange(conditionEvaluator.EvaluateCondition(currentNode));
+                            conditionEvaluator.EvaluateCondition(currentNode);
                             break;
                         case NodeType.ForEach:
-                            outputStringList.AddRange(loopEvaluator.EvaluateLoop(currentNode));
+                            loopEvaluator.EvaluateLoop(currentNode);
                             break;
                         default:
                             if (currentNode.NodeType == XmlNodeType.Element)
@@ -341,7 +327,7 @@ namespace SmartExportTemplates
                     }
                 }
 
-                writeToFile(templateParser, outputStringList);
+                exportUtil.writeToFile(singleOutputFileNameMap);
 
                 WriteInfoLog(" Smart export WriteLog completed in " + sw.ElapsedMilliseconds+" ms.");
 

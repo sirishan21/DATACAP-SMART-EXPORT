@@ -29,6 +29,11 @@ namespace SmartExportTemplates.Utils
             return GlobalsMap[key];
         }
 
+        public Boolean HasData(string key)
+        {
+            return GlobalsMap.ContainsKey(key);
+        }
+
         public static Globals Instance
         {
             get
