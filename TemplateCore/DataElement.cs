@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using SmartExportTemplates.Utils;
 using SmartExportTemplates.DCOUtil;
+using System.Diagnostics;
 
 namespace SmartExportTemplates.TemplateCore
 {
@@ -23,7 +24,9 @@ namespace SmartExportTemplates.TemplateCore
 
         public void EvaluateData(XmlNode DataNode)
         {
- 
+
+            Stopwatch sw = Stopwatch.StartNew();
+
             string NodeName = ((XmlElement)DataNode).Name;
 
             if (DataNode.HasChildNodes)
@@ -60,6 +63,11 @@ namespace SmartExportTemplates.TemplateCore
                 }
 
             }
+
+            ExportCore.WriteDebugLog(" EvaluateData(" + DataNode + ") completed in " + sw.ElapsedMilliseconds + " ms.");
+
+            sw.Stop();
+
         }
     }
 }

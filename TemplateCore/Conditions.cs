@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using SmartExportTemplates.Utils;
 using SmartExportTemplates.TemplateCore;
+using System.Diagnostics;
 
 namespace SmartExportTemplates
 {
@@ -21,6 +22,8 @@ namespace SmartExportTemplates
 
         public void EvaluateCondition(XmlNode ConditionNode)
         {
+            Stopwatch sw = Stopwatch.StartNew();
+
             bool ConditionEvaluated = false;
 
             //Evaluate the IF
@@ -78,6 +81,10 @@ namespace SmartExportTemplates
             {
                 ExportCore.WriteLog("None of the conditions evaluated for the Node with test: " + CondText);
             }
+
+            ExportCore.WriteDebugLog(" EvaluateCondition("+ConditionNode+") completed in " + sw.ElapsedMilliseconds + " ms.");
+
+            sw.Stop();
         }
 
         private void processChildNodes(XmlNode parentNode)

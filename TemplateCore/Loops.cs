@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using SmartExportTemplates.Utils;
+using System.Diagnostics;
 
 namespace SmartExportTemplates.TemplateCore
 {
@@ -36,6 +37,9 @@ namespace SmartExportTemplates.TemplateCore
         ///       </summary>
         public void EvaluateLoop(XmlNode loopNode, TDCOLib.IDCO DCO)
         {
+
+            Stopwatch sw = Stopwatch.StartNew();
+
 
             DataElement dataElement = new DataElement();
             Conditions conditionEvaluator = new Conditions();
@@ -76,6 +80,10 @@ namespace SmartExportTemplates.TemplateCore
                 Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
             }
 
+
+            ExportCore.WriteDebugLog(" EvaluateLoop " + loopNode + "  completed in " + sw.ElapsedMilliseconds + " ms.");
+
+            sw.Stop();
         }
 
         ///       <summary>
