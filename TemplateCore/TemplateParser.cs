@@ -207,12 +207,12 @@ namespace SmartExportTemplates.TemplateCore
         
         public int GetOutputMemorySize()
         {
-            String OutputMemorySize = Constants.GE_DEFAULT_OUTPUT_MEMORY_SIZE;
-            XmlNode OutputMemorySizeNode = TemplateRoot.GetElementsByTagName(Constants.SE_OUTPUT_MEM_SIZE)[0];
+            String OutputMemorySize = Constants.GE_DEFAULT_OUTPUT_MEMORY_CACHE_LINES;
+            XmlNode OutputMemorySizeNode = TemplateRoot.GetElementsByTagName(Constants.SE_OUTPUT_MEM_CACHE_LINES)[0];
             if (OutputMemorySizeNode != null)
             {
                 OutputMemorySize = (OutputMemorySizeNode.InnerText != null && !OutputMemorySizeNode.InnerText.Trim().Equals("")) ?
-                                    OutputMemorySizeNode.InnerText.Trim() :Constants.GE_DEFAULT_OUTPUT_MEMORY_SIZE;
+                                    OutputMemorySizeNode.InnerText.Trim() :Constants.GE_DEFAULT_OUTPUT_MEMORY_CACHE_LINES;
             }
             return int.Parse(OutputMemorySize);
         }
