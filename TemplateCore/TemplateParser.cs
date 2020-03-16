@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using SmartExportTemplates.Utils;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace SmartExportTemplates.TemplateCore
 {
@@ -19,7 +20,8 @@ namespace SmartExportTemplates.TemplateCore
         XmlNamespaceManager NameSpcManager = null;
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         private dcSmart.SmartNav smartNav = (dcSmart.SmartNav)Globals.Instance.GetData(Constants.GE_SMART_NAV);
-        
+        string[] templateContents = null;
+
         public TemplateParser(string TemplateFilePath)
         {
             this.TemplateFilePath = TemplateFilePath;
@@ -46,7 +48,10 @@ namespace SmartExportTemplates.TemplateCore
                     this.HasMoreNodes = true;
                     this.CurrentNode = TemplateRoot.FirstChild;
                 }
-            } catch (Exception exp)
+                templateContents = System.IO.File.ReadAllLines(TemplateFilePath);
+
+            }
+            catch (Exception exp)
             {
                 ExportCore.WriteErrorLog("Error while parsing the template file, terminating. Details: " + exp.Message);
                 throw new SmartExportException("Error while parsing template file. Please verify the syntax and semantics of the template file.");
@@ -216,6 +221,50 @@ namespace SmartExportTemplates.TemplateCore
             }
             return int.Parse(OutputMemorySize);
         }
+
+        public string GetLineNumberForPatterns(List<string> Patterns)
+        {
+            int counter = 0;
+            List<int> lineNumbers = new List<int>();
+            foreach (string line in templateContents)
+            {
+                counter++;
+                foreach (string pattern in Patterns)
+                {
+                    if (line.Contains(pattern))
+                    {
+                        lineNumbers.Add(counter);
+                    }
+                }
+            }
+            return string.Join(",", lineNumbers);
+        }
+
+        public string GetLineNumberForNode(XmlNode Node)
+        {
+            int counter = 0;
+            List<int> lineNumbers = new List<int>();
+
+            foreach (string line in templateContents)
+            {
+                counter++;
+
+                if (Node.Name == Constants.NodeTypeString.SE_FOREACH)
+                {
+                    Regex rgxFor = new Regex("se:for-each[ ]*select[ ]*=[ ]*\"" + Node.Attributes["select"].Value + "\"[ ]*");
+                    if (rgxFor.IsMatch(line))
+                        lineNumbers.Add(counter);
+                }
+                else if (Node.Name == Constants.NodeTypeString.SE_IF)
+                {
+                    Regex rgxIf = new Regex("se:if[ ]*test[ ]*=[ ]*\"" + ((XmlElement)Node).GetAttribute(Constants.SE_ATTRIBUTE_COND_TEST) + "\"[ ]*");
+                    if (rgxIf.IsMatch(line))
+                        lineNumbers.Add(counter);
+                }
+            }
+            return string.Join(",", lineNumbers);
+        }
+
 
     }
 }

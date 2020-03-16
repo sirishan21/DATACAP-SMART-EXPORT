@@ -26,8 +26,18 @@ namespace SmartExportTemplates.TemplateCore
         ///       </summary>
         public void EvaluateLoop(XmlNode loopNode)
         {
-            EvaluateLoop(loopNode, CurrentDCO);
-            
+            TDCOLib.IDCO DCO = null;
+            if (Globals.Instance.ContainsKey(Constants.forLoopString.CURRENTITERATIONDCO)
+                && Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO) is TDCOLib.IDCO)
+            {
+                DCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO);
+            }
+            if (DCO == null)
+            {
+                DCO = CurrentDCO;
+            }
+            EvaluateLoop(loopNode, DCO);
+
         }
 
         ///       <summary>
@@ -43,41 +53,57 @@ namespace SmartExportTemplates.TemplateCore
 
             DataElement dataElement = new DataElement();
             Conditions conditionEvaluator = new Conditions();
-
-            int forEachlevel = getIntValueForEachObjectType(loopNode.Attributes["select"].Value);
-            nestingLevel = setAndValidateNestingLevel(loopNode);
-            validateForLoop(forEachlevel, DCO);
-
-            for (int i = 0; i < DCO.NumOfChildren(); i++)
+            try
             {
+                int forEachlevel = getIntValueForEachObjectType(loopNode.Attributes["select"].Value);
+                nestingLevel = setAndValidateNestingLevel(loopNode);
+                validateForLoop(forEachlevel, DCO);
 
-                //setting the currentIterationDCO , so that it can be used in DCODataRetreiver to get the data.
-                Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, DCO.GetChild(i));
-
-                foreach (XmlNode node in loopNode.ChildNodes)
+                for (int i = 0; i < DCO.NumOfChildren(); i++)
                 {
-                    switch (node.Name)
+
+                    //setting the currentIterationDCO , so that it can be used in DCODataRetreiver to get the data.
+                    Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, DCO.GetChild(i));
+
+                    foreach (XmlNode node in loopNode.ChildNodes)
                     {
-                        case Constants.NodeTypeString.SE_IF:
-                            conditionEvaluator.EvaluateCondition(node);
-                            break;
-                        case Constants.NodeTypeString.SE_FOREACH:
-                            Loops loopEvaluator = new Loops();
-                            loopEvaluator.EvaluateLoop(node, DCO.GetChild(i));
-                            break;
-                        case Constants.NodeTypeString.SE_DATA:
-                            dataElement.EvaluateData(node);
-                            break;
-                        default:
-                            if (node.NodeType == XmlNodeType.Element)
-                            {
-                                ExportCore.WriteLog("Node type [" + ((XmlElement)node).Name + "] not supported. Will be ignored");
-                            }
-                            break;
+                        switch (node.Name)
+                        {
+                            case Constants.NodeTypeString.SE_IF:
+                                conditionEvaluator.EvaluateCondition(node);
+                                break;
+                            case Constants.NodeTypeString.SE_FOREACH:
+                                Loops loopEvaluator = new Loops();
+                                loopEvaluator.EvaluateLoop(node, DCO.GetChild(i));
+                                break;
+                            case Constants.NodeTypeString.SE_DATA:
+                                dataElement.EvaluateData(node);
+                                break;
+                            default:
+                                if (node.NodeType == XmlNodeType.Element)
+                                {
+                                    ExportCore.WriteLog("Node type [" + ((XmlElement)node).Name + "] not supported. Will be ignored");
+                                }
+                                break;
+                        }
                     }
+                    //setting it to empty after every iteration.
+                    Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
+                }
+            }
+            catch (System.Exception exp)
+            {
+                string message = exp.Message;
+                //if the problem was already caught at the child node level the line number
+                // information would be already present in the exception message
+                if (!message.Contains("Problem found at line number"))
+                {
+                    TemplateParser templateParser = (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
+                    message = "Problem found at line number : " + templateParser.GetLineNumberForNode(loopNode) + "\n" + exp.Message;
                 }
                 //setting it to empty after every iteration.
                 Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
+                throw new SmartExportException(message);
             }
 
 
