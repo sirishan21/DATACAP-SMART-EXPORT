@@ -405,16 +405,25 @@ namespace SmartExportTemplates
             Regex rg = new Regex(Constants.DCO_REF_PATTERN);
             MatchCollection matchedPatterns = rg.Matches(text);
 
+            List<string> wrongPatterns = new List<string>();
+
             foreach (Match Pattern in matchedPatterns)
             {
                 string DCOTree = Pattern.Value;
                 DCOTree = DCOTree.Replace("[", "").Replace("]", "").Replace("DCO.", "");
                 if (!DCOPatterns.Contains(DCOTree))
                 {
-                    WriteLog("DCO reference is invalid. " +
-                                Pattern.Value);
-                    throw new System.ArgumentException("DCO reference invalid. Check detailed logs", Pattern.Value);
+                    WriteLog("DCO reference is invalid. " + Pattern.Value);
+                    wrongPatterns.Add(Pattern.Value);
                 }
+            }
+            if (wrongPatterns.Count > 0)
+            {
+                TemplateParser templateParser = (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
+                throw new System.ArgumentException("The following DCO references are invalid - " +
+                    string.Join(",", wrongPatterns) + " and can be found at line numbers " +
+                    templateParser.GetLineNumberForPatterns(wrongPatterns));
+
             }
         }
 

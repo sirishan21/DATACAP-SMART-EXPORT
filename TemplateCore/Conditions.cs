@@ -26,62 +26,77 @@ namespace SmartExportTemplates
 
             bool ConditionEvaluated = false;
 
-            //Evaluate the IF
-            string CondText = ((XmlElement)ConditionNode).GetAttribute(Constants.SE_ATTRIBUTE_COND_TEST);
-            ConditionEvaluation conditionEvaluation = new ConditionEvaluation(CondText);
+            try
+            {
 
-            if (conditionEvaluation.CanEvaluate())
-            {
-                processChildNodes(ConditionNode);
-                ConditionEvaluated = true;
-            }
-            
-            // Evaluate the ELSIFs if IF has not satisfied
-            if (!ConditionEvaluated)
-            {
-                XmlNodeList elseIfNodeList = ConditionNode.ChildNodes;
-                foreach (XmlNode elseIfNode in elseIfNodeList)
+                //Evaluate the IF
+                string CondText = ((XmlElement)ConditionNode).GetAttribute(Constants.SE_ATTRIBUTE_COND_TEST);
+                ConditionEvaluation conditionEvaluation = new ConditionEvaluation(CondText);
+
+                if (conditionEvaluation.CanEvaluate())
                 {
-                    if (elseIfNode.Name == Constants.NodeTypeString.SE_ELSIF)
+                    processChildNodes(ConditionNode);
+                    ConditionEvaluated = true;
+                }
+            
+                // Evaluate the ELSIFs if IF has not satisfied
+                if (!ConditionEvaluated)
+                {
+                    XmlNodeList elseIfNodeList = ConditionNode.ChildNodes;
+                    foreach (XmlNode elseIfNode in elseIfNodeList)
                     {
-                        CondText = ((XmlElement)elseIfNode).GetAttribute(Constants.SE_ATTRIBUTE_COND_TEST);
-                        conditionEvaluation = new ConditionEvaluation(CondText);
-                        if (conditionEvaluation.CanEvaluate())
+                        if (elseIfNode.Name == Constants.NodeTypeString.SE_ELSIF)
                         {
-                            processChildNodes(elseIfNode);
+                            CondText = ((XmlElement)elseIfNode).GetAttribute(Constants.SE_ATTRIBUTE_COND_TEST);
+                            conditionEvaluation = new ConditionEvaluation(CondText);
+                            if (conditionEvaluation.CanEvaluate())
+                            {
+                                processChildNodes(elseIfNode);
+                                ConditionEvaluated = true;
+                                break;
+                            }
+                            // reaching else node indicates there are no more nodes with node name ELSIF
+                            if (elseIfNode.Name == Constants.NodeTypeString.SE_ELSE)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Evaluate the Else
+                if (!ConditionEvaluated)
+                {
+                    XmlNodeList elseNodeList = ConditionNode.ChildNodes;
+                    foreach (XmlNode elseNode in elseNodeList)
+                    {
+                        if ( elseNode.Name == Constants.NodeTypeString.SE_ELSE)
+                        {
+                            processChildNodes(elseNode);
                             ConditionEvaluated = true;
                             break;
                         }
-                        // reaching else node indicates there are no more nodes with node name ELSIF
-                        if (elseIfNode.Name == Constants.NodeTypeString.SE_ELSE)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
 
-            // Evaluate the Else
-            if (!ConditionEvaluated)
-            {
-                XmlNodeList elseNodeList = ConditionNode.ChildNodes;
-                foreach (XmlNode elseNode in elseNodeList)
+                    }
+
+                }
+                if (!ConditionEvaluated)
                 {
-                    if ( elseNode.Name == Constants.NodeTypeString.SE_ELSE)
-                    {
-                        processChildNodes(elseNode);
-                        ConditionEvaluated = true;
-                        break;
-                    }
-
+                    ExportCore.WriteLog("None of the conditions evaluated for the Node with test: " + CondText);
                 }
-
             }
-            if (!ConditionEvaluated)
+            catch (System.Exception exp)
             {
-                ExportCore.WriteLog("None of the conditions evaluated for the Node with test: " + CondText);
+                string message = exp.Message;
+                //if the problem was already caught at the child node level the line number
+                // information would be already present in the exception message
+                if (!message.Contains("Problem found at line number"))
+                {
+                    TemplateParser templateParser = (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
+                    message = "Problem found at line number : " + templateParser.GetLineNumberForNode(ConditionNode) + "\n" + exp.Message;
+                }
+                throw new SmartExportException(message);
             }
-
             ExportCore.WriteDebugLog(" EvaluateCondition("+ConditionNode+") completed in " + sw.ElapsedMilliseconds + " ms.");
 
             sw.Stop();

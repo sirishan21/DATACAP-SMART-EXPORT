@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using SmartExportTemplates.Utils;
 using System.Diagnostics;
+using SmartExportTemplates.TemplateCore;
 
 namespace SmartExportTemplates.DCOUtil
 {
@@ -11,13 +12,13 @@ namespace SmartExportTemplates.DCOUtil
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         protected TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
         protected TDCOLib.IDCO DCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_DCO);
-
+        protected TemplateParser templateParser = (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
         ///       <summary>
         ///       The method returns the value corresponding to the DCO expression specified, from the current DCO.
         ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
         ///       <returns>The value corresponding to the DCO expression specified, from the current DCO.</returns>
         ///       </summary>
-         public string getDCOValue(string DCOTree)        
+        public string getDCOValue(string DCOTree)        
         {
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -53,6 +54,10 @@ namespace SmartExportTemplates.DCOUtil
             }
             ExportCore.WriteDebugLog(" getDCOValue(" + DCOTree + ") completed in " + sw.ElapsedMilliseconds + " ms.");
             sw.Stop();
+            if(templateParser.GetOutputFileExt().Equals("csv", StringComparison.InvariantCultureIgnoreCase) && output != "")
+            {
+                output = "\"" + output + "\"";
+            }
             return output;
         }
 
