@@ -1,0 +1,13 @@
+{
+	"Outbound_From" : "New York/Newark (EWR)",
+	"Outbound_To" : "San Francisco (SFO)",
+	"Outbound_Date" : ["24JUL10"],
+	"Return_From" : "San Francisco (SFO)",
+	"Return_To" : "New York/Newark (EWR)",
+	"Return_Date" : ["28JUL10"],
+	"Fair_Information" : [ {
+			"Airfare" : "760.27",
+			"Taxes" : "64.56",
+			"Total Cost" : "824.83"
+	} ]
+}
