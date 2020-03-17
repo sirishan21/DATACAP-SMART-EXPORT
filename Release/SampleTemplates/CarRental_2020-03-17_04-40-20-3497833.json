@@ -1,0 +1,35 @@
+[
+{
+	"Car_Type" : "Full size",
+	"Pickup_Date" : ["Mon, Oct 4, 2010"],
+	"Pickup_Location" : "New York (JFK)",
+	"Return_Date" : ["Fri, Oct 8, 2010"],
+	"Return_Location" : "New York (JFK)",
+	"Total Cost" : "582.77"
+},
+{
+	"Car_Type" : "Luxury",
+	"Pickup_Date" : ["Sun, Aug 1, 2010"],
+	"Pickup_Location" : "Los Angeles (LAX)",
+	"Return_Date" : ["Fri, Aug 6, 2010"],
+	"Return_Location" : "Los Angeles (LAX)",
+	"Total Cost" : "503.39"
+},
+{
+	"Car_Type" : "Compact",
+	"Pickup_Date" : ["Sun, Oct 24, 2010"],
+	"Pickup_Location" : "Chicago (ORD)",
+	"Return_Date" : ["Fri, Oct 29, 2010"],
+	"Return_Location" : "Chicago (ORD)",
+	"Total Cost" : "535.18"
+},
+{
+	"Car_Type" : "SUV",
+	"Pickup_Date" : ["Mon, Jan 10, 2011"],
+	"Pickup_Location" : "Orlando (MCO)",
+	"Return_Date" : ["Fri, Jan 14, 2011"],
+	"Return_Location" : "Orlando (MCO)",
+	"Total Cost" : "528.76"
+},
+{}
+]
