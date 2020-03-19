@@ -123,6 +123,16 @@ namespace SmartExportTemplates.Utils
                 throw new SmartExportException("Error while writing output to file: " + outputFilePath);
             }
         }
+
+        public string escapeString(string output)
+        {
+            string escapedString = output;
+            if (templateParser.GetOutputFileExt().Equals("csv", StringComparison.InvariantCultureIgnoreCase))
+            {
+                escapedString = "\"" + output + "\"";
+            }
+            return escapedString;
+        }
     }
 
 }

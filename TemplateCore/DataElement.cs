@@ -46,7 +46,8 @@ namespace SmartExportTemplates.TemplateCore
                             text.Append(Constants.COMMA);
                             break;
                         case Constants.SE_VALUE_NODE_NAME:
-                            text.Append(dCODataRetriever.getDCOValue(node.Attributes["select"].Value).Trim());
+                            string value = dCODataRetriever.getDCOValue(node.Attributes["select"].Value).Trim();
+                            text.Append(ExportCore.getExportUtil.escapeString(value));
                             break;
                         case Constants.SE_SMART_PARAM_NODE_NAME:
                            text.Append(SmartNav.MetaWord(Constants.SMARTP_AT + node.InnerText.Trim()).Trim());
