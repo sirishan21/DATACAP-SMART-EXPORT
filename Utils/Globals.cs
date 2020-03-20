@@ -29,11 +29,7 @@ namespace SmartExportTemplates.Utils
             return GlobalsMap[key];
         }
 
-        public Boolean HasData(string key)
-        {
-            return GlobalsMap.ContainsKey(key);
-        }
-
+        
         public bool ContainsKey(string key)
         {
             return GlobalsMap.ContainsKey(key);
