@@ -23,12 +23,14 @@ namespace SmartExportTemplates.Utils
             internal const string SE_ELSIF = "se:elsif";
             internal const string SE_ELSE = "se:else";
             internal const string SE_FOREACH = "se:for-each";
+            internal const string SE_ROWS = "se:for-each-rows";
         }
 
         public struct ConditionString
         {
             internal const string DOCUMENT_TYPE = "document.type";
             internal const string PAGE_TYPE = "page.type";
+            internal const string TABLE_TYPE = "table.type";
 
         }
 
@@ -39,6 +41,8 @@ namespace SmartExportTemplates.Utils
             internal const string PAGE = "PAGE";
             internal const string FIELD = "FIELD";
             internal const string CURRENTITERATIONDCO = "currentIterationDCO";
+            internal const string TABLE = "TABLE";
+
         }
 
         //Templat element names
@@ -52,7 +56,6 @@ namespace SmartExportTemplates.Utils
         public static string SE_OUTPUT_DIR_PATH = "se:outputFolder";
         public static string SE_ATTRIBUTE_COND_TEST = "test";
         public static string SE_OUTPUT_MEM_CACHE_LINES = "se:memCacheLines";
-
 
         //General
         public static string GE_TEMPLATE_PARSER = "GETemplateParser";
@@ -95,6 +98,8 @@ namespace SmartExportTemplates.Utils
         public const string SE_SMART_PARAM_NODE_NAME = "se:smartParam";
         public const string TAB_SPACE = "\t";
         public const string SMARTP_AT = "@";
+        public const string SE_NEW_LINE_NODE_NAME = "se:newLine";
+        public const string NEW_LINE = "\n";
 
         public const string DATE_FORMAT = "dd/MMM/yyyy";
 

@@ -96,6 +96,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="RRX.cs" />
+    <Compile Include="TemplateCore\Tables.cs" />
     <Compile Include="TemplateCore\TemplateParser.cs" />
     <Compile Include="Utils\Constants.cs" />
     <Compile Include="Utils\ExpressionEvaluator.cs" />
