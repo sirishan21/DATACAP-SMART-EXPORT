@@ -254,7 +254,7 @@ namespace SmartExportTemplates.DCOUtil
                     (dcoArray[1] == CurrentDCO.Parent().Type || CurrentDCO.Parent().ObjectType() == Constants.Batch))
                 {                   
                     output = CurrentDCO.FindChild(dcoArray[3]).Text;
-                    ExportCore.WriteLog(" Value of  expression   " + DCOTree + " is   " + output);
+                    ExportCore.WriteDebugLog(" Value of  expression   " + DCOTree + " is   " + output);
                 }
                 else
                 {
