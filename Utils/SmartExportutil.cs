@@ -126,8 +126,15 @@ namespace SmartExportTemplates.Utils
 
         public string escapeString(string output)
         {
+
+            return escapeString(output,"");
+        }
+
+        public string escapeString(string output, string separator)
+        {
             string escapedString = output;
-            if (templateParser.GetOutputFileExt().Equals("csv", StringComparison.InvariantCultureIgnoreCase))
+            if (templateParser.GetOutputFileExt().Equals("csv", StringComparison.InvariantCultureIgnoreCase) 
+                || separator==Constants.COMMA)
             {
                 escapedString = "\"" + output + "\"";
             }

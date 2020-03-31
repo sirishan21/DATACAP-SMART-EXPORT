@@ -231,6 +231,7 @@ namespace SmartExportTemplates
             internal const int Data = 0;
             internal const int If = 1;
             internal const int ForEach = 2;
+            internal const int ForEachRows = 3;
             internal const int Invalid = 2147482647;
         }
 
@@ -293,6 +294,7 @@ namespace SmartExportTemplates
                 DataElement dataElement = new DataElement();
                 Conditions conditionEvaluator = new Conditions();
                 Loops loopEvaluator = new Loops();
+                Tables table = new Tables();
 
                 exportUtil.setContext(templateParser);
 
@@ -317,6 +319,9 @@ namespace SmartExportTemplates
                             break;
                         case NodeType.ForEach:
                             loopEvaluator.EvaluateLoop(currentNode);
+                            break;
+                        case NodeType.ForEachRows:
+                            table.FetchTable(currentNode);
                             break;
                         default:
                             if (currentNode.NodeType == XmlNodeType.Element)

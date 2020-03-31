@@ -22,7 +22,6 @@ namespace SmartExportTemplates.TemplateCore
         ///       <summary>
         ///       The method Evaluates for loop.
         ///       <param name="loopNode">XML node of Foreach</param>
-        ///       <param name="output">List of strings to be printed in the output file.</param>
         ///       </summary>
         public void EvaluateLoop(XmlNode loopNode)
         {
@@ -53,6 +52,7 @@ namespace SmartExportTemplates.TemplateCore
 
             DataElement dataElement = new DataElement();
             Conditions conditionEvaluator = new Conditions();
+            Tables table = new Tables();
             try
             {
                 int forEachlevel = getIntValueForEachObjectType(loopNode.Attributes["select"].Value);
@@ -75,6 +75,18 @@ namespace SmartExportTemplates.TemplateCore
                             case Constants.NodeTypeString.SE_FOREACH:
                                 Loops loopEvaluator = new Loops();
                                 loopEvaluator.EvaluateLoop(node, DCO.GetChild(i));
+                                break;
+                            case Constants.NodeTypeString.SE_ROWS:
+                                if (node.Attributes == null || node.Attributes.Count > 0 ||
+                                string.IsNullOrEmpty(node.Attributes["tablename"].Value))
+                                {                              
+                                    new SmartExportException("Its mandatory to specify the table name when the for-each-rows tag " +
+                                        "is used within se:for-each tag for tables.");
+                                }
+                                if (node.Attributes["tablename"].Value == DCO.GetChild(i).ID)
+                                {
+                                    table.FetchTable(node);
+                                }                                
                                 break;
                             case Constants.NodeTypeString.SE_DATA:
                                 dataElement.EvaluateData(node);
@@ -105,7 +117,6 @@ namespace SmartExportTemplates.TemplateCore
                 Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
                 throw new SmartExportException(message);
             }
-
 
             ExportCore.WriteDebugLog(" EvaluateLoop " + loopNode + "  completed in " + sw.ElapsedMilliseconds + " ms.");
 
@@ -165,6 +176,7 @@ namespace SmartExportTemplates.TemplateCore
                     output = Constants.Page;
                     break;
             case Constants.forLoopString.FIELD:
+            case Constants.forLoopString.TABLE:
                     output = Constants.Field;
                     break;
             }

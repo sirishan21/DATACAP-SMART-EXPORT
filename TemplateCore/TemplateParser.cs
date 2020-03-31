@@ -92,6 +92,9 @@ namespace SmartExportTemplates.TemplateCore
                 case Constants.NodeTypeString.SE_FOREACH:
                     nodeType = SmartExport.NodeType.ForEach;
                     break;
+                case Constants.NodeTypeString.SE_ROWS:
+                    nodeType = SmartExport.NodeType.ForEachRows;
+                    break;
                 case Constants.NodeTypeString.SE_DATA:
                     nodeType = SmartExport.NodeType.Data;
                     break;

@@ -4,14 +4,17 @@ using System.Xml;
 using SmartExportTemplates.Utils;
 using System.Diagnostics;
 using SmartExportTemplates.TemplateCore;
+using TDCOLib;
 
 namespace SmartExportTemplates.DCOUtil
 {
     class DCODataRetriever
     {
-        SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
+        private SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         protected TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
         protected TDCOLib.IDCO DCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_DCO);
+        
+
         ///       <summary>
         ///       The method returns the value corresponding to the DCO expression specified, from the current DCO.
         ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
@@ -58,6 +61,92 @@ namespace SmartExportTemplates.DCOUtil
         }
 
         ///       <summary>
+        ///       Fetches the column value for a row of a table.
+        ///       <param name="columnName">Column name</param>
+        ///       <param name="pageID">Page ID from where the value needs to be extracted</param>
+        ///       <returns>The value of the column for the current row of a table.</returns>
+        public string getColumnValueForRow(string columnName)
+        {
+            string columnValue = "";
+            TDCOLib.IDCO row = null;
+            Stopwatch sw = Stopwatch.StartNew();
+
+            // the current iternation DCO would point to a row of a table 
+            if (!Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO).Equals(Constants.EMPTYSTRING))
+            {
+                row = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO);
+                for (int k = 0; k < row.NumOfChildren(); k++)
+                {
+                    TDCOLib.DCO column = row.GetChild(k);
+                    if (column.ObjectType() == Constants.Field && columnName == column.ID)
+                    {
+                        ExportCore.WriteLog(columnName + " = " + column.Text);
+                        columnValue = column.Text;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                string message = "  Error occured while fetching value for column " + columnName;                
+                ExportCore.WriteLog(message);
+                throw new SmartExportException(message);
+            }
+            ExportCore.WriteDebugLog(" getColumnValueForRow(" + columnName + ") completed in " + sw.ElapsedMilliseconds + " ms.");
+            sw.Stop();
+            return columnValue;
+
+        }
+
+        ///       <summary>
+        ///      Checks if a page contains a table.
+        ///       <param name="page">DCO objects the corresponds to the current page that is being processed.</param>
+        ///       <param name="tableName">Name of the table of interest</param>
+        ///       <returns>True if a page contains a table.</returns>
+        public bool doesPageContainsTable(IDCO page, string tableName)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+
+            bool pageHasTable = false;
+            for(int i=0;i<page.NumOfChildren();i++)
+            {
+                IDCO field = page.GetChild(i);
+                pageHasTable = isObjectTable(field) && (field.ID == tableName);
+                if (pageHasTable)
+                    break;
+            }
+            ExportCore.WriteDebugLog(" doesPageContainsTable(" + page + ","+tableName+")" +
+                " completed in " + sw.ElapsedMilliseconds + " ms.");
+            sw.Stop();
+            return pageHasTable;
+        }
+
+        ///       <summary>
+        ///       Returns the sepcified table DCO object if it is present in the page.
+        ///       <param name="page">DCO objects the corresponds to the current page that is being processed.</param>
+        ///       <param name="tableName">Name of the table of interest</param>
+        ///       <returns>The sepcified table DCO object if it is present in the page</returns>
+        public IDCO getTableForPage(IDCO page, string tableName)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+
+            IDCO table = null;
+            for (int i = 0; i < page.NumOfChildren(); i++)
+            {
+                IDCO field = page.GetChild(i);
+                if (isObjectTable(field) && (field.ID == tableName))
+                {
+                    table = field;
+                    break;
+                }
+            }
+            ExportCore.WriteDebugLog(" getTableForPage(" + page + "," + tableName + ")" +
+               " completed in " + sw.ElapsedMilliseconds + " ms.");
+            sw.Stop();
+            return table;
+        }
+
+        ///       <summary>
         ///       The method returns the value corresponding to the DCO field specified, from the current DCO for the field.
         ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
         ///       <returns>The value corresponding to the DCO field specified, from the current DCO.</returns>
@@ -78,10 +167,12 @@ namespace SmartExportTemplates.DCOUtil
             try
             {
                 // this is to pick up the field from the right page type
-                if(dcoArray[3]== CurrentDCO.ID && dcoArray[1] == document.Type && dcoArray[2] == page.Type)
+                if((dcoArray[3]== CurrentDCO.ID 
+                    && (dcoArray[1] == document.Type || page.Parent().ObjectType() == Constants.Batch) 
+                    && dcoArray[2] == page.Type))
                 {
                     output = CurrentDCO.Text;
-                }
+                }              
                 else
                 {
                     ExportCore.WriteLog(" Current field "+ CurrentDCO.ID +
@@ -123,9 +214,9 @@ namespace SmartExportTemplates.DCOUtil
                 TDCOLib.DCO page = DCO.FindChild(currentIterationDCO.Parent().ID);
                 if (dcoArray.Length == 2 && DCOTree == "field.name")
                 {
-                    output = currentIterationDCO.ID;
+                    output = currentIterationDCO.ID ;
                 }
-                else if (dcoArray[3] ==currentIterationDCO.ID)
+                else if (dcoArray[3] == currentIterationDCO.ID)           
                     output = page.FindChild(currentIterationDCO.ID).Text;
                 else
                     ExportCore.WriteLog(" Looking for field  " +DCOTree+ ", where as the current field is"+ currentIterationDCO.ID);
@@ -157,10 +248,13 @@ namespace SmartExportTemplates.DCOUtil
             string output = "";
             try
             {
-                 
-                if (dcoArray[1] == CurrentDCO.Parent().Type && dcoArray[2] == CurrentDCO.Type)
-                {
-                    output =CurrentDCO.FindChild(dcoArray[3]).Text;
+                 // Validate DCOTree expression against the current DCO
+                 // match page type and parent type of page
+                if (dcoArray[2] == CurrentDCO.Type &&
+                    (dcoArray[1] == CurrentDCO.Parent().Type || CurrentDCO.Parent().ObjectType() == Constants.Batch))
+                {                   
+                    output = CurrentDCO.FindChild(dcoArray[3]).Text;
+                    ExportCore.WriteDebugLog(" Value of  expression   " + DCOTree + " is   " + output);
                 }
                 else
                 {
@@ -204,7 +298,10 @@ namespace SmartExportTemplates.DCOUtil
                 {
                     output = page.ID + " - " + page.Type;
                 }
-                else if (dcoArray[1] == page.Parent().Type && dcoArray[2] == page.Type)
+                // Validate DCOTree expression against the current DCO
+                // match page type and parent type of page
+                else if ((dcoArray[1] == page.Parent().Type  || page.Parent().ObjectType() == Constants.Batch)
+                    && dcoArray[2] == page.Type)
                 {
                     output = page.FindChild(dcoArray[3]).Text;
                 }
@@ -244,7 +341,6 @@ namespace SmartExportTemplates.DCOUtil
 
             // get the value of the DCO reference using the page ID and the field name
             string output = "";
-
       
             try
             {
@@ -256,9 +352,7 @@ namespace SmartExportTemplates.DCOUtil
                 else
                 {
                     ExportCore.WriteLog(" The expression   " + DCOTree + " is not valid for document  " + CurrentDCO.ID);
-
                 }
-
             }
             catch (Exception exp)
             {
@@ -292,7 +386,6 @@ namespace SmartExportTemplates.DCOUtil
             // get the value of the DCO reference using the page ID and the field name
             string output = "";
 
-
             try
             {
                 TDCOLib.DCO document = DCO.FindChild(currentIterationDCO.ID);
@@ -308,7 +401,6 @@ namespace SmartExportTemplates.DCOUtil
                 else
                 {
                     ExportCore.WriteLog(" The expression   " + DCOTree + " is not valid for document  " + currentIterationDCO.ID);
-
                 }
 
             }
@@ -327,7 +419,7 @@ namespace SmartExportTemplates.DCOUtil
 
 
         ///       <summary>
-        ///       The method returns the page ID of the specified page typs in the specified document.
+        ///       The method returns the page ID of the specified page type in the specified document.
         ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
         ///       <param name="DocumentID">Docuemnt ID</param>
         ///       <param name="pageType">Page tyep</param>
@@ -372,6 +464,10 @@ namespace SmartExportTemplates.DCOUtil
             
         }
 
+        ///       <summary>
+        ///       Returns the page type.
+        ///       <returns>The page type.</returns>
+        ///       </summary>
         public string getPageType()
         {
             Stopwatch sw = Stopwatch.StartNew();
@@ -411,6 +507,10 @@ namespace SmartExportTemplates.DCOUtil
             return pageType;
         }
 
+        ///       <summary>
+        ///       Returns the document type.
+        ///       <returns>The document type</returns>
+        ///       </summary>
         public string getDocumentType()
         {
             Stopwatch sw = Stopwatch.StartNew();
@@ -456,6 +556,76 @@ namespace SmartExportTemplates.DCOUtil
             sw.Stop();
 
             return docType;
+        }
+
+        ///       <summary>
+        ///       Returns the table type.
+        ///       <returns>The table type</returns>
+        ///       </summary>
+        public string getTableType()
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+
+            string tableType = "";
+            TDCOLib.IDCO DCO = CurrentDCO;
+            if (!Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO).Equals(Constants.EMPTYSTRING))
+            {
+                DCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO);
+
+            }
+            int objectType = DCO.ObjectType();
+
+            if (Constants.Field == objectType)
+            {
+                if (isObjectTable(DCO))
+                    tableType = DCO.Type;
+                else
+                {
+                    string message = CurrentDCO.ID + " is not a table. It is of type " + CurrentDCO.Type + ".";
+                    ExportCore.WriteLog(message);
+                }
+            }
+            else
+            {
+                string message = "  Table Type can be determined at   field level only. " + CurrentDCO.ID
+                    + " is of type " + CurrentDCO.Type + ".";
+
+                ExportCore.WriteLog(message);
+                throw new SmartExportException(message);
+            }
+            ExportCore.WriteDebugLog(" getTableType() completed in " + sw.ElapsedMilliseconds + " ms.");
+            sw.Stop();
+
+            return tableType;
+        }
+
+        ///       <summary>
+        ///       Checks if the DCO object is a table.
+        ///       <param name="table">DCO object</param>
+        ///       <returns>True if the DCO object is a table</returns>
+        ///       </summary>
+        public bool isObjectTable(TDCOLib.IDCO table)
+        {
+            bool isTable = false;
+
+            for (int j = 0; j < table.NumOfChildren(); j++)
+            {
+                TDCOLib.DCO row = table.GetChild(j);
+                if (row.ObjectType() == Constants.Field)
+                {
+                    for (int k = 0; k < row.NumOfChildren(); k++)
+                    {
+                        TDCOLib.DCO column = row.GetChild(k);
+
+                        if (column.ObjectType() == Constants.Field)
+                        {
+                            isTable = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            return isTable;
         }
 
     }

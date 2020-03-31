@@ -115,6 +115,8 @@ namespace SmartExportTemplates
                     new Conditions().EvaluateCondition(childNode);
                 else if (childNode.Name == Constants.NodeTypeString.SE_FOREACH)
                     new Loops().EvaluateLoop(childNode);
+                else if (childNode.Name == Constants.NodeTypeString.SE_ROWS)
+                    new Tables().FetchTable(childNode);
             }
 
         }

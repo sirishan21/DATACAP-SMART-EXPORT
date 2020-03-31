@@ -102,6 +102,10 @@ namespace SmartExportTemplates.TemplateCore
                 {
                     operands[i] = dCODataRetriever.getPageType();
                 }
+                else if (Constants.ConditionString.TABLE_TYPE == operands[i].Trim())
+                {
+                    operands[i] = dCODataRetriever.getTableType();
+                }
                 else
                 {
                     operands[i] = operands[i].Trim();
