@@ -340,7 +340,7 @@ namespace SmartExportTemplates
                      CurrentDCO.Parent().Parent().ObjectType() == Constants.Document)
                )
                 projectHasDoc = true;
-            if(CurrentDCO.ObjectType() == Constants.Batch)
+            else if(CurrentDCO.ObjectType() == Constants.Batch)
             {
                 for(int i=0;i< CurrentDCO.NumOfChildren();i++)
                 {
