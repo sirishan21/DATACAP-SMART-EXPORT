@@ -301,12 +301,14 @@ namespace SmartExportTemplates
                 Globals.Instance.SetData(Constants.PROJECT_HAS_DOC, projectHasDocument);
                 if (projectHasDocument)
                 {
+                    createDCOPatternListWithDoc();
                     ValidateExpressions(TemplateFilePath,Constants.DCO_REF_PATTERN);
                     new ContentProcessorWithDoc(templateParser).processNodes();
                     exportUtil.writeToFile(singleOutputFileNameMap);
                 }
                 else
                 {
+                    createDCOPatternListWithoutDoc();
                     ValidateExpressions(TemplateFilePath, Constants.DCO_REF_PATTERN_NO_DOC);
                     new ContentProcessorWithoutDoc(templateParser).processNodes();
                 }
@@ -332,7 +334,6 @@ namespace SmartExportTemplates
         bool doesProjectHaveDocument()
         {
             bool projectHasDoc = false;
-
 
             if (CurrentDCO.ObjectType() == Constants.Document
                 || (CurrentDCO.ObjectType() == Constants.Page && CurrentDCO.Parent().ObjectType() == Constants.Document)
@@ -362,7 +363,7 @@ namespace SmartExportTemplates
         ///       <summary>
         ///       The method creates a list of valid DCO references.
         ///      
-        private void createDCOPatternList()
+        private void createDCOPatternListWithDoc()
         {
             string projectFile = this.BatchPilot.ProjectPath;
 
@@ -372,8 +373,7 @@ namespace SmartExportTemplates
             XmlDocument batchXML = new XmlDocument();
             batchXML.Load(dcoDefinitionFile);
             XmlElement batchRoot = batchXML.DocumentElement;
-            if ((bool)Globals.Instance.GetData(Constants.PROJECT_HAS_DOC))
-            {  
+            
                 XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
                 foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
                 {
@@ -402,8 +402,19 @@ namespace SmartExportTemplates
                         }
                     }
                 }
-            }
-            else
+           
+        }
+        private void createDCOPatternListWithoutDoc()
+        {
+            string projectFile = this.BatchPilot.ProjectPath;
+
+            string parentDirectory = Path.GetDirectoryName(projectFile);
+            string dcoDefinitionFile = parentDirectory + Path.DirectorySeparatorChar + Path.GetFileName(Path.GetDirectoryName(parentDirectory)) + ".xml";
+
+            XmlDocument batchXML = new XmlDocument();
+            batchXML.Load(dcoDefinitionFile);
+            XmlElement batchRoot = batchXML.DocumentElement;
+            
             {
                 XmlNodeList dcoPageNodes = batchRoot.SelectNodes("./P"); //Page nodes
                 foreach (XmlNode dcoPageNode in dcoPageNodes)
@@ -413,12 +424,13 @@ namespace SmartExportTemplates
                     foreach (XmlNode fieldNode in fieldList)
                     {
                         string fieldID = ((XmlElement)fieldNode).GetAttribute("type");
-                        string dcoPattern =  PageID + "." + fieldID;
+                        string dcoPattern = PageID + "." + fieldID;
                         DCOPatterns.Add(dcoPattern);
                     }
-                }                
+                }
             }
         }
+
 
         ///       <summary>
         ///       The method checks if valid DCO references are used in the template file. If an invalid reference if found an exception is thrown.
@@ -428,7 +440,6 @@ namespace SmartExportTemplates
         private void ValidateExpressions(string TemplateFile, string dcoPattern)
         {
 
-            createDCOPatternList();
             byte[] bytes = System.IO.File.ReadAllBytes(TemplateFile);
             string text = System.Text.Encoding.UTF8.GetString(bytes);
 

@@ -16,12 +16,15 @@ namespace SmartExportTemplates.TemplateCore
         private TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
         private SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         private DataElement dataElement = new DataElement();
-        private DCODataRetriever dCODataRetriever = new DCODataRetriever();
+        
+        private bool projectHasDoc= (bool) Globals.Instance.GetData(Constants.PROJECT_HAS_DOC);
         int rowStart = 0;
         int rowEnd = 0;
+        TDCOLib.IDCO DCO = null;
+        List<TDCOLib.IDCO> tableDCOs = null;
 
         public Tables()
-        {
+        {          
         }
 
         ///       <summary>
@@ -31,58 +34,23 @@ namespace SmartExportTemplates.TemplateCore
         public void FetchTable(XmlNode tableNode)
         {
             Stopwatch sw = Stopwatch.StartNew();
+           
+            setContext();
 
-            TDCOLib.IDCO DCO = null;
-            List<TDCOLib.IDCO> tableDCOs = null;
-            //case when table is used in loops
-            if (Globals.Instance.ContainsKey(Constants.forLoopString.CURRENTITERATIONDCO)
-                && Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO) is TDCOLib.IDCO)
-            {
-                DCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO);
-            }
-            //case when the xml node is associated at the table/field level
-            if (DCO == null)
-            {
-                DCO = CurrentDCO;
-            }
             //case when the xml node is associated at the page level
             if (DCO.ObjectType()== Constants.Page )
-            {  
-                // when association is at page level its mandatory to specify table name
-                if(tableNode.Attributes != null && tableNode.Attributes.Count > 0 &&
-                    !string.IsNullOrEmpty(tableNode.Attributes["tablename"].Value)) 
-                {
-                    if (dCODataRetriever.doesPageContainTable(DCO, tableNode.Attributes["tablename"].Value))
-                        DCO = dCODataRetriever.getTableForPage(DCO, tableNode.Attributes["tablename"].Value);
-                    else
-                        ExportCore.WriteLog(tableNode.Attributes["tablename"] +" table is not found in page "+ DCO.ID);
-                }
-                else
-                {
-                    string message = "Its mandatory to specify the table name when the for-each-rows tag is associated at page level.";
-                    ExportCore.WriteLog(message);
-                    new SmartExportException(message);
-                }
-            }
-            if(DCO.ObjectType()==Constants.Document)
             {
-                // when association is at page level its mandatory to specify table name
-                if (tableNode.Attributes != null && tableNode.Attributes.Count > 0 &&
-                    !string.IsNullOrEmpty(tableNode.Attributes["tablename"].Value))
-                {
-                    if (dCODataRetriever.doesDocumentContainTable(DCO, tableNode.Attributes["tablename"].Value))
-                        tableDCOs = dCODataRetriever.getTablesForDocument(DCO, tableNode.Attributes["tablename"].Value);
-                    else
-                        ExportCore.WriteLog(tableNode.Attributes["tablename"] + " table is not found in document " + DCO.ID);
-                }
-                else
-                {
-                    string message = "Its mandatory to specify the table name when the for-each-rows tag is associated at page level.";
-                    ExportCore.WriteLog(message);
-                    new SmartExportException(message);
-                }
+                initializeTableObjectForPage( tableNode);
             }
-            
+            else if(DCO.ObjectType()==Constants.Document)
+            {
+                initializeTableObjectForDocument(tableNode);                
+            }
+            else if (DCO.ObjectType() == Constants.Batch && !projectHasDoc)
+            {
+                initializeTableObjectForBatch(tableNode);       
+            }
+
             ExportCore.WriteDebugLog("Iterating over the table rows:");
 
             // iterate over rows
@@ -105,11 +73,88 @@ namespace SmartExportTemplates.TemplateCore
             sw.Stop();
         }
 
+        private void initializeTableObjectForBatch(XmlNode tableNode)
+        {
+            DCODataRetrieverWithoutDoc dCODataRetriever = new DCODataRetrieverWithoutDoc();
+
+            string filename = (string)Globals.Instance.GetData(Constants.forLoopString.CURRENTFILE);
+            if (!string.IsNullOrEmpty(filename))
+            {
+                // when association is at page level its mandatory to specify table name
+                if (tableNode.Attributes != null && tableNode.Attributes.Count > 0 &&
+                    !string.IsNullOrEmpty(tableNode.Attributes["tablename"].Value))
+                {
+                    tableDCOs = dCODataRetriever.getTablesForFile(filename, tableNode.Attributes["tablename"].Value);
+                    if (tableDCOs.Count == 0)
+                        ExportCore.WriteLog(tableNode.Attributes["tablename"] + " table is not found in document " + DCO.ID);
+                }
+                else
+                {
+                    string message = "Its mandatory to specify the table name when the for-each-rows tag is associated at page level.";
+                    ExportCore.WriteLog(message);
+                    new SmartExportException(message);
+                }
+            }
+        }
+
+        private void initializeTableObjectForDocument(XmlNode tableNode)
+        {
+            DCODataRetriever dCODataRetriever = new DCODataRetriever();
+
+            // when association is at page level its mandatory to specify table name
+            if (tableNode.Attributes != null && tableNode.Attributes.Count > 0 &&
+                !string.IsNullOrEmpty(tableNode.Attributes["tablename"].Value))
+            {
+                if (dCODataRetriever.doesDocumentContainTable(DCO, tableNode.Attributes["tablename"].Value))
+                    tableDCOs = dCODataRetriever.getTablesForDocument(DCO, tableNode.Attributes["tablename"].Value);
+                else
+                    ExportCore.WriteLog(tableNode.Attributes["tablename"] + " table is not found in document " + DCO.ID);
+            }
+            else
+            {
+                string message = "Its mandatory to specify the table name when the for-each-rows tag is associated at page level.";
+                ExportCore.WriteLog(message);
+                new SmartExportException(message);
+            }
+        }
+
+        private void initializeTableObjectForPage(XmlNode tableNode)
+        {
+             DCODataRetriever dCODataRetriever = new DCODataRetriever();
+            // when association is at page level its mandatory to specify table name
+            if (tableNode.Attributes != null && tableNode.Attributes.Count > 0 &&
+                !string.IsNullOrEmpty(tableNode.Attributes["tablename"].Value))
+            {
+                if (dCODataRetriever.doesPageContainTable(DCO, tableNode.Attributes["tablename"].Value))
+                    DCO = dCODataRetriever.getTableForPage(DCO, tableNode.Attributes["tablename"].Value);
+                else
+                    ExportCore.WriteLog(tableNode.Attributes["tablename"] + " table is not found in page " + DCO.ID);
+            }
+            else
+            {
+                string message = "Its mandatory to specify the table name when the for-each-rows tag is associated at page level.";
+                ExportCore.WriteLog(message);
+                new SmartExportException(message);
+            }
+        }
+
+        private void setContext()
+        {
+            //case when table is used in loops
+            if (Globals.Instance.ContainsKey(Constants.forLoopString.CURRENTITERATIONDCO)
+                && Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO) is TDCOLib.IDCO)
+            {
+                DCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO);
+            }
+            //case when the xml node is associated at the table/field level
+            if (DCO == null)
+            {
+                DCO = CurrentDCO;
+            }
+        }
+
         private void processTableRows(IDCO table, XmlNode tableNode)
         {
-            ExportCore.WriteDebugLog(" Row start is " + rowStart);
-            ExportCore.WriteDebugLog(" Row end is " + rowEnd);
-
             // iterate over rows
             //print rows
             int i = rowStart;

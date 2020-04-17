@@ -31,6 +31,7 @@ namespace SmartExportTemplates.Utils
             internal const string DOCUMENT_TYPE = "document.type";
             internal const string PAGE_TYPE = "page.type";
             internal const string TABLE_TYPE = "table.type";
+            internal const string FILE_PAGE_TYPES = "file.page.types";
 
         }
 

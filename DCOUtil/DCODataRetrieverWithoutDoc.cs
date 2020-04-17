@@ -231,6 +231,10 @@ namespace SmartExportTemplates.DCOUtil
                     pageTypes.Add(CurrentDCO.FindChild(pageID).Type);
                 }
             }
+            else
+            {
+                throw new SmartExportException("Cannot determine page types when file name is unknown.");
+            }
 
             ExportCore.WriteDebugLog(" getPageTypesInFile() completed in " + sw.ElapsedMilliseconds + " ms.");
             sw.Stop();
@@ -238,6 +242,22 @@ namespace SmartExportTemplates.DCOUtil
             return string.Join(",", pageTypes);
         }
 
+        public List<IDCO> getTablesForFile(string fileName, string tableName)
+        {
+            List<IDCO> tables = new List<IDCO>();
+            Dictionary<string, List<string>> filePageMap = (Dictionary<string, List<string>>)Globals.Instance.GetData(Constants.FILE_PAGE_MAP);
+            List<string> pages = filePageMap[fileName];
+            if(CurrentDCO.ObjectType()==Constants.Batch)
+            {
+                foreach(string pageID in pages)
+                {
+                    DCO page = CurrentDCO.FindChild(pageID);
+                    tables.Add(getTableForPage(page, tableName));
+                    
+                }
+            }
+            return tables;
+        }
 
     }
 }

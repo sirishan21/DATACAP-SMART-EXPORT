@@ -18,7 +18,7 @@ namespace SmartExportTemplates.Core
         //Node Parsers
         DataElement dataElement = new DataElement();
         Conditions conditionEvaluator = new Conditions();
-        Loops loopEvaluator = new Loops();
+        Loops loopEvaluator = new LoopsWithoutDoc ();
         Tables table = new Tables();
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
 
