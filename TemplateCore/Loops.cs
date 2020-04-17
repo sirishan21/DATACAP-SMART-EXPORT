@@ -129,7 +129,7 @@ namespace SmartExportTemplates.TemplateCore
         ///       There can be only 3 levels of valid nesting - 0,1,2.
         ///       <param name="loopNode">for-each tag node</param>
         ///       </summary>
-        private int setAndValidateNestingLevel(XmlNode loopNode)
+        protected int setAndValidateNestingLevel(XmlNode loopNode)
         {
 
             int nestingLevel = -1;
@@ -163,7 +163,7 @@ namespace SmartExportTemplates.TemplateCore
         ///       The method returns integer value of the object type passed.
         ///       <param name="objectType">String value of the level</param>
         ///       </summary>
-        private int getIntValueForEachObjectType(String objectType){
+        protected int getIntValueForEachObjectType(String objectType){
             int output = 4;
             switch(objectType.ToUpper()){
             case Constants.forLoopString.BATCH:
@@ -187,7 +187,7 @@ namespace SmartExportTemplates.TemplateCore
         ///       The method validates for loop expression.
         ///       <param name="forEachlevel">integer value of the level</param>
         ///       </summary>
-        private void validateForLoop(int forEachlevel, TDCOLib.IDCO DCO)
+        protected void validateForLoop(int forEachlevel, TDCOLib.IDCO DCO)
         {
             if(DCO == null)
             {

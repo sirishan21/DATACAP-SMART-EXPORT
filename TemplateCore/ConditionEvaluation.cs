@@ -12,17 +12,29 @@ namespace SmartExportTemplates.TemplateCore
     {
         private string ConditionText = null;
         private List<string> LexParseCondList = null;
-        private DCODataRetriever dCODataRetriever = new DCODataRetriever();
+        private DCODataRetriever dCODataRetriever =null;
         private DataTypeChecker dataTypeChecker = new DataTypeChecker();
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
-         public ConditionEvaluation(string ConditionText)
+        bool projectHasDoc = (bool)Globals.Instance.GetData(Constants.PROJECT_HAS_DOC);
+        string pattern;
+
+        public ConditionEvaluation(string ConditionText)
         {
-            this.ConditionText = ConditionText;
-             
+            this.ConditionText = ConditionText;            
         }
 
         public bool CanEvaluate()
         {
+            if (projectHasDoc)
+            {
+                dCODataRetriever = new DCODataRetriever();
+                pattern = Constants.DCO_REF_PATTERN;
+            }
+            else
+            {
+                dCODataRetriever = new DCODataRetrieverWithoutDoc();
+                pattern = Constants.DCO_REF_PATTERN_NO_DOC;
+            }
             //Parse Conditions
             ParseConditions();
             //Apply condition and overwrite the boolen
@@ -80,7 +92,7 @@ namespace SmartExportTemplates.TemplateCore
             {
                 throw new SmartExportException("Unsupported syntax. Check documentation: " + conditionText);
             }
-            Regex rx = new Regex(Constants.DCO_REF_PATTERN);
+            Regex rx = new Regex(pattern);
             for (int i = 0; i < operands.Count; i++)
             {
                 //replace DCO referencing expressions

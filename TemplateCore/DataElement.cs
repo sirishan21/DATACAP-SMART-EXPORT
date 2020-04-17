@@ -12,16 +12,24 @@ namespace SmartExportTemplates.TemplateCore
 {
     class DataElement
     {
-        private DCODataRetriever dCODataRetriever = new DCODataRetriever();
+        private DCODataRetriever dCODataRetriever = null;
         private dcSmart.SmartNav SmartNav = (dcSmart.SmartNav)Globals.Instance.GetData(Constants.GE_SMART_NAV);
         private SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         private bool isTableColumn = false;
         private string columnSeparator = "";
+        bool projectHasDoc = (bool)Globals.Instance.GetData(Constants.PROJECT_HAS_DOC);
 
 
         public DataElement()
         {
-
+            if (projectHasDoc)
+            {
+                dCODataRetriever = new DCODataRetriever();
+            }
+            else
+            {
+                dCODataRetriever = new DCODataRetrieverWithoutDoc();
+            }
         }
 
         public void EvaluateData(XmlNode DataNode)

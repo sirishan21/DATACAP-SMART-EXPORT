@@ -23,7 +23,7 @@ using System.Text.RegularExpressions;
 using SmartExportTemplates.DCOUtil;
 using SmartExportTemplates.TemplateCore;
 using SmartExportTemplates.Utils;
-
+using SmartExportTemplates.Core;
 
 namespace SmartExportTemplates
 {
@@ -288,14 +288,7 @@ namespace SmartExportTemplates
                 //Initialize the parser
                 TemplateParser templateParser = new TemplateParser(TemplateFilePath);
                 templateParser.Parse();
-                ValidateExpressions(TemplateFilePath);
-
-                //Node Parsers
-                DataElement dataElement = new DataElement();
-                Conditions conditionEvaluator = new Conditions();
-                Loops loopEvaluator = new Loops();
-                Tables table = new Tables();
-
+                
                 exportUtil.setContext(templateParser);
 
                 if (templateParser.AppendToFile() && !singleOutputFileNameMap.ContainsKey(templateParser.GetOutputFileName()))
@@ -304,35 +297,20 @@ namespace SmartExportTemplates
                 }
                 string locale = templateParser.GetLocale();
                 Globals.Instance.SetData(Constants.LOCALE, locale);
-
-                // Loop through the template and accumulate the output
-                while (templateParser.HasNextNode())
+                bool projectHasDocument = doesProjectHaveDocument();
+                Globals.Instance.SetData(Constants.PROJECT_HAS_DOC, projectHasDocument);
+                if (projectHasDocument)
                 {
-                    XmlNode currentNode = templateParser.GetNextNode();
-                    switch (templateParser.GetNodeType(currentNode))
-                    {
-                        case NodeType.Data:
-                            dataElement.EvaluateData(currentNode);
-                            break;
-                        case NodeType.If:
-                            conditionEvaluator.EvaluateCondition(currentNode);
-                            break;
-                        case NodeType.ForEach:
-                            loopEvaluator.EvaluateLoop(currentNode);
-                            break;
-                        case NodeType.ForEachRows:
-                            table.FetchTable(currentNode);
-                            break;
-                        default:
-                            if (currentNode.NodeType == XmlNodeType.Element)
-                            {
-                                WriteLog("Node type [" + ((XmlElement)currentNode).Name + "] not supported. Will be ignored");
-                            }
-                            break;
-                    }
+                    ValidateExpressions(TemplateFilePath,Constants.DCO_REF_PATTERN);
+                    new ContentProcessorWithDoc(templateParser).processNodes();
+                    exportUtil.writeToFile(singleOutputFileNameMap);
                 }
-
-                exportUtil.writeToFile(singleOutputFileNameMap);
+                else
+                {
+                    ValidateExpressions(TemplateFilePath, Constants.DCO_REF_PATTERN_NO_DOC);
+                    new ContentProcessorWithoutDoc(templateParser).processNodes();
+                }
+               
 
                 WriteInfoLog(" Smart export WriteLog completed in " + sw.ElapsedMilliseconds+" ms.");
 
@@ -351,6 +329,36 @@ namespace SmartExportTemplates
             return returnValue;
         }
 
+        bool doesProjectHaveDocument()
+        {
+            bool projectHasDoc = false;
+
+
+            if (CurrentDCO.ObjectType() == Constants.Document
+                || (CurrentDCO.ObjectType() == Constants.Page && CurrentDCO.Parent().ObjectType() == Constants.Document)
+                || (CurrentDCO.ObjectType() == Constants.Field && CurrentDCO.Parent().ObjectType() == Constants.Page &&
+                     CurrentDCO.Parent().Parent().ObjectType() == Constants.Document)
+               )
+                projectHasDoc = true;
+            if(CurrentDCO.ObjectType() == Constants.Batch)
+            {
+                for(int i=0;i< CurrentDCO.NumOfChildren();i++)
+                {
+                    TDCOLib.IDCO childDCO = CurrentDCO.GetChild(i);
+                    if(childDCO.ObjectType() != Constants.Document)
+                    {
+                        projectHasDoc = false;
+                        break;
+                    }
+                    else
+                    {
+                        projectHasDoc = true;
+                    }
+                }
+            }
+            return projectHasDoc;
+        }
+
         ///       <summary>
         ///       The method creates a list of valid DCO references.
         ///      
@@ -364,50 +372,67 @@ namespace SmartExportTemplates
             XmlDocument batchXML = new XmlDocument();
             batchXML.Load(dcoDefinitionFile);
             XmlElement batchRoot = batchXML.DocumentElement;
-            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
-            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
-            {
-                DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("type");
-                XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
-
-                foreach (XmlNode pageNode in pageList)
+            if ((bool)Globals.Instance.GetData(Constants.PROJECT_HAS_DOC))
+            {  
+                XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
+                foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
                 {
-                    string pageID = ((XmlElement)pageNode).GetAttribute("type");
-                    XmlNodeList allPageList = batchRoot.SelectNodes("./P");
-                    XmlNode currentPage = pageNode;
-                    foreach (XmlNode page in allPageList)
+                    DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("type");
+                    XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
+
+                    foreach (XmlNode pageNode in pageList)
                     {
-                        if (pageID == ((XmlElement)page).GetAttribute("type"))
+                        string pageID = ((XmlElement)pageNode).GetAttribute("type");
+                        XmlNodeList allPageList = batchRoot.SelectNodes("./P");
+                        XmlNode currentPage = pageNode;
+                        foreach (XmlNode page in allPageList)
                         {
-                            currentPage = page;
-                            break;
+                            if (pageID == ((XmlElement)page).GetAttribute("type"))
+                            {
+                                currentPage = page;
+                                break;
+                            }
+                        }
+                        XmlNodeList fieldList = currentPage.SelectNodes("./F");
+                        foreach (XmlNode fieldNode in fieldList)
+                        {
+                            string fieldID = ((XmlElement)fieldNode).GetAttribute("type");
+                            string dcoPattern = DocumentID + "." + pageID + "." + fieldID;
+                            DCOPatterns.Add(dcoPattern);
                         }
                     }
-                    XmlNodeList fieldList = currentPage.SelectNodes("./F");
+                }
+            }
+            else
+            {
+                XmlNodeList dcoPageNodes = batchRoot.SelectNodes("./P"); //Page nodes
+                foreach (XmlNode dcoPageNode in dcoPageNodes)
+                {
+                    string PageID = ((XmlElement)dcoPageNode).GetAttribute("type");
+                    XmlNodeList fieldList = dcoPageNode.SelectNodes("./F");
                     foreach (XmlNode fieldNode in fieldList)
                     {
                         string fieldID = ((XmlElement)fieldNode).GetAttribute("type");
-                        string dcoPattern = DocumentID + "." + pageID + "." + fieldID;
-
+                        string dcoPattern =  PageID + "." + fieldID;
                         DCOPatterns.Add(dcoPattern);
-
                     }
-                }
+                }                
             }
         }
 
         ///       <summary>
         ///       The method checks if valid DCO references are used in the template file. If an invalid reference if found an exception is thrown.
         ///       <param name="TemplateFile">Fully qualified path of the template file.</param>
+        ///       <param name="dcoPattern">DCO Pattern.</param>
         ///       </summary>
-        private void ValidateExpressions(string TemplateFile)
+        private void ValidateExpressions(string TemplateFile, string dcoPattern)
         {
 
             createDCOPatternList();
             byte[] bytes = System.IO.File.ReadAllBytes(TemplateFile);
             string text = System.Text.Encoding.UTF8.GetString(bytes);
 
-            Regex rg = new Regex(Constants.DCO_REF_PATTERN);
+            Regex rg = new Regex(dcoPattern);
             MatchCollection matchedPatterns = rg.Matches(text);
 
             List<string> wrongPatterns = new List<string>();

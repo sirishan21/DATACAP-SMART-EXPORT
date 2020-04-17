@@ -77,6 +77,9 @@ namespace SmartExportTemplates.Utils
                 case Constants.Operators.EQUALS:
                      response = operandOne.Equals(operandTwo, StringComparison.OrdinalIgnoreCase);
                     break;
+                case Constants.Operators.CONTAINS:
+                    response = operandOne.Split(',').Contains(operandTwo);
+                    break;
                 default:
                     throw new SmartExportException("The operator " + op + " is not applicable for type string");
 

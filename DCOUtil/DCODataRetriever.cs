@@ -13,7 +13,7 @@ namespace SmartExportTemplates.DCOUtil
         private SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         protected TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
         protected TDCOLib.IDCO DCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_DCO);
-        
+        private dcSmart.SmartNav SmartNav = (dcSmart.SmartNav)Globals.Instance.GetData(Constants.GE_SMART_NAV);
 
         ///       <summary>
         ///       The method returns the value corresponding to the DCO expression specified, from the current DCO.
@@ -103,7 +103,7 @@ namespace SmartExportTemplates.DCOUtil
         ///       <param name="page">DCO objects the corresponds to the current page that is being processed.</param>
         ///       <param name="tableName">Name of the table of interest</param>
         ///       <returns>True if a page contains a table.</returns>
-        public bool doesPageContainsTable(IDCO page, string tableName)
+        public bool doesPageContainTable(IDCO page, string tableName)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -119,6 +119,36 @@ namespace SmartExportTemplates.DCOUtil
                 " completed in " + sw.ElapsedMilliseconds + " ms.");
             sw.Stop();
             return pageHasTable;
+        }
+
+        ///       <summary>
+        ///      Checks if a document contains a table.
+        ///       <param name="document">DCO objects the corresponds to the current document that is being processed.</param>
+        ///       <param name="tableName">Name of the table of interest</param>
+        ///       <returns>True if a page contains a table.</returns>
+        public bool doesDocumentContainTable(IDCO document, string tableName)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+
+            bool docHasTable = false;
+            for (int j = 0; j < document.NumOfChildren(); j++)
+            {
+                IDCO page = document.GetChild(j);
+                if (page.ObjectType()==Constants.Page)
+                { 
+                    for (int i = 0; i < page.NumOfChildren(); i++)
+                    {
+                        IDCO field = page.GetChild(i);
+                        docHasTable = isObjectTable(field) && (field.ID == tableName);
+                        if (docHasTable)
+                            break;
+                    }
+                }
+            }
+            ExportCore.WriteDebugLog(" doesDocumentContainsTable(" + document + "," + tableName + ")" +
+                " completed in " + sw.ElapsedMilliseconds + " ms.");
+            sw.Stop();
+            return docHasTable;
         }
 
         ///       <summary>
@@ -144,6 +174,39 @@ namespace SmartExportTemplates.DCOUtil
                " completed in " + sw.ElapsedMilliseconds + " ms.");
             sw.Stop();
             return table;
+        }
+
+        ///       <summary>
+        ///       Returns the sepcified list of table DCO objects if it is present in the document.
+        ///       <param name="page">DCO objects the corresponds to the current page that is being processed.</param>
+        ///       <param name="tableName">Name of the table of interest</param>
+        ///       <returns>The sepcified table DCO object if it is present in the page</returns>
+        public List<IDCO> getTablesForDocument(IDCO document, string tableName)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+
+            List<IDCO> tables = new List<IDCO>();
+
+            for (int j = 0; j < document.NumOfChildren(); j++) 
+            {
+                IDCO page = document.GetChild(j);
+                if (page.ObjectType() == Constants.Page)
+                { 
+                    for (int i = 0; i < page.NumOfChildren(); i++)
+                    {
+                        IDCO field = page.GetChild(i);
+                        if (isObjectTable(field) && (field.ID == tableName))
+                        {
+                            tables.Add(field);
+                            break;
+                        }
+                    }
+                }
+            }
+            ExportCore.WriteDebugLog(" getTablesForDocument(" + document + "," + tableName + ")" +
+               " completed in " + sw.ElapsedMilliseconds + " ms.");
+            sw.Stop();
+            return tables;
         }
 
         ///       <summary>
@@ -346,8 +409,13 @@ namespace SmartExportTemplates.DCOUtil
             {
                 if(dcoArray[1] == CurrentDCO.Type)
                 {
-                    string pageID = getPageIDOfTypeInDocument(DCOTree, CurrentDCO.ID, dcoArray[2]);
-                    output = CurrentDCO.FindChild(pageID).FindChild(dcoArray[3]).Text;
+                    List<string> pageIDs = getPageIDsOfTypeInDocument(DCOTree, CurrentDCO.ID, dcoArray[2]);
+                    foreach (string pageID in pageIDs)
+                    {
+                        output = CurrentDCO.FindChild(pageID).FindChild(dcoArray[3]).Text;
+                        if (!string.IsNullOrEmpty(output))
+                            break;
+                    }
                 }
                 else
                 {
@@ -395,8 +463,13 @@ namespace SmartExportTemplates.DCOUtil
                 }
                 else if (dcoArray[1] == document.Type)
                 {
-                    string pageID = getPageIDOfTypeInDocument(DCOTree, currentIterationDCO.ID, dcoArray[2]);
-                    output = currentIterationDCO.FindChild(pageID).FindChild(dcoArray[3]).Text;
+                    List<string> pageIDs = getPageIDsOfTypeInDocument(DCOTree, currentIterationDCO.ID, dcoArray[2]);
+                    foreach (string pageID in pageIDs)
+                    {
+                        output = currentIterationDCO.FindChild(pageID).FindChild(dcoArray[3]).Text;
+                        if (!string.IsNullOrEmpty(output))
+                            break;
+                    }
                 }
                 else
                 {
@@ -425,10 +498,9 @@ namespace SmartExportTemplates.DCOUtil
         ///       <param name="pageType">Page tyep</param>
         ///       <returns>The page ID of the specified page typs in the specified document.</returns>
         ///       </summary>
-        public string getPageIDOfTypeInDocument(string DCOTree, string documentID, string pageType)
+        public List<string> getPageIDsOfTypeInDocument(string DCOTree, string documentID, string pageType)
         {
 
-            string pageID="";
             TDCOLib.IDCO currentIterationDCO = null; 
            if(!Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO).Equals(Constants.EMPTYSTRING)){
                currentIterationDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.forLoopString.CURRENTITERATIONDCO);                           
@@ -443,14 +515,12 @@ namespace SmartExportTemplates.DCOUtil
             
                 if (child.Type == pageType)
                 {
-                    pageID = child.ID;
                     pageIDs.Add(child.ID);
                 }
                 if (1 < pageIDs.Count)
                 {
                     string message = " There is more than one page of type " + pageType + " in the document " + documentID;
                     ExportCore.WriteLog(message);
-                    throw new SmartExportException(message);
                 }
             }
            
@@ -460,7 +530,7 @@ namespace SmartExportTemplates.DCOUtil
                 ExportCore.WriteLog(message);
             }
 
-            return pageID;
+            return pageIDs;
             
         }
 
