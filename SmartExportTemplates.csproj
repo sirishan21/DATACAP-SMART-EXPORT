@@ -82,6 +82,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\ContentProcessor.cs" />
     <Compile Include="Core\ContentProcessorWithDoc.cs" />
     <Compile Include="Core\ContentProcessorWithoutDoc.cs" />
     <Compile Include="DCOUtil\DCODataRetriever.cs" />

@@ -11,9 +11,8 @@ namespace SmartExportTemplates.TemplateCore
 {
     class LoopsWithoutDoc:Loops
     {
-        protected TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
+        TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
-        private int nestingLevel = 0;
         public LoopsWithoutDoc()
         {
 
@@ -91,7 +90,8 @@ namespace SmartExportTemplates.TemplateCore
                                 }
                                 break;
                         }
-                    }               
+                    }
+                    TemplateParser templateParser = (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
 
                     ExportCore.getExportUtil.writeToFile(null);
 

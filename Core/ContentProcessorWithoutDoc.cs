@@ -11,7 +11,7 @@ using static SmartExportTemplates.SmartExport;
 
 namespace SmartExportTemplates.Core
 {
-    class ContentProcessorWithoutDoc
+    class ContentProcessorWithoutDoc : ContentProcessor
     {
 
         TemplateParser templateParser = null;
@@ -27,6 +27,31 @@ namespace SmartExportTemplates.Core
         public ContentProcessorWithoutDoc(TemplateParser parser)
         {
             this.templateParser = parser;
+        }
+
+        public List<string> createDCOPatternList(string dcoDefinitionFile)
+        {
+            List<string> DCOPatterns = new List<string>();
+
+            XmlDocument batchXML = new XmlDocument();
+            batchXML.Load(dcoDefinitionFile);
+            XmlElement batchRoot = batchXML.DocumentElement;
+
+            {
+                XmlNodeList dcoPageNodes = batchRoot.SelectNodes("./P"); //Page nodes
+                foreach (XmlNode dcoPageNode in dcoPageNodes)
+                {
+                    string PageID = ((XmlElement)dcoPageNode).GetAttribute("type");
+                    XmlNodeList fieldList = dcoPageNode.SelectNodes("./F");
+                    foreach (XmlNode fieldNode in fieldList)
+                    {
+                        string fieldID = ((XmlElement)fieldNode).GetAttribute("type");
+                        string dcoPattern = PageID + "." + fieldID;
+                        DCOPatterns.Add(dcoPattern);
+                    }
+                }
+            }
+            return DCOPatterns;
         }
 
         public void processNodes()

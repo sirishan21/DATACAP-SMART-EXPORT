@@ -10,7 +10,7 @@ using static SmartExportTemplates.SmartExport;
 
 namespace SmartExportTemplates.Core
 {
-    class ContentProcessorWithDoc
+    class ContentProcessorWithDoc : ContentProcessor
     {
         TemplateParser templateParser = null;
         
@@ -26,8 +26,49 @@ namespace SmartExportTemplates.Core
             this.templateParser = parser;
         }
 
+        ///       <summary>
+        ///       The method creates a list of valid DCO references.
+        ///      
+        public List<string> createDCOPatternList(string dcoDefinitionFile)
+        {
+            List<string> DCOPatterns = new List<string>();
 
-       public void processNodes()
+            XmlDocument batchXML = new XmlDocument();
+            batchXML.Load(dcoDefinitionFile);
+            XmlElement batchRoot = batchXML.DocumentElement;
+
+            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
+            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
+            {
+                string DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("type");
+                XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
+
+                foreach (XmlNode pageNode in pageList)
+                {
+                    string pageID = ((XmlElement)pageNode).GetAttribute("type");
+                    XmlNodeList allPageList = batchRoot.SelectNodes("./P");
+                    XmlNode currentPage = pageNode;
+                    foreach (XmlNode page in allPageList)
+                    {
+                        if (pageID == ((XmlElement)page).GetAttribute("type"))
+                        {
+                            currentPage = page;
+                            break;
+                        }
+                    }
+                    XmlNodeList fieldList = currentPage.SelectNodes("./F");
+                    foreach (XmlNode fieldNode in fieldList)
+                    {
+                        string fieldID = ((XmlElement)fieldNode).GetAttribute("type");
+                        string dcoPattern = DocumentID + "." + pageID + "." + fieldID;
+                        DCOPatterns.Add(dcoPattern);
+                    }
+                }
+            }
+            return DCOPatterns;
+        }
+
+        public void processNodes()
         {
             // Loop through the template and accumulate the output
             while (templateParser.HasNextNode())

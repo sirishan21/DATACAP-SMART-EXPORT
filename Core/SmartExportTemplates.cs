@@ -300,20 +300,21 @@ namespace SmartExportTemplates
                 Globals.Instance.SetData(Constants.PROJECT_HAS_DOC, projectHasDocument);
                 if (projectHasDocument)
                 {
-                    WriteInfoLog("Project has doc");
-                    createDCOPatternListWithDoc();
+                    ContentProcessorWithDoc ContentProcessor = new ContentProcessorWithDoc(templateParser);
+                    DCOPatterns.AddRange(ContentProcessor.createDCOPatternList(getDCODefinitionFile()));
                     ValidateExpressions(TemplateFilePath,Constants.DCO_REF_PATTERN);
-                    new ContentProcessorWithDoc(templateParser).processNodes();
+                    ContentProcessor.processNodes();
                 }
                 else
                 {
-                    WriteInfoLog("Project doesn't have doc");
-                    createDCOPatternListWithoutDoc();
+                    ContentProcessorWithoutDoc ContentProcessor = new ContentProcessorWithoutDoc(templateParser);
+                    DCOPatterns.AddRange(ContentProcessor.createDCOPatternList(getDCODefinitionFile()));
                     ValidateExpressions(TemplateFilePath, Constants.DCO_REF_PATTERN_NO_DOC);
-                    new ContentProcessorWithoutDoc(templateParser).processNodes();
+                    ContentProcessor.processNodes();
                     
 
                 }
+                //if project has document or when project doesn't have document and append to file is false
                 if (projectHasDocument || (CurrentDCO.ObjectType() != Constants.Batch && !projectHasDocument))
                     exportUtil.writeToFile(singleOutputFileNameMap);
 
@@ -337,19 +338,20 @@ namespace SmartExportTemplates
         bool doesProjectHaveDocument()
         {
             bool projectHasDoc = false;
-
+            // if there is a document type in the DCO hierarchy
             if (CurrentDCO.ObjectType() == Constants.Document
                 || (CurrentDCO.ObjectType() == Constants.Page && CurrentDCO.Parent().ObjectType() == Constants.Document)
                 || (CurrentDCO.ObjectType() == Constants.Field && CurrentDCO.Parent().ObjectType() == Constants.Page &&
                      CurrentDCO.Parent().Parent().ObjectType() == Constants.Document)
                )
                 projectHasDoc = true;
+            //check if the child of batch is not a document
             else if(CurrentDCO.ObjectType() == Constants.Batch)
             {
                 for(int i=0;i< CurrentDCO.NumOfChildren();i++)
                 {
                     TDCOLib.IDCO childDCO = CurrentDCO.GetChild(i);
-                    if(childDCO.ObjectType() != Constants.Document)
+                    if(childDCO.ObjectType() == Constants.Page)
                     {
                         projectHasDoc = false;
                         break;
@@ -363,77 +365,14 @@ namespace SmartExportTemplates
             return projectHasDoc;
         }
 
-        ///       <summary>
-        ///       The method creates a list of valid DCO references.
-        ///      
-        private void createDCOPatternListWithDoc()
+        private string getDCODefinitionFile()
         {
-            string projectFile = this.BatchPilot.ProjectPath;
-
-            string parentDirectory = Path.GetDirectoryName(projectFile);
-            string dcoDefinitionFile = parentDirectory + Path.DirectorySeparatorChar + Path.GetFileName(Path.GetDirectoryName(parentDirectory)) + ".xml";
-
-            XmlDocument batchXML = new XmlDocument();
-            batchXML.Load(dcoDefinitionFile);
-            XmlElement batchRoot = batchXML.DocumentElement;
-            
-                XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
-                foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
-                {
-                    DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("type");
-                    XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
-
-                    foreach (XmlNode pageNode in pageList)
-                    {
-                        string pageID = ((XmlElement)pageNode).GetAttribute("type");
-                        XmlNodeList allPageList = batchRoot.SelectNodes("./P");
-                        XmlNode currentPage = pageNode;
-                        foreach (XmlNode page in allPageList)
-                        {
-                            if (pageID == ((XmlElement)page).GetAttribute("type"))
-                            {
-                                currentPage = page;
-                                break;
-                            }
-                        }
-                        XmlNodeList fieldList = currentPage.SelectNodes("./F");
-                        foreach (XmlNode fieldNode in fieldList)
-                        {
-                            string fieldID = ((XmlElement)fieldNode).GetAttribute("type");
-                            string dcoPattern = DocumentID + "." + pageID + "." + fieldID;
-                            DCOPatterns.Add(dcoPattern);
-                        }
-                    }
-                }
-           
-        }
-        private void createDCOPatternListWithoutDoc()
-        {
-            string projectFile = this.BatchPilot.ProjectPath;
-
-            string parentDirectory = Path.GetDirectoryName(projectFile);
-            string dcoDefinitionFile = parentDirectory + Path.DirectorySeparatorChar + Path.GetFileName(Path.GetDirectoryName(parentDirectory)) + ".xml";
-
-            XmlDocument batchXML = new XmlDocument();
-            batchXML.Load(dcoDefinitionFile);
-            XmlElement batchRoot = batchXML.DocumentElement;
-            
-            {
-                XmlNodeList dcoPageNodes = batchRoot.SelectNodes("./P"); //Page nodes
-                foreach (XmlNode dcoPageNode in dcoPageNodes)
-                {
-                    string PageID = ((XmlElement)dcoPageNode).GetAttribute("type");
-                    XmlNodeList fieldList = dcoPageNode.SelectNodes("./F");
-                    foreach (XmlNode fieldNode in fieldList)
-                    {
-                        string fieldID = ((XmlElement)fieldNode).GetAttribute("type");
-                        string dcoPattern = PageID + "." + fieldID;
-                        DCOPatterns.Add(dcoPattern);
-                    }
-                }
-            }
+            string parentDirectory = Path.GetDirectoryName(this.BatchPilot.ProjectPath);
+            return parentDirectory + Path.DirectorySeparatorChar 
+                + Path.GetFileName(Path.GetDirectoryName(parentDirectory)) + ".xml";
         }
 
+   
 
         ///       <summary>
         ///       The method checks if valid DCO references are used in the template file. If an invalid reference if found an exception is thrown.
