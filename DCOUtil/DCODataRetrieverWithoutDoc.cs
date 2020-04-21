@@ -88,7 +88,7 @@ namespace SmartExportTemplates.DCOUtil
         ///       <param name="DCOTree">DCO Expression in the format [DCO].[page_type].[field_name]</param>
         ///       <returns>The value corresponding to the DCO field specified, from the current DCO.</returns>
         ///       </summary>
-        public string getDCOValueForField(string DCOTree)
+        public override string getDCOValueForField(string DCOTree)
         {
             // DCO reference in the template file should adhere to a 4 part string [DCO].[page_type].[field_name]
             // Parse the DCO reference and extract the page_type and field_name which can then be used to look up in the 
@@ -131,7 +131,7 @@ namespace SmartExportTemplates.DCOUtil
         ///       <param name="DCOTree">DCO Expression in the format [DCO].[page_type].[field_name]</param>
         ///       <returns>The value corresponding to the DCO expression specified, from the current DCO.</returns>
         ///       </summary>
-        public string getDCOValue(string DCOTree)
+        public override string getDCOValue(string DCOTree)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -167,7 +167,7 @@ namespace SmartExportTemplates.DCOUtil
         ///       <param name="DCOTree">DCO Expression in the format [DCO].[page_type].[field_name]</param>
         ///       <returns>The value corresponding to the DCO expression specified from the current DCO.</returns>
         ///       </summary>
-        public string getDCOValueForPage(string DCOTree)
+        public override string getDCOValueForPage(string DCOTree)
         {
             // DCO reference in the template file should adhere to a 4 part string [DCO.<doc_type>.<page_type>.<field_name>]
             // Parse the DCO reference and extract the page_type and field_name which can then be used to look up in the 
@@ -209,7 +209,7 @@ namespace SmartExportTemplates.DCOUtil
         ///       Returns the page type.
         ///       <returns>The page type.</returns>
         ///       </summary>
-        public string getPageTypesInFile()
+        public override string getPageTypesInFile()
         {
             Stopwatch sw = Stopwatch.StartNew();
 

@@ -26,6 +26,7 @@ namespace SmartExportTemplates.Core
             this.templateParser = parser;
         }
 
+
        public void processNodes()
         {
             // Loop through the template and accumulate the output

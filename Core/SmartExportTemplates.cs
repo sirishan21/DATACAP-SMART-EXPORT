@@ -269,7 +269,6 @@ namespace SmartExportTemplates
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
             Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
             Globals.Instance.SetData(Constants.GE_SMART_NAV, smartNav);
-
         }
 
        
@@ -301,18 +300,22 @@ namespace SmartExportTemplates
                 Globals.Instance.SetData(Constants.PROJECT_HAS_DOC, projectHasDocument);
                 if (projectHasDocument)
                 {
+                    WriteInfoLog("Project has doc");
                     createDCOPatternListWithDoc();
                     ValidateExpressions(TemplateFilePath,Constants.DCO_REF_PATTERN);
                     new ContentProcessorWithDoc(templateParser).processNodes();
-                    exportUtil.writeToFile(singleOutputFileNameMap);
                 }
                 else
                 {
+                    WriteInfoLog("Project doesn't have doc");
                     createDCOPatternListWithoutDoc();
                     ValidateExpressions(TemplateFilePath, Constants.DCO_REF_PATTERN_NO_DOC);
                     new ContentProcessorWithoutDoc(templateParser).processNodes();
+                    
+
                 }
-               
+                if (projectHasDocument || (CurrentDCO.ObjectType() != Constants.Batch && !projectHasDocument))
+                    exportUtil.writeToFile(singleOutputFileNameMap);
 
                 WriteInfoLog(" Smart export WriteLog completed in " + sw.ElapsedMilliseconds+" ms.");
 

@@ -20,7 +20,7 @@ namespace SmartExportTemplates.DCOUtil
         ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
         ///       <returns>The value corresponding to the DCO expression specified, from the current DCO.</returns>
         ///       </summary>
-        public string getDCOValue(string DCOTree)
+        public virtual string getDCOValue(string DCOTree)
         {
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -68,6 +68,8 @@ namespace SmartExportTemplates.DCOUtil
         ///       <returns>The value of the column for the current row of a table.</returns>
         public string getColumnValueForRow(string columnName)
         {
+            ExportCore.WriteLog("inside getColumnValueForRow " + columnName );
+
             string columnValue = "";
             TDCOLib.IDCO row = null;
             Stopwatch sw = Stopwatch.StartNew();
@@ -215,7 +217,7 @@ namespace SmartExportTemplates.DCOUtil
         ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
         ///       <returns>The value corresponding to the DCO field specified, from the current DCO.</returns>
         ///       </summary>
-        public string getDCOValueForField(string DCOTree)
+        public virtual string getDCOValueForField(string DCOTree)
         {
             // DCO reference in the template file should adhere to a 4 part string [DCO].[document_type].[page_type].[field_name]
             // Parse the DCO reference and extract the page_type and field_name which can then be used to look up in the 
@@ -300,7 +302,7 @@ namespace SmartExportTemplates.DCOUtil
         ///       <param name="DCOTree">DCO Expression in the format [DCO].[document_type].[page_type].[field_name]</param>
         ///       <returns>The value corresponding to the DCO expression specified from the current DCO.</returns>
         ///       </summary>
-        public string getDCOValueForPage(string DCOTree)
+        public virtual string getDCOValueForPage(string DCOTree)
         {
             // DCO reference in the template file should adhere to a 4 part string [DCO.<doc_type>.<page_type>.<field_name>]
             // Parse the DCO reference and extract the page_type and field_name which can then be used to look up in the 
@@ -543,6 +545,7 @@ namespace SmartExportTemplates.DCOUtil
         public string getPageType()
         {
             Stopwatch sw = Stopwatch.StartNew();
+            ExportCore.WriteDebugLog("Inside getPageType().");
 
             string pageType = "";
             TDCOLib.IDCO currentIterationDCO = null;
@@ -558,6 +561,8 @@ namespace SmartExportTemplates.DCOUtil
             if (Constants.Page == objectType)
             {
                 pageType = currentIterationDCO == null ? CurrentDCO.Type : currentIterationDCO.Type;
+                ExportCore.WriteDebugLog("pageType is "+ pageType);
+
             }
             else if (Constants.Field == objectType)
             {
@@ -708,7 +713,7 @@ namespace SmartExportTemplates.DCOUtil
         ///       Returns the page type.
         ///       <returns>The page type.</returns>
         ///       </summary>
-        public string getPageTypesInFile()
+        public virtual string getPageTypesInFile()
         {
             throw new SmartExportException("Operation not supported!");
         }

@@ -27,7 +27,7 @@ namespace SmartExportTemplates.TemplateCore
         {
              
             int forEachlevel = getIntValueForEachObjectType(loopNode.Attributes["select"].Value);
-            if (forEachlevel == 1 && CurrentDCO.ObjectType() == Constants.Batch)
+            if (forEachlevel == Constants.Document && CurrentDCO.ObjectType() == Constants.Batch )
                 EvaluateLoopForFiles(loopNode);
             else
             {
@@ -45,7 +45,7 @@ namespace SmartExportTemplates.TemplateCore
 
             Stopwatch sw = Stopwatch.StartNew();
 
-
+            ExportCore.WriteLog(" Inside EvaluateLoopForFiles");
             DataElement dataElement = new DataElement();
             Conditions conditionEvaluator = new Conditions();
             Tables table = new Tables();
@@ -119,6 +119,8 @@ namespace SmartExportTemplates.TemplateCore
             sw.Stop();
         }
 
+
+
         public void EvaluateLoopForPagesOfFile(XmlNode loopNode)
         {
 
@@ -145,7 +147,7 @@ namespace SmartExportTemplates.TemplateCore
                             case Constants.NodeTypeString.SE_IF:
                                 conditionEvaluator.EvaluateCondition(node);
                                 break;
-                            
+
                             case Constants.NodeTypeString.SE_ROWS:
                                 if (node.Attributes == null || node.Attributes.Count > 0 ||
                                 string.IsNullOrEmpty(node.Attributes["tablename"].Value))
@@ -167,11 +169,7 @@ namespace SmartExportTemplates.TemplateCore
                         }
                     }
                     Globals.Instance.SetData(Constants.GE_CURRENT_DCO, CurrentDCO);
-
-                    ExportCore.getExportUtil.writeToFile(null);
-
-                    //setting it to empty after every iteration.
-                    Globals.Instance.SetData(Constants.forLoopString.CURRENTFILE, Constants.EMPTYSTRING);
+                   
                 }
             }
             catch (System.Exception exp)
@@ -193,8 +191,6 @@ namespace SmartExportTemplates.TemplateCore
 
             sw.Stop();
         }
-
-
 
 
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using SmartExportTemplates.DCOUtil;
 using SmartExportTemplates.TemplateCore;
 using SmartExportTemplates.Utils;
 using static SmartExportTemplates.SmartExport;
@@ -18,9 +19,10 @@ namespace SmartExportTemplates.Core
         //Node Parsers
         DataElement dataElement = new DataElement();
         Conditions conditionEvaluator = new Conditions();
-        Loops loopEvaluator = new LoopsWithoutDoc ();
+        LoopsWithoutDoc loopEvaluator = new LoopsWithoutDoc ();
         Tables table = new Tables();
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
+        TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
 
         public ContentProcessorWithoutDoc(TemplateParser parser)
         {
@@ -29,6 +31,11 @@ namespace SmartExportTemplates.Core
 
         public void processNodes()
         {
+            DCODataRetrieverWithoutDoc dCODataRetriever = new DCODataRetrieverWithoutDoc();
+             if (CurrentDCO.ObjectType() == Constants.Batch )
+            {
+                dCODataRetriever.createFilePageMap(); 
+            }
             // Loop through the template and accumulate the output
             while (templateParser.HasNextNode())
             {

@@ -21,7 +21,8 @@ namespace SmartExportTemplates.TemplateCore
         int rowStart = 0;
         int rowEnd = 0;
         TDCOLib.IDCO DCO = null;
-        List<TDCOLib.IDCO> tableDCOs = null;
+        TDCOLib.IDCO table = null;
+        List<TDCOLib.IDCO> tableDCOs = new List<TDCOLib.IDCO>();
 
         public Tables()
         {          
@@ -37,8 +38,11 @@ namespace SmartExportTemplates.TemplateCore
            
             setContext();
 
-            //case when the xml node is associated at the page level
-            if (DCO.ObjectType()== Constants.Page )
+            if (DCO.ObjectType() == Constants.Field)
+            {
+                initializeTableObjectForField(tableNode);
+            }
+            else if (DCO.ObjectType()== Constants.Page )
             {
                 initializeTableObjectForPage( tableNode);
             }
@@ -50,6 +54,10 @@ namespace SmartExportTemplates.TemplateCore
             {
                 initializeTableObjectForBatch(tableNode);       
             }
+            else
+            {
+                throw new SmartExportException("Unable to fetch table.");
+            }
 
             ExportCore.WriteDebugLog("Iterating over the table rows:");
 
@@ -57,16 +65,24 @@ namespace SmartExportTemplates.TemplateCore
             //print rows
             if (tableDCOs.Count > 0)
             {
+                ExportCore.WriteDebugLog("Iterating over multiple table rows:");
+
                 foreach (IDCO table in tableDCOs)
                 {
                     setTableLimits(tableNode, table);
                     processTableRows(table, tableNode);
                 }
             }
+            else if(null != table )
+            {
+                ExportCore.WriteDebugLog("Iterating over single table rows:");
+                setTableLimits(tableNode, table);
+                processTableRows(table, tableNode);
+            }
             else
             {
-                setTableLimits(tableNode, DCO);
-                processTableRows(DCO, tableNode);
+                ExportCore.WriteDebugLog("Table not found");
+
             }
 
             ExportCore.WriteDebugLog(" FetchTable("+tableNode+") completed in " + sw.ElapsedMilliseconds + " ms.");
@@ -84,7 +100,7 @@ namespace SmartExportTemplates.TemplateCore
                 if (tableNode.Attributes != null && tableNode.Attributes.Count > 0 &&
                     !string.IsNullOrEmpty(tableNode.Attributes["tablename"].Value))
                 {
-                    tableDCOs = dCODataRetriever.getTablesForFile(filename, tableNode.Attributes["tablename"].Value);
+                    tableDCOs.AddRange( dCODataRetriever.getTablesForFile(filename, tableNode.Attributes["tablename"].Value));
                     if (tableDCOs.Count == 0)
                         ExportCore.WriteLog(tableNode.Attributes["tablename"] + " table is not found in document " + DCO.ID);
                 }
@@ -105,9 +121,9 @@ namespace SmartExportTemplates.TemplateCore
             if (tableNode.Attributes != null && tableNode.Attributes.Count > 0 &&
                 !string.IsNullOrEmpty(tableNode.Attributes["tablename"].Value))
             {
-                if (dCODataRetriever.doesDocumentContainTable(DCO, tableNode.Attributes["tablename"].Value))
-                    tableDCOs = dCODataRetriever.getTablesForDocument(DCO, tableNode.Attributes["tablename"].Value);
-                else
+                tableDCOs.AddRange(dCODataRetriever.getTablesForDocument(DCO, tableNode.Attributes["tablename"].Value));
+
+                if (tableDCOs.Count == 0)
                     ExportCore.WriteLog(tableNode.Attributes["tablename"] + " table is not found in document " + DCO.ID);
             }
             else
@@ -125,9 +141,8 @@ namespace SmartExportTemplates.TemplateCore
             if (tableNode.Attributes != null && tableNode.Attributes.Count > 0 &&
                 !string.IsNullOrEmpty(tableNode.Attributes["tablename"].Value))
             {
-                if (dCODataRetriever.doesPageContainTable(DCO, tableNode.Attributes["tablename"].Value))
-                    DCO = dCODataRetriever.getTableForPage(DCO, tableNode.Attributes["tablename"].Value);
-                else
+                table = dCODataRetriever.getTableForPage(DCO, tableNode.Attributes["tablename"].Value);
+                if(null== table)
                     ExportCore.WriteLog(tableNode.Attributes["tablename"] + " table is not found in page " + DCO.ID);
             }
             else
@@ -136,6 +151,17 @@ namespace SmartExportTemplates.TemplateCore
                 ExportCore.WriteLog(message);
                 new SmartExportException(message);
             }
+        }
+
+        private void initializeTableObjectForField(XmlNode tableNode)
+        {
+            DCODataRetriever dCODataRetriever = new DCODataRetriever();
+            
+            if (dCODataRetriever.isObjectTable(DCO) )
+                table = DCO;
+           if (null == table)
+                ExportCore.WriteLog(" Table is not found in field " + DCO.ID);
+           
         }
 
         private void setContext()
@@ -155,20 +181,27 @@ namespace SmartExportTemplates.TemplateCore
 
         private void processTableRows(IDCO table, XmlNode tableNode)
         {
+            ExportCore.WriteDebugLog("In processTableRows:");
+
             // iterate over rows
-            //print rows
+            // print rows
             int i = rowStart;
             do
             {
+
                 TDCOLib.DCO row = table.GetChild(i);
                 if (row.ObjectType() == Constants.Field)
                 {
                     i++;
+                    ExportCore.WriteDebugLog("row number :" + i);
+
                     Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, row);
                     XmlNode dataNode = tableNode.ChildNodes.Item(0);
                     {
                         if (dataNode.Name == Constants.NodeTypeString.SE_DATA)
                         {
+                            ExportCore.WriteDebugLog(" fetching column value:" );
+
                             dataElement.setIsTableColumn(true);
                             dataElement.EvaluateData(dataNode);
                         }

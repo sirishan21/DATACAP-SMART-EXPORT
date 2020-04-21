@@ -56,8 +56,6 @@ namespace SmartExportTemplates.TemplateCore
                             text.Append(Constants.NEW_LINE);
                             break;
                         case Constants.SE_COMMA_NODE_NAME:
-                            if (isTableColumn)
-                                columnSeparator=Constants.COMMA;
                             text.Append(Constants.COMMA);
                             break;
                         case Constants.SE_VALUE_NODE_NAME:

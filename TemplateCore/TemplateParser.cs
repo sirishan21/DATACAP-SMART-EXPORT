@@ -264,6 +264,7 @@ namespace SmartExportTemplates.TemplateCore
                     if (rgxIf.IsMatch(line))
                         lineNumbers.Add(counter);
                 }
+                
             }
             return string.Join(",", lineNumbers);
         }
