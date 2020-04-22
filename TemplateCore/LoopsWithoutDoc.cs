@@ -11,6 +11,8 @@ namespace SmartExportTemplates.TemplateCore
 {
     class LoopsWithoutDoc:Loops
     {
+        TemplateParser templateParser =
+                        (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
         TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         public LoopsWithoutDoc()
@@ -91,10 +93,10 @@ namespace SmartExportTemplates.TemplateCore
                                 break;
                         }
                     }
-                    TemplateParser templateParser = 
-                        (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
-
-                    ExportCore.getExportUtil.writeToFile(null);
+                    if ( !templateParser.CollateBatchOutput())
+                    {
+                        ExportCore.getExportUtil.writeToFile(null);
+                    }
 
                     //setting it to empty after every iteration.
                     Globals.Instance.SetData(Constants.forLoopString.CURRENTFILE, Constants.EMPTYSTRING);
@@ -107,8 +109,7 @@ namespace SmartExportTemplates.TemplateCore
                 // information would be already present in the exception message
                 if (!message.Contains("Problem found at line number"))
                 {
-                    TemplateParser templateParser = 
-                        (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
+                   
                     message = "Problem found at line number : " 
                         + templateParser.GetLineNumberForNode(loopNode) + "\n" + exp.Message;
                 }

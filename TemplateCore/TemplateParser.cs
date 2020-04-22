@@ -114,6 +114,48 @@ namespace SmartExportTemplates.TemplateCore
             return AppendToFile;
         }
 
+        public bool CollateBatchOutput()
+        {
+            bool collateBatchOutput = false;
+            XmlNode BatchOutputNode = TemplateRoot.GetElementsByTagName(Constants.SE_BATCH_OUTPUT)[0];
+            if (BatchOutputNode != null)
+            {
+                string collateBatchOutputValue = "false";
+                foreach (XmlNode node in BatchOutputNode.ChildNodes)
+                {
+                    if (Constants.SE_COLLATE == node.Name)
+                    {
+                        collateBatchOutputValue = node.InnerText.Trim();
+                        break;
+                    }
+                }
+                collateBatchOutput =
+                    (collateBatchOutputValue.Equals("True", StringComparison.InvariantCultureIgnoreCase)) ? true : false;
+            }
+            return collateBatchOutput;
+        }
+
+        public bool NameBatchOutputAfterInput()
+        {
+            bool nameAfterInput = false;
+            XmlNode BatchOutputNode = TemplateRoot.GetElementsByTagName(Constants.SE_BATCH_OUTPUT)[0];
+            if (BatchOutputNode != null)
+            {
+                string nameAfterInputValue = "false";
+                foreach (XmlNode node in BatchOutputNode.ChildNodes)
+                {
+                    if (Constants.SE_NAME_AFTER_INPUT == node.Name)
+                    {
+                        nameAfterInputValue = node.InnerText.Trim();
+                        break;
+                    }
+                }
+                nameAfterInput =
+                    (nameAfterInputValue.Equals("True", StringComparison.InvariantCultureIgnoreCase)) ? true : false;
+            }
+            return nameAfterInput;
+        }
+
         public string GetOutputFileName()
         {
             string OutputFileName = Constants.GE_DEF_OUTPUT_FILE;
@@ -205,7 +247,13 @@ namespace SmartExportTemplates.TemplateCore
                            ExportCore.WriteDebugLog("smart param value for '"+ node.InnerText.Trim() + "' is " + 
                                     smartNav.MetaWord(Constants.SMARTP_AT + node.InnerText.Trim()));
                             break;
-                        default:
+                    case Constants.SE_COLLATE:
+                            nodeValue.Append(node.Value.Trim());
+                            break;
+                    case Constants.SE_NAME_AFTER_INPUT:
+                        nodeValue.Append(node.Value.Trim());
+                        break;
+                    default:
                             throw new SmartExportException("Internal error. " + node.Name + " node is not supported inside "+ headerNode.Name  +" node ");
                     }
                 }

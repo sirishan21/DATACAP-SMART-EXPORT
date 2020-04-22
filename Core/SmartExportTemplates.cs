@@ -314,8 +314,14 @@ namespace SmartExportTemplates
                     
 
                 }
-                //if project has document or when project doesn't have document and append to file is false
-                if (projectHasDocument || (CurrentDCO.ObjectType() != Constants.Batch && !projectHasDocument))
+                //if project has document
+                //or when project doesn't have document and action is attached at page/field level
+                //or when collate batch output flag is true when action is attached at batch level and project doesn't have 
+                //document
+                if (projectHasDocument
+                    || (CurrentDCO.ObjectType() != Constants.Batch && !projectHasDocument)
+                    || (CurrentDCO.ObjectType() == Constants.Batch && !projectHasDocument
+                        && templateParser.CollateBatchOutput()))
                     exportUtil.writeToFile(singleOutputFileNameMap);
 
                 WriteInfoLog(" Smart export WriteLog completed in " + sw.ElapsedMilliseconds+" ms.");

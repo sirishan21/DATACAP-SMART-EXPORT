@@ -57,6 +57,9 @@ namespace SmartExportTemplates.Utils
         public static string SE_OUTPUT_DIR_PATH = "se:outputFolder";
         public static string SE_ATTRIBUTE_COND_TEST = "test";
         public static string SE_OUTPUT_MEM_CACHE_LINES = "se:memCacheLines";
+        public static string SE_BATCH_OUTPUT = "se:BatchOutput";
+        public const string SE_COLLATE = "se:collate";
+        public const string SE_NAME_AFTER_INPUT = "se:nameafterinput";
 
         //General
         public static string GE_TEMPLATE_PARSER = "GETemplateParser";

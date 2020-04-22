@@ -62,9 +62,18 @@ namespace SmartExportTemplates.Utils
                 bool clearBuffer = false;
                 string outputFileName = null;
                 string outputFilePath = null;
+                //this scenario happens only when the project doesn't have document and the action is attached at batch level 
+                //and the collate batch output flag is false
                 if (null == singleOutputFileNameMap)
                 {
-                    outputFileName = Path.GetFileNameWithoutExtension((string)Globals.Instance.GetData(Constants.forLoopString.CURRENTFILE))
+                    string prefix = "";
+                    //names output file with the name of the input file if true
+                    if (templateParser.NameBatchOutputAfterInput())
+                        prefix = Path.GetFileNameWithoutExtension((string)Globals.Instance.GetData(Constants.forLoopString.CURRENTFILE));
+                    else
+                    //names output file with thevalue sepcified in filename tag or use the default name
+                        prefix = templateParser.GetOutputFileName();
+                    outputFileName = prefix
                                             + "_"
                                             + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff") + '.'
                                             + templateParser.GetOutputFileExt();
