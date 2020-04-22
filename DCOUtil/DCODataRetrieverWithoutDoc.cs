@@ -14,6 +14,10 @@ namespace SmartExportTemplates.DCOUtil
         private TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
         private dcSmart.SmartNav SmartNav = (dcSmart.SmartNav)Globals.Instance.GetData(Constants.GE_SMART_NAV);
 
+        ///       <summary>
+        ///       The method creates a map of file name and a list of the pages that it contains 
+        ///       and saves it in the global constants.
+        ///       </summary>
         public void createFilePageMap()
         {
             Dictionary<string, List<string>> filePageMap = new Dictionary<string, List<string>>();
@@ -49,6 +53,10 @@ namespace SmartExportTemplates.DCOUtil
             }
         }
 
+        ///       <summary>
+        ///       The method value of the DCO expression from the current file.
+        ///       <param  name="DCOTree" >DCO expression that refers to a field in the file.</param>
+        ///       </summary>
         public string getDCOValueForFile(string DCOTree)
         {
             string filename = (string)Globals.Instance.GetData(Constants.forLoopString.CURRENTFILE);
@@ -89,7 +97,7 @@ namespace SmartExportTemplates.DCOUtil
         ///       </summary>
         public override string getDCOValueForField(string DCOTree)
         {
-            // DCO reference in the template file should adhere to a 4 part string [DCO].[page_type].[field_name]
+            // DCO reference in the template file should adhere to a 3 part string [DCO].[page_type].[field_name]
             // Parse the DCO reference and extract the page_type and field_name which can then be used to look up in the 
             // current document that is being processed
             DCOTree = DCOTree.Replace("[", "").Replace("]", "");
@@ -162,7 +170,8 @@ namespace SmartExportTemplates.DCOUtil
         }
 
         ///       <summary>
-        ///       The method returns the value corresponding to the DCO expression specified from the current DCO.
+        ///       The method returns the value corresponding to the DCO expression specified from the current DCO which is
+        ///       of type page.
         ///       <param name="DCOTree">DCO Expression in the format [DCO].[page_type].[field_name]</param>
         ///       <returns>The value corresponding to the DCO expression specified from the current DCO.</returns>
         ///       </summary>
@@ -205,8 +214,8 @@ namespace SmartExportTemplates.DCOUtil
         }
 
         ///       <summary>
-        ///       Returns the page type.
-        ///       <returns>The page type.</returns>
+        ///       Returns the page types present in the current file.
+        ///       <returns>The page types.</returns>
         ///       </summary>
         public override string getPageTypesInFile()
         {
@@ -241,6 +250,12 @@ namespace SmartExportTemplates.DCOUtil
             return string.Join(",", pageTypes);
         }
 
+        ///       <summary>
+        ///       The method returns a list of DCO objects that contain table of the specified name from the specified file .
+        ///       <param  name="fileName" >Name of the file from which the table objects are to be fetched.</param>
+        ///       <param  name="tableName" >Name of the table to be fetched.</param>
+        ///       <return>List of DCO objects that contain table of the specified name</return>
+        ///       </summary>
         public List<IDCO> getTablesForFile(string fileName, string tableName)
         {
             List<IDCO> tables = new List<IDCO>();

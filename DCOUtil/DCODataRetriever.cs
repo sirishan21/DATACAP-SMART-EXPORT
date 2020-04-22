@@ -710,12 +710,12 @@ namespace SmartExportTemplates.DCOUtil
         }
 
         ///       <summary>
-        ///       Returns the page type.
-        ///       <returns>The page type.</returns>
+        ///       Returns the page types from the current file.
+        ///       <returns>The page types.</returns>
         ///       </summary>
         public virtual string getPageTypesInFile()
         {
-            throw new SmartExportException("Operation not supported!");
+            throw new SmartExportException("Operation not supported for projects with Document.");
         }
     }
 }

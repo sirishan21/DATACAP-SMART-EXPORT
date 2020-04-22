@@ -44,7 +44,6 @@ namespace SmartExportTemplates.TemplateCore
 
             Stopwatch sw = Stopwatch.StartNew();
 
-            ExportCore.WriteLog(" Inside EvaluateLoopForFiles");
             DataElement dataElement = new DataElement();
             Conditions conditionEvaluator = new Conditions();
             Tables table = new Tables();
@@ -57,9 +56,8 @@ namespace SmartExportTemplates.TemplateCore
                 foreach (string file in filePageMap.Keys)
                 {
 
-                    //setting the currentIterationDCO , so that it can be used in DCODataRetreiver to get the data.
+                    //setting the current file , so that it can be used in DCODataRetreiver to get the data.
                     Globals.Instance.SetData(Constants.forLoopString.CURRENTFILE, file);
-                    ExportCore.WriteLog(" Current file " + file);
 
                     foreach (XmlNode node in loopNode.ChildNodes)
                     {
@@ -75,8 +73,9 @@ namespace SmartExportTemplates.TemplateCore
                                 if (node.Attributes == null || node.Attributes.Count > 0 ||
                                 string.IsNullOrEmpty(node.Attributes["tablename"].Value))
                                 {
-                                    new SmartExportException("Its mandatory to specify the table name when the for-each-rows tag " +
-                                        "is used within se:for-each tag for tables.");
+                                    new SmartExportException("Its mandatory to specify the table name " +
+                                        "when the for-each-rows tag " +
+                                        "is used within se:for-each tag for document.");
                                 }
                                 table.FetchTable(node);
                                 break;
@@ -86,12 +85,14 @@ namespace SmartExportTemplates.TemplateCore
                             default:
                                 if (node.NodeType == XmlNodeType.Element)
                                 {
-                                    ExportCore.WriteLog("Node type [" + ((XmlElement)node).Name + "] not supported. Will be ignored");
+                                    ExportCore.WriteLog("Node type [" 
+                                        + ((XmlElement)node).Name + "] not supported. Will be ignored");
                                 }
                                 break;
                         }
                     }
-                    TemplateParser templateParser = (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
+                    TemplateParser templateParser = 
+                        (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
 
                     ExportCore.getExportUtil.writeToFile(null);
 
@@ -106,15 +107,18 @@ namespace SmartExportTemplates.TemplateCore
                 // information would be already present in the exception message
                 if (!message.Contains("Problem found at line number"))
                 {
-                    TemplateParser templateParser = (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
-                    message = "Problem found at line number : " + templateParser.GetLineNumberForNode(loopNode) + "\n" + exp.Message;
+                    TemplateParser templateParser = 
+                        (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
+                    message = "Problem found at line number : " 
+                        + templateParser.GetLineNumberForNode(loopNode) + "\n" + exp.Message;
                 }
                 //setting it to empty after every iteration.
                 Globals.Instance.SetData(Constants.forLoopString.CURRENTFILE, Constants.EMPTYSTRING);
                 throw new SmartExportException(message);
             }
 
-            ExportCore.WriteDebugLog(" EvaluateLoopForFiles " + loopNode + "  completed in " + sw.ElapsedMilliseconds + " ms.");
+            ExportCore.WriteDebugLog(" EvaluateLoopForFiles " + loopNode 
+                + "  completed in " + sw.ElapsedMilliseconds + " ms.");
 
             sw.Stop();
         }
@@ -125,15 +129,14 @@ namespace SmartExportTemplates.TemplateCore
         {
 
             Stopwatch sw = Stopwatch.StartNew();
-
-
             DataElement dataElement = new DataElement();
             Conditions conditionEvaluator = new Conditions();
             Tables table = new Tables();
             try
             {
 
-                Dictionary<string, List<string>> filePageMap = (Dictionary<string, List<string>>)Globals.Instance.GetData(Constants.FILE_PAGE_MAP);
+                Dictionary<string, List<string>> filePageMap =
+                    (Dictionary<string, List<string>>)Globals.Instance.GetData(Constants.FILE_PAGE_MAP);
                 string file = (string)Globals.Instance.GetData(Constants.forLoopString.CURRENTFILE);
                 List<string> pages = filePageMap[file];
                 foreach (string page in pages)
@@ -152,8 +155,9 @@ namespace SmartExportTemplates.TemplateCore
                                 if (node.Attributes == null || node.Attributes.Count > 0 ||
                                 string.IsNullOrEmpty(node.Attributes["tablename"].Value))
                                 {
-                                    new SmartExportException("Its mandatory to specify the table name when the for-each-rows tag " +
-                                        "is used within se:for-each tag for tables.");
+                                    new SmartExportException("Its mandatory to specify the " +
+                                        "table name when the for-each-rows tag " +
+                                        "is used within se:for-each tag for pages.");
                                 }
                                 table.FetchTable(node);
                                 break;
@@ -163,7 +167,8 @@ namespace SmartExportTemplates.TemplateCore
                             default:
                                 if (node.NodeType == XmlNodeType.Element)
                                 {
-                                    ExportCore.WriteLog("Node type [" + ((XmlElement)node).Name + "] not supported. Will be ignored");
+                                    ExportCore.WriteLog("Node type ["
+                                        + ((XmlElement)node).Name + "] not supported. Will be ignored");
                                 }
                                 break;
                         }
@@ -179,22 +184,20 @@ namespace SmartExportTemplates.TemplateCore
                 // information would be already present in the exception message
                 if (!message.Contains("Problem found at line number"))
                 {
-                    TemplateParser templateParser = (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
-                    message = "Problem found at line number : " + templateParser.GetLineNumberForNode(loopNode) + "\n" + exp.Message;
+                    TemplateParser templateParser = 
+                        (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
+                    message = "Problem found at line number : " 
+                        + templateParser.GetLineNumberForNode(loopNode) + "\n" + exp.Message;
                 }
                 //setting it to empty after every iteration.
                 Globals.Instance.SetData(Constants.forLoopString.CURRENTFILE, Constants.EMPTYSTRING);
                 throw new SmartExportException(message);
             }
 
-            ExportCore.WriteDebugLog(" EvaluateLoopForFiles " + loopNode + "  completed in " + sw.ElapsedMilliseconds + " ms.");
+            ExportCore.WriteDebugLog(" EvaluateLoopForFiles " + loopNode 
+                + "  completed in " + sw.ElapsedMilliseconds + " ms.");
 
             sw.Stop();
         }
-
-
-
-
-
     }
 }

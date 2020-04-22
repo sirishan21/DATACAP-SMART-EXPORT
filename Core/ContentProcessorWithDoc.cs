@@ -10,6 +10,10 @@ using static SmartExportTemplates.SmartExport;
 
 namespace SmartExportTemplates.Core
 {
+    ///       <summary>
+    ///       ContentProcessorWithDoc is an implementation class that facilitates processing of a
+    ///       smart export XML template for projects that contain Document in their DCO hierarchy.  
+    ///       </summary> 
     class ContentProcessorWithDoc : ContentProcessor
     {
         TemplateParser templateParser = null;
@@ -26,9 +30,7 @@ namespace SmartExportTemplates.Core
             this.templateParser = parser;
         }
 
-        ///       <summary>
-        ///       The method creates a list of valid DCO references.
-        ///      
+        
         public List<string> createDCOPatternList(string dcoDefinitionFile)
         {
             List<string> DCOPatterns = new List<string>();
@@ -68,6 +70,7 @@ namespace SmartExportTemplates.Core
             return DCOPatterns;
         }
 
+       
         public void processNodes()
         {
             // Loop through the template and accumulate the output
@@ -91,7 +94,8 @@ namespace SmartExportTemplates.Core
                     default:
                         if (currentNode.NodeType == XmlNodeType.Element)
                         {
-                            ExportCore.WriteLog("Node type [" + ((XmlElement)currentNode).Name + "] not supported. Will be ignored");
+                            ExportCore.WriteLog("Node type [" + ((XmlElement)currentNode).Name 
+                                + "] not supported. Will be ignored");
                         }
                         break;
                 }

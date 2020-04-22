@@ -335,8 +335,12 @@ namespace SmartExportTemplates
             return returnValue;
         }
 
-        bool doesProjectHaveDocument()
+        ///       <summary>
+        ///       The method returns true if the project contains a document and false otherwise.
+        ///       </summary>
+        private bool doesProjectHaveDocument()
         {
+            List<bool> docStatus = new List<bool>();
             bool projectHasDoc = false;
             // if there is a document type in the DCO hierarchy
             if (CurrentDCO.ObjectType() == Constants.Document
@@ -345,26 +349,29 @@ namespace SmartExportTemplates
                      CurrentDCO.Parent().Parent().ObjectType() == Constants.Document)
                )
                 projectHasDoc = true;
-            //check if the child of batch is not a document
+            //check if the children of batch are not  document           
             else if(CurrentDCO.ObjectType() == Constants.Batch)
             {
                 for(int i=0;i< CurrentDCO.NumOfChildren();i++)
                 {
                     TDCOLib.IDCO childDCO = CurrentDCO.GetChild(i);
-                    if(childDCO.ObjectType() == Constants.Page)
+                    if(childDCO.ObjectType() != Constants.Document)
                     {
-                        projectHasDoc = false;
-                        break;
+                        docStatus.Add(false);
                     }
                     else
                     {
-                        projectHasDoc = true;
+                        docStatus.Add(true);
                     }
                 }
+                projectHasDoc = docStatus.Contains(true);
             }
             return projectHasDoc;
         }
 
+        ///       <summary>
+        ///       The method returns the path of DCO definition file.
+        ///       </summary>
         private string getDCODefinitionFile()
         {
             string parentDirectory = Path.GetDirectoryName(this.BatchPilot.ProjectPath);

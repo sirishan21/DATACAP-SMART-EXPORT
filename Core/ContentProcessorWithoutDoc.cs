@@ -11,6 +11,10 @@ using static SmartExportTemplates.SmartExport;
 
 namespace SmartExportTemplates.Core
 {
+    ///       <summary>
+    ///       ContentProcessorWithoutDoc is an implementation class that facilitates processing of a
+    ///       smart export XML template for projects that don't contain Document in their DCO hierarchy.  
+    ///       </summary>  
     class ContentProcessorWithoutDoc : ContentProcessor
     {
 
@@ -19,7 +23,7 @@ namespace SmartExportTemplates.Core
         //Node Parsers
         DataElement dataElement = new DataElement();
         Conditions conditionEvaluator = new Conditions();
-        LoopsWithoutDoc loopEvaluator = new LoopsWithoutDoc ();
+        LoopsWithoutDoc loopEvaluator = new LoopsWithoutDoc();
         Tables table = new Tables();
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         TDCOLib.IDCO CurrentDCO = (TDCOLib.IDCO)Globals.Instance.GetData(Constants.GE_CURRENT_DCO);
