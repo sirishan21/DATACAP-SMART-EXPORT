@@ -247,13 +247,7 @@ namespace SmartExportTemplates.TemplateCore
                            ExportCore.WriteDebugLog("smart param value for '"+ node.InnerText.Trim() + "' is " + 
                                     smartNav.MetaWord(Constants.SMARTP_AT + node.InnerText.Trim()));
                             break;
-                    case Constants.SE_COLLATE:
-                            nodeValue.Append(node.Value.Trim());
-                            break;
-                    case Constants.SE_NAME_AFTER_INPUT:
-                        nodeValue.Append(node.Value.Trim());
-                        break;
-                    default:
+                        default:
                             throw new SmartExportException("Internal error. " + node.Name + " node is not supported inside "+ headerNode.Name  +" node ");
                     }
                 }
