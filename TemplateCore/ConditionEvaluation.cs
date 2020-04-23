@@ -93,8 +93,7 @@ namespace SmartExportTemplates.TemplateCore
                 throw new SmartExportException("Unsupported syntax. Check documentation: " + conditionText);
             }
             if(operands[1].Trim() == Constants.Operators.CONTAINS && 
-                !(operands[0].Trim().Equals(Constants.ConditionString.FILE_PAGE_TYPES)
-                || operands[2].Trim().Equals(Constants.ConditionString.FILE_PAGE_TYPES)))
+                !operands[0].Trim().Equals(Constants.ConditionString.FILE_PAGE_TYPES))
             {
                 throw new SmartExportException("CONTAINS operator can be used only with  " 
                     + Constants.ConditionString.FILE_PAGE_TYPES+
