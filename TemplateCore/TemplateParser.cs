@@ -114,6 +114,48 @@ namespace SmartExportTemplates.TemplateCore
             return AppendToFile;
         }
 
+        public bool CollateBatchOutput()
+        {
+            bool collateBatchOutput = false;
+            XmlNode BatchOutputNode = TemplateRoot.GetElementsByTagName(Constants.SE_BATCH_OUTPUT)[0];
+            if (BatchOutputNode != null)
+            {
+                string collateBatchOutputValue = "false";
+                foreach (XmlNode node in BatchOutputNode.ChildNodes)
+                {
+                    if (Constants.SE_COLLATE == node.Name)
+                    {
+                        collateBatchOutputValue = node.InnerText.Trim();
+                        break;
+                    }
+                }
+                collateBatchOutput =
+                    (collateBatchOutputValue.Equals("True", StringComparison.InvariantCultureIgnoreCase)) ? true : false;
+            }
+            return collateBatchOutput;
+        }
+
+        public bool NameBatchOutputAfterInput()
+        {
+            bool nameAfterInput = false;
+            XmlNode BatchOutputNode = TemplateRoot.GetElementsByTagName(Constants.SE_BATCH_OUTPUT)[0];
+            if (BatchOutputNode != null)
+            {
+                string nameAfterInputValue = "false";
+                foreach (XmlNode node in BatchOutputNode.ChildNodes)
+                {
+                    if (Constants.SE_NAME_AFTER_INPUT == node.Name)
+                    {
+                        nameAfterInputValue = node.InnerText.Trim();
+                        break;
+                    }
+                }
+                nameAfterInput =
+                    (nameAfterInputValue.Equals("True", StringComparison.InvariantCultureIgnoreCase)) ? true : false;
+            }
+            return nameAfterInput;
+        }
+
         public string GetOutputFileName()
         {
             string OutputFileName = Constants.GE_DEF_OUTPUT_FILE;
@@ -264,6 +306,7 @@ namespace SmartExportTemplates.TemplateCore
                     if (rgxIf.IsMatch(line))
                         lineNumbers.Add(counter);
                 }
+                
             }
             return string.Join(",", lineNumbers);
         }

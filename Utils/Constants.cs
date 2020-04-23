@@ -31,6 +31,7 @@ namespace SmartExportTemplates.Utils
             internal const string DOCUMENT_TYPE = "document.type";
             internal const string PAGE_TYPE = "page.type";
             internal const string TABLE_TYPE = "table.type";
+            internal const string FILE_PAGE_TYPES = "file.page.types";
 
         }
 
@@ -42,7 +43,7 @@ namespace SmartExportTemplates.Utils
             internal const string FIELD = "FIELD";
             internal const string CURRENTITERATIONDCO = "currentIterationDCO";
             internal const string TABLE = "TABLE";
-
+            internal const string CURRENTFILE = "currentFile";
         }
 
         //Templat element names
@@ -56,6 +57,9 @@ namespace SmartExportTemplates.Utils
         public static string SE_OUTPUT_DIR_PATH = "se:outputFolder";
         public static string SE_ATTRIBUTE_COND_TEST = "test";
         public static string SE_OUTPUT_MEM_CACHE_LINES = "se:memCacheLines";
+        public static string SE_BATCH_OUTPUT = "se:BatchOutput";
+        public const string SE_COLLATE = "se:collate";
+        public const string SE_NAME_AFTER_INPUT = "se:nameafterinput";
 
         //General
         public static string GE_TEMPLATE_PARSER = "GETemplateParser";
@@ -75,11 +79,14 @@ namespace SmartExportTemplates.Utils
         public static string GE_TEMP_FILE_MAP = "tempFileMap";
         public const string GE_DEFAULT_OUTPUT_MEMORY_CACHE_LINES = "3000";
         public static string DCO_REF_PATTERN = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]\\.\\[.+?\\]";
+        public static string DCO_REF_PATTERN_NO_DOC = "\\[DCO\\]\\.\\[.+?\\]\\.\\[.+?\\]";
         public static string IF_REF_PATTERN = "(and|or)";
-        public static string ALLOWED_OPERATORS = "(EQUALS|LESSER-THAN|GREATER-THAN)";
+        public static string ALLOWED_OPERATORS = "(EQUALS|LESSER-THAN|GREATER-THAN|CONTAINS)";
         public static string LOCALE = "locale";
         internal const string EMPTYSTRING = "";
         internal const string COMMA = ",";
+        public static string FILE_PAGE_MAP = "FilePageMap";
+        public static string PROJECT_HAS_DOC="projectHasDoc";
 
         //Object types
         public const int Batch = 0;
@@ -118,7 +125,7 @@ namespace SmartExportTemplates.Utils
             internal const string EQUALS = "EQUALS";
             internal const string LESSER_THAN = "LESSER-THAN";
             internal const string GREATER_THAN = "GREATER-THAN";
-
+            internal const string CONTAINS = "CONTAINS";
         }
 
     }

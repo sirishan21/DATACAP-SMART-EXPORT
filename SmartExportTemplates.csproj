@@ -82,10 +82,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\ContentProcessor.cs" />
+    <Compile Include="Core\ContentProcessorWithDoc.cs" />
+    <Compile Include="Core\ContentProcessorWithoutDoc.cs" />
     <Compile Include="DCOUtil\DCODataRetriever.cs" />
+    <Compile Include="DCOUtil\DCODataRetrieverWithoutDoc.cs" />
     <Compile Include="TemplateCore\ConditionEvaluation.cs" />
     <Compile Include="TemplateCore\DataElement.cs" />
     <Compile Include="TemplateCore\Expressions.cs" />
+    <Compile Include="TemplateCore\LoopsWithoutDoc.cs" />
     <Compile Include="TemplateCore\Loops.cs" />
     <Compile Include="TemplateCore\Conditions.cs" />
     <Compile Include="Core\SmartExportTemplates.cs" />

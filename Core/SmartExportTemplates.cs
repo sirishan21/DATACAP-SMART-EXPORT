@@ -23,7 +23,7 @@ using System.Text.RegularExpressions;
 using SmartExportTemplates.DCOUtil;
 using SmartExportTemplates.TemplateCore;
 using SmartExportTemplates.Utils;
-
+using SmartExportTemplates.Core;
 
 namespace SmartExportTemplates
 {
@@ -269,7 +269,6 @@ namespace SmartExportTemplates
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
             Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
             Globals.Instance.SetData(Constants.GE_SMART_NAV, smartNav);
-
         }
 
        
@@ -288,14 +287,7 @@ namespace SmartExportTemplates
                 //Initialize the parser
                 TemplateParser templateParser = new TemplateParser(TemplateFilePath);
                 templateParser.Parse();
-                ValidateExpressions(TemplateFilePath);
-
-                //Node Parsers
-                DataElement dataElement = new DataElement();
-                Conditions conditionEvaluator = new Conditions();
-                Loops loopEvaluator = new Loops();
-                Tables table = new Tables();
-
+                
                 exportUtil.setContext(templateParser);
 
                 if (templateParser.AppendToFile() && !singleOutputFileNameMap.ContainsKey(templateParser.GetOutputFileName()))
@@ -304,35 +296,33 @@ namespace SmartExportTemplates
                 }
                 string locale = templateParser.GetLocale();
                 Globals.Instance.SetData(Constants.LOCALE, locale);
-
-                // Loop through the template and accumulate the output
-                while (templateParser.HasNextNode())
+                bool projectHasDocument = doesProjectHaveDocument();
+                Globals.Instance.SetData(Constants.PROJECT_HAS_DOC, projectHasDocument);
+                if (projectHasDocument)
                 {
-                    XmlNode currentNode = templateParser.GetNextNode();
-                    switch (templateParser.GetNodeType(currentNode))
-                    {
-                        case NodeType.Data:
-                            dataElement.EvaluateData(currentNode);
-                            break;
-                        case NodeType.If:
-                            conditionEvaluator.EvaluateCondition(currentNode);
-                            break;
-                        case NodeType.ForEach:
-                            loopEvaluator.EvaluateLoop(currentNode);
-                            break;
-                        case NodeType.ForEachRows:
-                            table.FetchTable(currentNode);
-                            break;
-                        default:
-                            if (currentNode.NodeType == XmlNodeType.Element)
-                            {
-                                WriteLog("Node type [" + ((XmlElement)currentNode).Name + "] not supported. Will be ignored");
-                            }
-                            break;
-                    }
+                    ContentProcessorWithDoc ContentProcessor = new ContentProcessorWithDoc(templateParser);
+                    DCOPatterns.AddRange(ContentProcessor.createDCOPatternList(getDCODefinitionFile()));
+                    ValidateExpressions(TemplateFilePath,Constants.DCO_REF_PATTERN);
+                    ContentProcessor.processNodes();
                 }
+                else
+                {
+                    ContentProcessorWithoutDoc ContentProcessor = new ContentProcessorWithoutDoc(templateParser);
+                    DCOPatterns.AddRange(ContentProcessor.createDCOPatternList(getDCODefinitionFile()));
+                    ValidateExpressions(TemplateFilePath, Constants.DCO_REF_PATTERN_NO_DOC);
+                    ContentProcessor.processNodes();
+                    
 
-                exportUtil.writeToFile(singleOutputFileNameMap);
+                }
+                //if project has document
+                //or when project doesn't have document and action is attached at page/field level
+                //or when collate batch output flag is true when action is attached at batch level and project doesn't have 
+                //document
+                if (projectHasDocument
+                    || (CurrentDCO.ObjectType() != Constants.Batch && !projectHasDocument)
+                    || (CurrentDCO.ObjectType() == Constants.Batch && !projectHasDocument
+                        && templateParser.CollateBatchOutput()))
+                    exportUtil.writeToFile(singleOutputFileNameMap);
 
                 WriteInfoLog(" Smart export WriteLog completed in " + sw.ElapsedMilliseconds+" ms.");
 
@@ -352,62 +342,63 @@ namespace SmartExportTemplates
         }
 
         ///       <summary>
-        ///       The method creates a list of valid DCO references.
-        ///      
-        private void createDCOPatternList()
+        ///       The method returns true if the project contains a document and false otherwise.
+        ///       </summary>
+        private bool doesProjectHaveDocument()
         {
-            string projectFile = this.BatchPilot.ProjectPath;
-
-            string parentDirectory = Path.GetDirectoryName(projectFile);
-            string dcoDefinitionFile = parentDirectory + Path.DirectorySeparatorChar + Path.GetFileName(Path.GetDirectoryName(parentDirectory)) + ".xml";
-
-            XmlDocument batchXML = new XmlDocument();
-            batchXML.Load(dcoDefinitionFile);
-            XmlElement batchRoot = batchXML.DocumentElement;
-            XmlNodeList dcoDocumentNodes = batchRoot.SelectNodes("./D"); //Document nodes
-            foreach (XmlNode dcoDocumentNode in dcoDocumentNodes)
+            List<bool> docStatus = new List<bool>();
+            bool projectHasDoc = false;
+            // if there is a document type in the DCO hierarchy
+            if (CurrentDCO.ObjectType() == Constants.Document
+                || (CurrentDCO.ObjectType() == Constants.Page && CurrentDCO.Parent().ObjectType() == Constants.Document)
+                || (CurrentDCO.ObjectType() == Constants.Field && CurrentDCO.Parent().ObjectType() == Constants.Page &&
+                     CurrentDCO.Parent().Parent().ObjectType() == Constants.Document)
+               )
+                projectHasDoc = true;
+            //check if the children of batch are not  document           
+            else if(CurrentDCO.ObjectType() == Constants.Batch)
             {
-                DocumentID = ((XmlElement)dcoDocumentNode).GetAttribute("type");
-                XmlNodeList pageList = dcoDocumentNode.SelectNodes("./P");
-
-                foreach (XmlNode pageNode in pageList)
+                for(int i=0;i< CurrentDCO.NumOfChildren();i++)
                 {
-                    string pageID = ((XmlElement)pageNode).GetAttribute("type");
-                    XmlNodeList allPageList = batchRoot.SelectNodes("./P");
-                    XmlNode currentPage = pageNode;
-                    foreach (XmlNode page in allPageList)
+                    TDCOLib.IDCO childDCO = CurrentDCO.GetChild(i);
+                    if(childDCO.ObjectType() != Constants.Document)
                     {
-                        if (pageID == ((XmlElement)page).GetAttribute("type"))
-                        {
-                            currentPage = page;
-                            break;
-                        }
+                        docStatus.Add(false);
                     }
-                    XmlNodeList fieldList = currentPage.SelectNodes("./F");
-                    foreach (XmlNode fieldNode in fieldList)
+                    else
                     {
-                        string fieldID = ((XmlElement)fieldNode).GetAttribute("type");
-                        string dcoPattern = DocumentID + "." + pageID + "." + fieldID;
-
-                        DCOPatterns.Add(dcoPattern);
-
+                        docStatus.Add(true);
                     }
                 }
+                projectHasDoc = docStatus.Contains(true);
             }
+            return projectHasDoc;
         }
+
+        ///       <summary>
+        ///       The method returns the path of DCO definition file.
+        ///       </summary>
+        private string getDCODefinitionFile()
+        {
+            string parentDirectory = Path.GetDirectoryName(this.BatchPilot.ProjectPath);
+            return parentDirectory + Path.DirectorySeparatorChar 
+                + Path.GetFileName(Path.GetDirectoryName(parentDirectory)) + ".xml";
+        }
+
+   
 
         ///       <summary>
         ///       The method checks if valid DCO references are used in the template file. If an invalid reference if found an exception is thrown.
         ///       <param name="TemplateFile">Fully qualified path of the template file.</param>
+        ///       <param name="dcoPattern">DCO Pattern.</param>
         ///       </summary>
-        private void ValidateExpressions(string TemplateFile)
+        private void ValidateExpressions(string TemplateFile, string dcoPattern)
         {
 
-            createDCOPatternList();
             byte[] bytes = System.IO.File.ReadAllBytes(TemplateFile);
             string text = System.Text.Encoding.UTF8.GetString(bytes);
 
-            Regex rg = new Regex(Constants.DCO_REF_PATTERN);
+            Regex rg = new Regex(dcoPattern);
             MatchCollection matchedPatterns = rg.Matches(text);
 
             List<string> wrongPatterns = new List<string>();

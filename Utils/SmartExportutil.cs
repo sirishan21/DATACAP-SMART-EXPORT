@@ -45,7 +45,7 @@ namespace SmartExportTemplates.Utils
 				tempFileNameMap.Add(templateParser.GetOutputFileName(), tempFilePath);
 			}
 
-            createOrAppendToFile(tempFileNameMap[templateParser.GetOutputFileName()]);
+            createOrAppendToFile(tempFileNameMap[templateParser.GetOutputFileName()],false);
            
 		}
 
@@ -59,21 +59,46 @@ namespace SmartExportTemplates.Utils
                     exportCore.WriteLog("Empty content. Skipping writing to file: " + templateParser.GetOutputFileName());
                     return;
                 }
-                // Write to output file
-                string outputFileName = templateParser.GetOutputFileName() + "_"
+                bool clearBuffer = false;
+                string outputFileName = null;
+                string outputFilePath = null;
+                //this scenario happens only when the project doesn't have document and the action is attached at batch level 
+                //and the collate batch output flag is false
+                if (null == singleOutputFileNameMap)
+                {
+                    string prefix = "";
+                    //names output file with the name of the input file if true
+                    if (templateParser.NameBatchOutputAfterInput())
+                        prefix = Path.GetFileNameWithoutExtension((string)Globals.Instance.GetData(Constants.forLoopString.CURRENTFILE));
+                    else
+                    //names output file with thevalue sepcified in filename tag or use the default name
+                        prefix = templateParser.GetOutputFileName();
+                    outputFileName = prefix
+                                            + "_"
                                             + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff") + '.'
                                             + templateParser.GetOutputFileExt();
-                string outputFilePath = Path.Combine(templateParser.GetOutputDirectory(),
-                                            templateParser.AppendToFile() ?
-                                                singleOutputFileNameMap[templateParser.GetOutputFileName()] + "." + templateParser.GetOutputFileExt()
-                                                : outputFileName);
+                    outputFilePath = Path.Combine(templateParser.GetOutputDirectory(),
+                                            outputFileName);
+
+                    clearBuffer = true;
+                }
+                else
+                {
+                    outputFileName = templateParser.GetOutputFileName() + "_"
+                                            + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss-fffffff") + '.'
+                                            + templateParser.GetOutputFileExt();
+                    outputFilePath = Path.Combine(templateParser.GetOutputDirectory(),
+                                           templateParser.AppendToFile() ?
+                                               singleOutputFileNameMap[templateParser.GetOutputFileName()] + "." + templateParser.GetOutputFileExt()
+                                               : outputFileName);
+                }
                 //If append to file is false and one iteration is complete, then code will rename temp file to actual file name
                 //and delete the entry in the map, so in next iteration new temp file is created for this template 
                 //as append to file is false
                 if (!templateParser.AppendToFile() && tempFileNameMap.ContainsKey(templateParser.GetOutputFileName()))
                 {
                     string tempPath = tempFileNameMap[templateParser.GetOutputFileName()];
-                    createOrAppendToFile(tempPath);
+                    createOrAppendToFile(tempPath,clearBuffer);
                     File.Move(tempPath, outputFilePath);
                     tempFileNameMap.Remove(templateParser.GetOutputFileName());
                     return;
@@ -86,14 +111,14 @@ namespace SmartExportTemplates.Utils
                 if (templateParser.AppendToFile() && tempFileNameMap.ContainsKey(templateParser.GetOutputFileName()) && !File.Exists(outputFilePath))
                 {
                     string tempPath = tempFileNameMap[templateParser.GetOutputFileName()];
-                    createOrAppendToFile(tempPath);
+                    createOrAppendToFile(tempPath,clearBuffer);
                     File.Move(tempPath, outputFilePath);
                     tempFileNameMap[templateParser.GetOutputFileName()] = outputFilePath;
                     return;
                 }
 
                 //if there are no temp file created then data is flushed to output file here.
-                createOrAppendToFile(outputFilePath);
+                createOrAppendToFile(outputFilePath,clearBuffer);
             }
             catch (System.Exception exp)
             {
@@ -106,7 +131,7 @@ namespace SmartExportTemplates.Utils
         //this method is used to create or append data to given file
         //if AppendToFile is false then everytime new file is given then it creates a new file.
         //if AppendToFile is true then everytime singleOutputFileName file is given then it appends to the same file.
-        private void createOrAppendToFile(String outputFilePath) {
+        private void createOrAppendToFile(String outputFilePath, bool clearBuffer) {
             try
             {
                 using (StreamWriter outputFile = File.AppendText(outputFilePath))
@@ -116,6 +141,8 @@ namespace SmartExportTemplates.Utils
                         outputFile.WriteLine(line);
                     }
                 }
+                if (clearBuffer)
+                    outputStringList.Clear();
             }
             catch (System.Exception exp)
             {
@@ -132,11 +159,12 @@ namespace SmartExportTemplates.Utils
 
         public string escapeString(string output, string separator)
         {
-            string escapedString = output;
+            string escapedString = output.Replace(Environment.NewLine, ", ");
+            
             if (templateParser.GetOutputFileExt().Equals("csv", StringComparison.InvariantCultureIgnoreCase) 
                 || separator==Constants.COMMA)
             {
-                escapedString = "\"" + output + "\"";
+                escapedString = "\"" + escapedString + "\"";
             }
             return escapedString;
         }

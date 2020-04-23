@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<se:smartexport xmlns:se="https://www.w3.org/2001/XMLSchema" version="1.0">
+   <se:appendToFile>true</se:appendToFile>
+   <se:BatchOutput>
+      <se:collate>false</se:collate>
+      <se:nameafterinput>true</se:nameafterinput>
+   </se:BatchOutput>
+   <se:locale>en-US</se:locale>
+   <se:filename>
+      <se:smartParam>BATCHID</se:smartParam>
+   </se:filename>
+   <se:fileext>json</se:fileext>
+   <se:outputFolder>C:\Datacap\TradeFinance\SmartExport</se:outputFolder>
+   <se:for-each select="document">
+      <se:if test="file.page.types CONTAINS InvoiceProcessing">
+         <se:data>{</se:data>
+         <se:data>
+            <se:tab/>
+            "Invoice Number" : [ "<se:value select="[DCO].[InvoiceProcessing].[Invoice Number]" />" ] ,
+         </se:data>
+         <se:data>
+            <se:tab />
+            "Ship To" : [ "<se:value select="[DCO].[InvoiceProcessing].[Ship To]" />" ],
+         </se:data>
+         <se:data>
+            <se:tab />
+            "Invoice Processing Table" :[
+         </se:data>
+         <se:for-each-rows fromrow="1" torow="3" tablename="InvoiceProcessingTable">
+            <se:data>
+               {
+               <se:newLine />
+               <se:tab />
+               <se:tab />
+               "Delivery Note Number" : "<se:value select="Delivery Note Number" />"
+               <se:comma />
+               <se:newLine />
+               <se:tab />
+               <se:tab />
+               "Line Quantity" : "<se:value select="Line Quantity" />"
+               <se:newLine />
+               },
+            </se:data>
+         </se:for-each-rows>
+         <se:data>{}</se:data>
+         <se:data>]</se:data>
+         <se:data>}</se:data>
+      </se:if>
+   </se:for-each>
+</se:smartexport>
