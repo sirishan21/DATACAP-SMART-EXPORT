@@ -33,6 +33,9 @@ namespace SmartExportTemplates.TemplateCore
             int forEachlevel = getIntValueForEachObjectType(loopNode.Attributes["select"].Value);
             if (forEachlevel == Constants.Document && CurrentDCO.ObjectType() == Constants.Batch )
                 EvaluateLoopForFiles(loopNode);
+            else if(forEachlevel == Constants.Field && CurrentDCO.ObjectType() == Constants.Page 
+                && loopNode.Attributes["select"].Value.ToUpper() ==Constants.forLoopString.TABLE)
+                    base.EvaluateLoop(loopNode);
             else
             {
                 TemplateParser templateParser = (TemplateParser)Globals.Instance.GetData(Constants.GE_TEMPLATE_PARSER);
