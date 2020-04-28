@@ -10,7 +10,7 @@
 	<se:if test="page.type EQUALS InvoiceProcessing">
 	<!-- Regular fields -->
 		<se:data>
-			Supplier Name :    <se:value select="[DCO].[Document].[InvoiceProcessing].[Supplier Name]"/><se:newLine/>
+			Supplier Name :    <se:value select="[DCO].[InvoiceProcessing].[Supplier Name]"/><se:newLine/>
 		</se:data>
 		<!-- Table -->
 		<se:for-each-rows fromrow="1"  torow="1" tablename="InvoiceProcessingTable">
