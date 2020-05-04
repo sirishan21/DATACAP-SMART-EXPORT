@@ -28,22 +28,22 @@
 
 ## Features
 
-1.	Configuration 
+1.	Configuration :
 Enables one to  specify the configuration details like the output file name, extension, locale, output directory and memCacheLines – maximum number of lines of data that can be stored in memory .
 
-2.	Data elements
+2.	Data elements :
 Enables one to specify the content to be printed in the output file, this could be plain text of field values extracted from the input file.
 
-3.	Looping constructs
+3.	Looping constructs :
 Enables one to execute a set of instructions for a specific number of times. This feature is supported at the batch, document, and page level of the DCO hierarchy. Data elements, looping constructs and conditional constructs can be nested within this.
 
-4.	Conditional constructs
+4.	Conditional constructs :
 Enables one to execute a set of instructions if some criteria is satisfied. This feature is supported at the document, page and field level of the DCO hierarchy. Data elements, looping constructs and conditional constructs can be nested within this.
 
-5.	Smart Parameters
+5.	Smart Parameters :
 Enables one to use the values of the DataCap defined variables within a file name or print their value in the file.
 
-6.	Tables
+6.	Tables :
 Enables one to extract table content. This feature can be used at file, document, page and field level.
 
 
