@@ -1,0 +1,23 @@
+<!-- Attach this template at Page level and set page type to InvoiceProcessing -->
+<se:smartexport version="1.0" xmlns:se="https://www.w3.org/2001/XMLSchema">
+  <se:appendToFile>false</se:appendToFile>
+  <se:locale>en-US</se:locale>
+  <se:filename>
+    Table_Page_Level
+  </se:filename>
+  <se:fileext>csv</se:fileext>
+  <se:outputFolder>c:\SmartExportOutput</se:outputFolder>
+		
+		<!-- Table -->	
+		<se:for-each-rows fromrow="1"  torow="2" tablename="InvoiceProcessingTable">                                                                         
+			<se:data>
+				<se:value select="Line Quantity"/>                              
+				<se:comma/>
+				<se:value select="Line Description"/>
+				<se:comma/>
+				<se:value select="Line Net Amount"/>
+			</se:data>
+			<se:newLine/>
+		</se:for-each-rows>	
+</se:smartexport>
+
