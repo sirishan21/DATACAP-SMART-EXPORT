@@ -1,0 +1,19 @@
+<!-- DataCap smart data export -->
+<!-- MVP allows only three elements - se:data, se:if and se:for-each -->
+<!-- This template exports Air_Ticket data from TravelDocs.
+  Associated at Page level. One file for each page type Air_Ticket is generated
+   -->
+<se:smartexport version="1.0" xmlns:se="https://www.w3.org/2001/XMLSchema">
+  <se:appendToFile>true</se:appendToFile>
+  <se:locale>en-US</se:locale>
+  <se:filename>PAGE_AllFlightDetails</se:filename>
+  <se:fileext>csv</se:fileext>
+  <se:outputFolder>c:\SmartExportOutput</se:outputFolder>
+  <se:data>
+    <se:imagename/><se:tab/>
+    <se:value select="[DCO].[Flight].[Air_Ticket].[Return_From]"/><se:tab/>
+    <se:value select="[DCO].[Flight].[Air_Ticket].[Return_To]"/><se:tab/>
+    <se:value select="[DCO].[Flight].[Air_Ticket].[Airfare]"/><se:tab/>
+    <se:value select="[DCO].[Flight].[Air_Ticket].[Total_Cost]"/>
+  </se:data>
+</se:smartexport>

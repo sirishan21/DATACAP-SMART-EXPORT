@@ -1,0 +1,13 @@
+{
+	"Outbound_From" : "Chicago (ORD)",
+	"Outbound_To" : "Atlanta (ATL)",
+	"Outbound_Date" : ["MON OCT 25, 2010"],
+	"Return_From" : "Atlanta (ATL)",
+	"Return_To" : "Chicago (MIA)",
+	"Return_Date" : ["WED OCT 27, 2010"],
+	"Fair_Information" : [ {
+			"Airfare" : "385.27",
+			"Taxes" : "44.76",
+			"Total Cost" : "430.03"
+	} ]
+}

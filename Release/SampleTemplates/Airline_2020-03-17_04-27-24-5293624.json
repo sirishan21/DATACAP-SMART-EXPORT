@@ -1,0 +1,13 @@
+{
+	"Outbound_From" : "ORD Chicago",
+	"Outbound_To" : "BOS Boston",
+	"Outbound_Date" : ["OCT 26, 2010"],
+	"Return_From" : "BOS Boston",
+	"Return_To" : "ORD Chicago",
+	"Return_Date" : ["OCT 29, 2010"],
+	"Fair_Information" : [ {
+			"Airfare" : "233.00",
+			"Taxes" : "21.40",
+			"Total Cost" : "254.40"
+	} ]
+}

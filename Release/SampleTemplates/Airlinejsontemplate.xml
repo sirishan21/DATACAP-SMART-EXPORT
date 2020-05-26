@@ -1,0 +1,22 @@
+<se:smartexport version="1.0" xmlns:se="https://www.w3.org/2001/XMLSchema">
+  <se:appendToFile>false</se:appendToFile>
+  <se:locale>en-US</se:locale>
+  <se:filename>Airline</se:filename>
+  <se:fileext>json</se:fileext>
+  <se:outputFolder>c:\SmartExportOutput</se:outputFolder>
+      <se:if test="document.type EQUALS Flight">
+          <se:data>{</se:data>
+		  <se:data><se:tab/>"Outbound_From" : "<se:value select="[DCO].[Flight].[Air_Ticket].[Outbound_From]"/>",</se:data>
+          <se:data><se:tab/>"Outbound_To" : "<se:value select="[DCO].[Flight].[Air_Ticket].[Outbound_To]"/>",</se:data>
+          <se:data><se:tab/>"Outbound_Date" : ["<se:value select="[DCO].[Flight].[Air_Ticket].[Outbound_Date]"/>"],</se:data>
+          <se:data><se:tab/>"Return_From" : "<se:value select="[DCO].[Flight].[Air_Ticket].[Return_From]"/>",</se:data>
+          <se:data><se:tab/>"Return_To" : "<se:value select="[DCO].[Flight].[Air_Ticket].[Return_To]"/>",</se:data>
+          <se:data><se:tab/>"Return_Date" : ["<se:value select="[DCO].[Flight].[Air_Ticket].[Return_Date]"/>"],</se:data>
+		  <se:data><se:tab/>"Fair_Information" : [ {</se:data>
+		  <se:data><se:tab/><se:tab/><se:tab/>"Airfare" : "<se:value select="[DCO].[Flight].[Air_Ticket].[Airfare]"/>",</se:data>
+          <se:data><se:tab/><se:tab/><se:tab/>"Taxes" : "<se:value select="[DCO].[Flight].[Air_Ticket].[Taxes]"/>",</se:data>
+          <se:data><se:tab/><se:tab/><se:tab/>"Total Cost" : "<se:value select="[DCO].[Flight].[Air_Ticket].[Total_Cost]"/>"</se:data>
+		  <se:data><se:tab/>} ]</se:data>
+          <se:data>}</se:data>
+      </se:if>
+</se:smartexport>

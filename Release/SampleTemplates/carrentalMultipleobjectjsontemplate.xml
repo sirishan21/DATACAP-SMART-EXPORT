@@ -1,0 +1,25 @@
+<se:smartexport version="1.0" xmlns:se="https://www.w3.org/2001/XMLSchema">
+  <se:appendToFile>false</se:appendToFile>
+  <se:locale>en-US</se:locale>
+  <se:filename>CarRental</se:filename>
+  <se:fileext>json</se:fileext>
+  <se:outputFolder>c:\SmartExportOutput</se:outputFolder>
+  <se:data>[</se:data>
+  <se:for-each select="document">
+	  <se:for-each select="page">
+      <se:if test="page.type EQUALS Rental_Agreement">
+          <se:data>{</se:data>
+          <se:data><se:tab/>"Car_Type" : "<se:value select="[DCO].[Car_Rental].[Rental_Agreement].[Car_Type]"/>",</se:data>
+          <se:data><se:tab/>"Pickup_Date" : ["<se:value select="[DCO].[Car_Rental].[Rental_Agreement].[Pickup_Date]"/>"],</se:data>
+          <se:data><se:tab/>"Pickup_Location" : "<se:value select="[DCO].[Car_Rental].[Rental_Agreement].[Pickup_Location]"/>",</se:data>
+          <se:data><se:tab/>"Return_Date" : ["<se:value select="[DCO].[Car_Rental].[Rental_Agreement].[Return_Date]"/>"],</se:data>
+          <se:data><se:tab/>"Return_Location" : "<se:value select="[DCO].[Car_Rental].[Rental_Agreement].[Return_Location]"/>",</se:data>
+          <se:data><se:tab/>"Total Cost" : "<se:value select="[DCO].[Car_Rental].[Rental_Agreement].[Total_Cost]"/>"</se:data>
+          <se:data>},</se:data>
+      </se:if>
+	  </se:for-each>
+  </se:for-each>
+  <!-- extra braces added(dummy object) so to get the json format as the previous objects ends with comma-->
+   <se:data>{}</se:data>
+  <se:data>]</se:data>
+</se:smartexport>

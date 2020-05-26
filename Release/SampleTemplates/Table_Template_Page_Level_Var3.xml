@@ -1,0 +1,27 @@
+<!-- Attach this template at Page level for all page types i.e., page type is not set -->
+<se:smartexport version="1.0" xmlns:se="https://www.w3.org/2001/XMLSchema">
+  <se:appendToFile>false</se:appendToFile>
+  <se:locale>en-US</se:locale>
+  <se:filename>
+    <se:smartParam>BATCHID</se:smartParam>
+  </se:filename>
+  <se:fileext>csv</se:fileext>
+  <se:outputFolder>c:\SmartExportOutput</se:outputFolder>
+	<se:if test="page.type EQUALS InvoiceProcessing">
+	<!-- Regular fields -->
+		<se:data>
+			Supplier Name :    <se:value select="[DCO].[InvoiceProcessing].[Supplier Name]"/><se:newLine/>
+		</se:data>
+		<!-- Table -->
+		<se:for-each-rows fromrow="1"  torow="1" tablename="InvoiceProcessingTable">
+			<se:data>
+				<se:value select="Line Quantity"/>
+				<se:comma/>
+				<se:value select="Line Description"/>
+				<se:comma/>
+				<se:value select="Line Net Amount"/>
+			</se:data>
+			<se:newLine/>
+		</se:for-each-rows>
+	</se:if>
+</se:smartexport>

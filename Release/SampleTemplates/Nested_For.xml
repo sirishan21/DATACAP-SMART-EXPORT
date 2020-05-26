@@ -1,0 +1,29 @@
+<se:smartexport version="1.0" xmlns:se="https://www.w3.org/2001/XMLSchema">
+  <se:appendToFile>false</se:appendToFile>
+  <se:locale>en-US</se:locale>
+  <se:filename>
+    <se:smartParam>BATCHID</se:smartParam>
+  </se:filename>
+  <se:fileext>txt</se:fileext>
+  <se:outputFolder>c:\SmartExportOutput</se:outputFolder>
+  <se:for-each select="document">
+	  <se:for-each select="page">
+      <se:if test="page.type EQUALS Air_Ticket">
+        <se:data>Page ID: <se:value select="page.name"/></se:data>
+        <se:data>Return Date: <se:value select="[DCO].[Flight].[Air_Ticket].[Return_Date]"/></se:data>
+        <se:if test="[DCO].[Flight].[Air_Ticket].[Return_Date] GREATER-THAN 01/Aug/2010">
+          <se:data><se:tab/>Return From : <se:value select="[DCO].[Flight].[Air_Ticket].[Return_From]"/></se:data>
+          <se:data><se:tab/>Return To : <se:value select="[DCO].[Flight].[Air_Ticket].[Return_To]"/></se:data>
+          <se:data><se:tab/>Airfare : <se:value select="[DCO].[Flight].[Air_Ticket].[Airfare]"/></se:data>
+          <se:data><se:tab/>Total Cost : <se:value select="[DCO].[Flight].[Air_Ticket].[Total_Cost]"/></se:data>
+          <se:elsif test="[DCO].[Flight].[Air_Ticket].[Return_Date] LESSER-THAN 01/Aug/2010">
+            <se:if test="[DCO].[Flight].[Air_Ticket].[Return_Date] GREATER-THAN 01/Jan/2005">
+              <se:data><se:tab/>Airfare : <se:value select="[DCO].[Flight].[Air_Ticket].[Airfare]"/></se:data>
+              <se:data><se:tab/>Total Cost : <se:value select="[DCO].[Flight].[Air_Ticket].[Total_Cost]"/></se:data>
+            </se:if>
+          </se:elsif>
+        </se:if>
+      </se:if>
+	  </se:for-each>
+  </se:for-each>
+</se:smartexport>

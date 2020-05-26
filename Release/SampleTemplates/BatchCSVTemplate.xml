@@ -1,0 +1,19 @@
+<se:smartexport version="1.0" xmlns:se="https://www.w3.org/2001/XMLSchema">
+  <se:appendToFile>false</se:appendToFile>
+  <se:locale>en-US</se:locale>
+  <se:filename>BATCH_Comma_Separated_Car_Rental</se:filename>
+  <se:fileext>csv</se:fileext>
+  <se:outputFolder>c:\SmartExportOutput</se:outputFolder>
+  <se:data>Pickup_Date<se:comma/>Pickup_Location<se:comma/>Return_Date<se:comma/>Return_Location<se:comma/>TotalCost</se:data>
+  <se:for-each select="document">
+    <se:if test="document.type EQUALS Car_Rental ">
+	  <se:data>
+        <se:value select="[DCO].[Car_Rental].[Rental_Agreement].[Pickup_Date]"/><se:comma/>
+        <se:value select="[DCO].[Car_Rental].[Rental_Agreement].[Pickup_Location]"/><se:comma/>
+        <se:value select="[DCO].[Car_Rental].[Rental_Agreement].[Return_Date]"/><se:comma/>
+		    <se:value select="[DCO].[Car_Rental].[Rental_Agreement].[Return_Location]"/><se:comma/>
+        <se:value select="[DCO].[Car_Rental].[Rental_Agreement].[Total_Cost]"/>
+      </se:data>
+	</se:if>
+   </se:for-each>
+</se:smartexport>
