@@ -79,6 +79,11 @@ namespace SmartExportTemplates.Core
                 XmlNode currentNode = templateParser.GetNextNode();
                 switch (templateParser.GetNodeType(currentNode))
                 {
+                    case NodeType.Header:
+                        dataElement.setIsHeader(true);
+                        dataElement.EvaluateData(currentNode);
+                        dataElement.setIsHeader(false);
+                        break;
                     case NodeType.Data:
                         dataElement.EvaluateData(currentNode);
                         break;

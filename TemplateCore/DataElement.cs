@@ -18,7 +18,7 @@ namespace SmartExportTemplates.TemplateCore
         private bool isTableColumn = false;
         private string columnSeparator = "";
         bool projectHasDoc = (bool)Globals.Instance.GetData(Constants.PROJECT_HAS_DOC);
-
+        private bool isHeader = false;
 
         public DataElement()
         {
@@ -82,7 +82,14 @@ namespace SmartExportTemplates.TemplateCore
                 }
                 if (text.Length > 0)
                 {
-                    ExportCore.getExportUtil.addToOutPutList(text.ToString());
+                    if (isHeader)
+                    {
+                        Globals.Instance.SetData(Constants.CSV_HEADERS, text.ToString());
+                    }
+                    else
+                    {
+                        ExportCore.getExportUtil.addToOutPutList(text.ToString());
+                    }
                 }
 
             }
@@ -96,6 +103,11 @@ namespace SmartExportTemplates.TemplateCore
         public void setIsTableColumn(bool IsTableColumn)
         {
             this.isTableColumn = IsTableColumn;
+        }
+
+        public void setIsHeader(bool isHeader)
+        {
+            this.isHeader = isHeader;
         }
     }
 }

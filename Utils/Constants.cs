@@ -19,6 +19,7 @@ namespace SmartExportTemplates.Utils
         public struct NodeTypeString
         {
             internal const string SE_DATA = "se:data";
+            internal const string SE_HEADER = "se:header";
             internal const string SE_IF = "se:if";
             internal const string SE_ELSIF = "se:elsif";
             internal const string SE_ELSE = "se:else";
@@ -87,6 +88,7 @@ namespace SmartExportTemplates.Utils
         internal const string COMMA = ",";
         public static string FILE_PAGE_MAP = "FilePageMap";
         public static string PROJECT_HAS_DOC="projectHasDoc";
+        public static string CSV_HEADERS="CSVHeaders";
 
         //Object types
         public const int Batch = 0;

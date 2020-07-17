@@ -21,7 +21,7 @@ namespace SmartExportTemplates.TemplateCore
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         private dcSmart.SmartNav smartNav = (dcSmart.SmartNav)Globals.Instance.GetData(Constants.GE_SMART_NAV);
         string[] templateContents = null;
-        //comment
+
         public TemplateParser(string TemplateFilePath)
         {
             this.TemplateFilePath = TemplateFilePath;
@@ -97,6 +97,9 @@ namespace SmartExportTemplates.TemplateCore
                     break;
                 case Constants.NodeTypeString.SE_DATA:
                     nodeType = SmartExport.NodeType.Data;
+                    break;
+                case Constants.NodeTypeString.SE_HEADER:
+                    nodeType = SmartExport.NodeType.Header;
                     break;
             }
             return nodeType;
