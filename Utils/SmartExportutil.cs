@@ -3,6 +3,7 @@ using System.IO;
 using SmartExportTemplates.TemplateCore;
 using System.Collections.Generic;
 using SmartExportTemplates.Utils;
+using System.Text;
 
 namespace SmartExportTemplates.Utils
 {   
@@ -134,12 +135,22 @@ namespace SmartExportTemplates.Utils
         private void createOrAppendToFile(String outputFilePath, bool clearBuffer) {
             try
             {
+                StringBuilder text = new StringBuilder();
+                bool exists = File.Exists(outputFilePath);
+
                 using (StreamWriter outputFile = File.AppendText(outputFilePath))
                 {
+                    if (!exists)
+                    {
+                        string header = (string)Globals.Instance.GetData(Constants.CSV_HEADERS);
+                        if (header != "")
+                            text.Append(header+"\n");
+                    }
                     foreach (string line in outputStringList)
                     {
-                        outputFile.WriteLine(line);
+                        text.Append(line);
                     }
+                    outputFile.WriteLine(text);
                 }
                 if (clearBuffer)
                     outputStringList.Clear();

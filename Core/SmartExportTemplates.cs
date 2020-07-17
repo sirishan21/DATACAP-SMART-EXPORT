@@ -232,6 +232,7 @@ namespace SmartExportTemplates
             internal const int If = 1;
             internal const int ForEach = 2;
             internal const int ForEachRows = 3;
+            internal const int Header = 4;
             internal const int Invalid = 2147482647;
         }
 
@@ -267,6 +268,7 @@ namespace SmartExportTemplates
             string batchXMLFile = this.BatchPilot.DCOFile;
             string batchDirPath = Path.GetDirectoryName(batchXMLFile);
             Globals.Instance.SetData(Constants.GE_BATCH_DIR_PATH, batchDirPath);
+            Globals.Instance.SetData(Constants.CSV_HEADERS, "");
             Globals.Instance.SetData(Constants.forLoopString.CURRENTITERATIONDCO, Constants.EMPTYSTRING);
             Globals.Instance.SetData(Constants.GE_SMART_NAV, smartNav);
         }
