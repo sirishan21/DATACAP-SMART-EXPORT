@@ -21,7 +21,7 @@ namespace SmartExportTemplates.TemplateCore
         SmartExportTemplates.SmartExport ExportCore = (SmartExportTemplates.SmartExport)Globals.Instance.GetData(Constants.GE_EXPORT_CORE);
         private dcSmart.SmartNav smartNav = (dcSmart.SmartNav)Globals.Instance.GetData(Constants.GE_SMART_NAV);
         string[] templateContents = null;
-        
+        //comment
         public TemplateParser(string TemplateFilePath)
         {
             this.TemplateFilePath = TemplateFilePath;
