@@ -46,6 +46,9 @@ Enables one to use the values of the DataCap defined variables within a file nam
 6.	Tables :
 Enables one to extract table content. This feature can be used at file, document, page and field level.
 
+7. Smart Export Template Builder UI
+This is a ICN plugin, which enables the user to build templates for the Smart Export Custom Action.
+For additional information refer- https://github.com/IBM/DATACAP-SMART-EXPORT/blob/DBA-Public-Sirisha/UI/README.md
 
 ## Technology
 C#
