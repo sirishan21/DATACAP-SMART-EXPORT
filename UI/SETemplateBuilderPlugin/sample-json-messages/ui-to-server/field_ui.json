@@ -1,0 +1,34 @@
+{
+	"application": "TravelDocs",
+	"level": "Field",
+	"appendToFile": "true",
+	"locale": {
+		"value": "en_US",
+		"smartparam": ""
+	},
+	"fileName": {
+		"value": "",
+		"smartparam": "BATCHID"
+	},
+	"exportFormat": "txt",
+	"outputFolder": {
+		"value": "C://output",
+		"smartparam": ""
+	},
+
+	"delimeter": "tab",
+	"field.type": "Car Type",
+	"conditionGroups": [{
+			"conditions": [
+			],
+			"fields": [{
+				"field": {
+					"key": "Airfare",
+					"value": "[DCO].[Flight].[Air_Ticket].[Airfare]"
+
+				}
+			}]
+		}
+		
+	]
+}

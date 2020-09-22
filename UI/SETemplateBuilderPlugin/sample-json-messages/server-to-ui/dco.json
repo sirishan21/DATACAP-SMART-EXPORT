@@ -1,0 +1,113 @@
+{
+	"documents": [{
+		"id": "Flight",
+		"name": "Flight"
+	}, {
+		"id": "Hotel",
+		"name": "Hotel"
+	}],
+	"pageFieldMap": {
+		"Room_Receipt": [{
+			"id": "[DCO].[Hotel].[Room_Receipt].[Arrival_Date]",
+			"name": "Arrival_Date"
+		}, {
+			"id": "[DCO].[Hotel].[Room_Receipt].[Departure_Date]",
+			"name": "Departure_Date"
+		}, {
+			"id": "[DCO].[Hotel].[Room_Receipt].[Total_Cost]",
+			"name": "Total_Cost"
+		}],
+		"Rental_Agreement": [{
+			"id": "[DCO].[Hotel].[Rental_Agreement].[Sticky_Field]",
+			"name": "Sticky_Field"
+		}, {
+			"id": "[DCO].[Hotel].[Rental_Agreement].[Text_Field]",
+			"name": "Text_Field"
+		}, {
+			"id": "[DCO].[Hotel].[Rental_Agreement].[Pickup_Date]",
+			"name": "Pickup_Date"
+		}, {
+			"id": "[DCO].[Hotel].[Rental_Agreement].[Pickup_Location]",
+			"name": "Pickup_Location"
+		}, {
+			"id": "[DCO].[Hotel].[Rental_Agreement].[Return_Date]",
+			"name": "Return_Date"
+		}, {
+			"id": "[DCO].[Hotel].[Rental_Agreement].[Return_Location]",
+			"name": "Return_Location"
+		}, {
+			"id": "[DCO].[Hotel].[Rental_Agreement].[Car_Type]",
+			"name": "Car_Type"
+		}, {
+			"id": "[DCO].[Hotel].[Rental_Agreement].[Options]",
+			"name": "Options"
+		}, {
+			"id": "[DCO].[Hotel].[Rental_Agreement].[Total_Cost]",
+			"name": "Total_Cost"
+		}],
+		"Air_Ticket": [{
+			"id": "[DCO].[Flight].[Air_Ticket].[Vendor_Logo]",
+			"name": "Vendor_Logo"
+		}, {
+			"id": "[DCO].[Flight].[Air_Ticket].[Outbound_From]",
+			"name": "Outbound_From"
+		}, {
+			"id": "[DCO].[Flight].[Air_Ticket].[Outbound_To]",
+			"name": "Outbound_To"
+		}, {
+			"id": "[DCO].[Flight].[Air_Ticket].[Outbound_Date]",
+			"name": "Outbound_Date"
+		}, {
+			"id": "[DCO].[Flight].[Air_Ticket].[Return_From]",
+			"name": "Return_From"
+		}, {
+			"id": "[DCO].[Flight].[Air_Ticket].[Return_To]",
+			"name": "Return_To"
+		}, {
+			"id": "[DCO].[Flight].[Air_Ticket].[Return_Date]",
+			"name": "Return_Date"
+		}, {
+			"id": "[DCO].[Flight].[Air_Ticket].[Airfare]",
+			"name": "Airfare"
+		}, {
+			"id": "[DCO].[Flight].[Air_Ticket].[Taxes]",
+			"name": "Taxes"
+		}, {
+			"id": "[DCO].[Flight].[Air_Ticket].[Total_Cost]",
+			"name": "Total_Cost"
+		}],
+		"Meals": [{
+			"id": "[DCO].[Hotel].[Meals].[Meals_Total]",
+			"name": "Meals_Total"
+		}, {
+			"id": "[DCO].[Hotel].[Meals].[Meals_Grid]",
+			"name": "Meals_Grid"
+		}],
+		"Other_Charges": [{
+			"id": "[DCO].[Hotel].[Other_Charges].[Other_Charges_Total]",
+			"name": "Other_Charges_Total"
+		}, {
+			"id": "[DCO].[Hotel].[Other_Charges].[Other_Charges_Grid]",
+			"name": "Other_Charges_Grid"
+		}]
+	},
+	"documentPageMap": {
+		"Flight": [{
+			"id": "Air_Ticket",
+			"name": "Air_Ticket"
+		}],
+		"Hotel": [{
+			"id": "Room_Receipt",
+			"name": "Room_Receipt"
+		}, {
+			"id": "Meals",
+			"name": "Meals"
+		}, {
+			"id": "Other_Charges",
+			"name": "Other_Charges"
+		}, {
+			"id": "Rental_Agreement",
+			"name": "Rental_Agreement"
+		}]
+	}
+}

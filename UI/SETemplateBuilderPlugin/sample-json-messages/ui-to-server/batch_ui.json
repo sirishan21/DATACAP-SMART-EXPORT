@@ -1,0 +1,80 @@
+{
+	"application": "TravelDocs",
+	"level": "Batch",
+	"appendToFile": "true",
+	"locale": {
+		"value": "en_US",
+		"smartparam": ""
+	},
+	"fileName": {
+		"value": "",
+		"smartparam": "BATCHID"
+	},
+	"exportFormat": "csv",
+	"outputFolder": {
+		"value": "C://Output",
+		"smartparam": ""
+	},
+	"delimeter": "comma",
+	"conditionGroups": [{
+			"conditions": [{
+					"field": "[DCO].[Flight].[Air_Ticket].[Airfare]",
+					"operator": "Greater Than",
+					"value": "200",
+					"joinOperator": "AND"
+				},
+				{
+					"field": "[DCO].[Flight].[Air_Ticket].[Total_Cost]",
+					"operator": "Greater Than",
+					"value": "200",
+					"joinOperator": ""
+				}
+			],
+			"fields": [{
+				"field": {
+					"key": "To",
+					"value": "[DCO].[Flight].[Air_Ticket].[Return_To]"
+
+				}
+			}, {
+				"field": {
+					"key": "From",
+					"value": "[DCO].[Flight].[Air_Ticket].[Return_From]"
+
+				}
+			}]
+		},
+		{
+			"conditions": [],
+			"fields": [{
+				"field": {
+					"key": "Total_Cost",
+					"value": "[DCO].[Flight].[Air_Ticket].[Total_Cost]"
+
+				}
+			}, {
+				"field": {
+					"key": "Taxes",
+					"value": "[DCO].[Flight].[Air_Ticket].[Taxes]"
+
+				}
+			}]
+		},
+		{
+			"conditions": [{
+				"field": "[DCO].[Flight].[Air_Ticket].[Return_Date]",
+				"operator": "Greater Than",
+				"value": "10/10/1990",
+				"joinOperator": ""
+			}],
+			"fields": [{
+				"field": {
+					"key": "Travel Date",
+					"value": "[DCO].[Flight].[Air_Ticket].[Return_Date]"
+
+				}
+			}]
+		}
+	]
+
+}

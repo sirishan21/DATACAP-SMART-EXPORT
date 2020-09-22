@@ -1,0 +1,22 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+        {"loose": true,
+        "useBuiltIns": "entry",
+        "corejs": "2",
+        "modules": false,
+        "targets": {
+          "chrome": "62",
+          "firefox": "52",
+          "ie": "11",
+          "edge": "40",
+          "safari": "11"
+        }}
+    ],
+    "@babel/preset-react"
+  ],
+  "plugins": [["@babel/plugin-proposal-decorators",{ "legacy": true }],
+              ["@babel/plugin-proposal-class-properties", {"loose": true}]
+            ]
+}

@@ -1,0 +1,54 @@
+<div class="SETemplateBuilderPluginConfigPane">
+	<div>
+		<table class="propertyTable" role="presentation">
+			<tr>
+				<td class="propertyRowLabel"><span class="required">*</span><label
+					for="${id}_dcServerURI">Datacap Server IP Address:</label>&nbsp;
+					<div data-dojo-type="ecm/widget/HoverHelp"
+						data-dojo-attach-point="dcServerURIHoverHelp"
+						message="Specify the datacap server IP address."></div></td>
+				<td class="propertyRowValue"><div id="${id}_dcServerURI"
+						data-dojo-attach-point="dcServerURI"
+						data-dojo-attach-event="onKeyUp: _onFieldChange"
+						data-dojo-type="ecm/widget/ValidationTextBox" required="true"
+						trim="true" propercase="false"></div></td>
+			</tr>
+			<tr>
+				<td class="propertyRowLabel"><span class="required">*</span><label
+					for="${id}_dcPort">Port:</label>&nbsp;
+					<div data-dojo-type="ecm/widget/HoverHelp"
+						data-dojo-attach-point="dcPortHoverHelp"
+						message="Specify the port number."></div></td>
+				<td class="propertyRowValue"><div id="${id}_dcPort"
+						data-dojo-attach-point="dcPort"
+						data-dojo-attach-event="onKeyUp: _onFieldChange"
+						data-dojo-type="ecm/widget/ValidationTextBox" required="true"
+						trim="true" propercase="false"></div></td>
+			</tr>
+			<tr>
+				<td class="propertyRowLabel"><span class="required">*</span><label
+					for="${id}_dcUserName">User Name:</label>&nbsp;
+					<div data-dojo-type="ecm/widget/HoverHelp"
+						data-dojo-attach-point="dcUserNameHelp"
+						message="Specify the user name."></div></td>
+				<td class="propertyRowValue"><div id="${id}_dcUserName"
+						data-dojo-attach-point="dcUserName"
+						data-dojo-attach-event="onKeyUp: _onFieldChange"
+						data-dojo-type="ecm/widget/ValidationTextBox" required="true"
+						trim="true" propercase="false"></div></td>
+			</tr>
+			<tr>
+				<td class="propertyRowLabel"><span class="required">*</span><label
+					for="${id}_dcPassword">Password:</label>&nbsp;
+					<div data-dojo-type="ecm/widget/HoverHelp"
+						data-dojo-attach-point="dcPasswordHelp"
+						message="Specify the password."></div></td>
+				<td class="propertyRowValue"><div id="${id}_dcPassword"
+						data-dojo-attach-point="dcPassword"
+						data-dojo-attach-event="onKeyUp: _onFieldChange"
+						data-dojo-type="ecm/widget/ValidationTextBox" required="true"
+						trim="true" propercase="false"></div></td>
+			</tr>
+		</table>
+	</div>
+</div>

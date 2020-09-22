@@ -1,0 +1,29 @@
+.sETemplateBuilderFeature{
+	margin-top: 10px;
+	width: 100%;
+	height: calc(100% - 20px);
+}
+
+.sETemplateBuilderFeatureIcon {
+	width: 32px;
+	height: 32px;
+	background: url('images/featureIcon.png') no-repeat;
+}
+/**disabled icon
+.dijitMenuItemDisabled .{PLUGIN_FEATURE_ID}Icon {
+	width: 32px;
+	height: 32px;
+	background: url('images/featureIcon.png') center no-repeat;
+}
+*/
+/**Selected icon
+.launchBarButtons .{PLUGIN_FEATURE_ID}Icon {
+	width: 32px;
+	height: 32px;
+	background: url('images/featureIcon.png') center no-repeat;
+}
+*/
+
+.sETemplateBuilderPluginConfigPane{
+	
+}

@@ -1,0 +1,462 @@
+@import "~carbon-components/css/carbon-components.css";
+// .ecm *{
+//     box-sizing: content-box;
+// }
+// .sampleReactFeature{
+//     .feature-main {
+//         height: 100%;
+//         width: 100%;
+//         .bx--form{
+//             width: 30%;
+//             text-align: center;
+//             margin: auto;
+//             top: 30px;
+//             position: relative;
+//             }
+//         .bx--label{
+//             margin: 20px 0;
+//         }
+//     }
+// }
+
+// .bx--list-box__selection{
+//     height: 40px
+// }
+
+// .bx--list-box__selection svg{
+//     height : 16px
+// }
+
+// .bx--list-box__menu-icon{
+//     padding-left: 16px;
+//     padding-right: 16px;
+// }
+
+// .bx--list-box__selection{
+//     padding-left: 16px;
+//     padding-right: 16px;
+// }
+
+// .bx--list-box__selection--multi{
+//     height: 24px
+// }
+
+// .bx--list-box.bx--list-box--inline{
+// height:32px
+// }
+// .bx--list-box__menu-item{
+// height:40px
+// }
+// .bx--list-box__menu-item{
+// padding-left: 16px;
+// padding-right: 16px;
+// }
+// .bx--checkbox-label{
+//     padding-left: 16px;
+// }
+// .bx--list-box__menu-icon{
+//     padding-left: 16px;
+//     padding-right: 16px;
+// }
+
+// .bx--dropdown-text	{
+//     font-size: 8;
+// }
+
+// .bx--dropdown	{
+//     height:200px !important
+// }
+
+//WORKING
+.bx--snippet {
+  background: black !important;
+  color: aqua !important;
+  // background-color: black !important;
+  //   height: 350px;
+}
+
+.bx--snippet .bx--copy-btn {
+  display: none;
+}
+
+.bx--dropdown__wrapper--inline {
+  width: 100%;
+}
+
+//   First page dropdown
+.bx--list-box.bx--list-box--inline .bx--list-box__field {
+  background-color: ghostwhite;
+  min-width: 190px;
+  // border: 1px solid ;
+  border-bottom: solid 1px var(--cds-ui-04, #8d8d8d);
+  height: 2.3rem;
+}
+
+.bx--modal-content {
+  height: 240px !important;
+  margin-bottom: 0.5rem !important;
+  // width : 80% !important;
+  // padding-right: 20%
+}
+
+.bx--modal-container .bx--modal-header,
+.bx--modal-container .bx--modal-content,
+.bx--modal-container .bx--modal-content__regular-content {
+  padding-right: 0% !important;
+}
+
+#modal-value legend {
+  display: none !important;
+}
+
+.bx--modal.is-visible .bx--modal-container {
+  width: 80% !important;
+}
+
+#modal-value {
+  margin-top: -5px !important;
+}
+.btn-next {
+  margin: 2px 0px !important;
+  float: right !important;
+}
+
+.btn-prv {
+  margin: 2px 26px !important;
+  float: left !important;
+}
+.btn-download {
+    margin: 2px 0px !important;
+    float: right !important;
+}
+.btn-prv2 {
+    margin: 2px 0px !important;
+    float: left !important;
+  }
+
+.bx--dropdown__wrapper {
+  background-color: beige;
+  padding: 0px 0px 0px 10px;
+  margin: 2px;
+  border-bottom: 1px solid var(--cds-ui-04, #8d8d8d);
+  background-color: var(--cds-field-01, #f4f4f4);
+}
+
+//   Condition box select
+.bx--select-input {
+  background-color: ghostwhite;
+  // width: 155px;
+  // border: 1px solid ;
+  // border-bottom: solid 1px var(--cds-ui-04, #8d8d8d);
+}
+
+.bx--select-option {
+  background-color: var(--cds-field-01, #f4f4f4);
+}
+
+#overflowmenu button {
+  min-width: 20px !important;
+}
+
+#condition-box .bx--dropdown .bx--list-box__field {
+  min-width: 200px;
+  border: none;
+  background-color: ghostwhite;
+}
+
+.bx--select-input__wrapper {
+  height: 37px;
+}
+
+.bx--select {
+  margin-top: 5px;
+}
+
+RadioButtonGroup {
+  background-color: beige;
+  padding: 0px 6px;
+  margin: 2px;
+}
+.tab-content {
+  width: 50%;
+  margin: 5px;
+  padding: 5px;
+}
+
+.template-content {
+  width: 90%;
+  margin: 5px;
+  padding: 5px;
+}
+
+.smart-param {
+  //   height: 35px;
+  //   padding: 2px 0px 0px 19px;
+  margin: 2px -2px 0px 0px;
+  height: 34px;
+  padding: 0px 0px 0px 19px;
+  .bx--col-lg-2 {
+    // padding-left: 0px;
+    // padding-right: 0px;
+    padding: 0px;
+    .bx--label {
+      font-size: 0.875rem;
+      margin-top: 7px;
+    }
+  }
+
+  //   tab 2 dd control label
+  .bx--dropdown__wrapper--inline .bx--label {
+    padding-left: 10px !important;
+  }
+
+  .bx--dropdown .bx--list-box__field {
+    min-width: 200px;
+    border: 1px solid darkgrey;
+    background-color: ghostwhite;
+  }
+
+  .bx--col-lg-2 {
+    // padding-left: 0px;
+    // padding-right: 0px;
+    padding: 0px;
+    .bx--label {
+      font-size: 0.875rem;
+    }
+  }
+  .bx--col-lg-5 {
+    .bx--dropdown__wrapper {
+      margin: 0px;
+      padding: 0px;
+    }
+    .bx--label {
+      display: none;
+    }
+  }
+  .bx--col-lg-4 {
+    .bx--dropdown__wrapper {
+      margin: 0px;
+      padding: 0px;
+    }
+    .bx--label {
+      display: none;
+    }
+  }
+}
+
+.bx--list-box__field {
+  background-color: ghostwhite;
+  // width: 155px;
+  // border: 1px solid ;
+  border-bottom: solid 1px var(--cds-ui-04, #8d8d8d);
+}
+.bx--text-input {
+  background-color: ghostwhite;
+}
+.smartparam-or {
+  margin-top: 10px;
+}
+
+//Hide Datatable Batchaction Icon
+.bx--action-list .bx--btn .bx--btn__icon {
+  display: none;
+}
+
+//hide label of Text Box
+.label-hide {
+  .bx--label {
+    display: none;
+  }
+
+  .bx--tabs--container {
+    width: 250px !important;
+  }
+}
+
+.bx--data-table-container {
+  //   min-height: 250px;
+}
+
+.bx--progress {
+    background: aliceblue;
+    padding: 4px 6px 3px 15px;
+}
+
+.bx--progress-step {
+  width: 13rem;
+}
+
+.bx--progress-label {
+  min-width: 8rem;
+}
+
+.bx--progress-line {
+  width: 12rem;
+}
+
+.bx--progress-step-button {
+    text-align-last: left;
+}
+
+#conditionbox-value .bx--fieldset .bx--label {
+//   padding-bottom: 8px;
+}
+
+.bx--col-lg-3 .bx--dropdown__wrapper {
+  background-color: beige;
+  padding: 0px 0px 0px 0px;
+  margin: 2px;
+  border-bottom: 1px solid var(--cds-ui-04, #8d8d8d);
+  background-color: var(--cds-field-01, #f4f4f4);
+}
+
+// Tab Display None Hide
+// .bx--tabs--container {
+//     display : none
+// }
+
+// Content Navigator Changes
+.bx--tabs__nav--hidden {
+  overflow: hidden;
+}
+
+.bx--dropdown .bx--list-box__field {
+  min-width: 200px;
+  border: 1px solid darkgrey;
+  background-color: ghostwhite;
+}
+
+#conditionbox-value .bx--fieldset {
+  margin-top: 4px;
+}
+
+.ecm.icn label {
+  color: black;
+  font-size: 0.875rem;
+}
+.bx--label {
+  font-size: 0.875rem;
+}
+Button {
+  height: 42px;
+  min-width: 150px;
+}
+
+.bx--fieldset {
+  margin-bottom: 0px;
+}
+
+.bx--snippet--multi .bx--snippet-container pre {
+  overflow-x: auto;
+}
+
+.bx--snippet--multi .bx--snippet-container pre::after {
+  display: none;
+}
+
+button.bx--btn.bx--snippet-btn--expand {
+    height: 0px;
+}
+
+
+.condition-box{
+margin: 10px 0px;
+}
+.bx--overflow-menu{
+min-width: 20px;
+max-width: 20px;
+}
+
+// .condition-box .bx--gr
+.bx--col-lg-3 Select{
+    margin-bottom: 2px;
+    border: 1px solid darkgrey;
+    border-bottom: 3px solid darkgrey;
+}
+
+.bx--tabs--container{
+    display: none;
+}
+
+.class-info{
+    overflow: hidden;
+    margin-top: 45px;
+    // padding: 0px 4px;
+    div{
+        padding: 0px 10px 0px 0px;
+    }
+    svg{
+        height:20px
+    }
+}
+
+
+
+
+// Info Modal Styling
+// .bx--modal.is-visible .bx--modal-container{
+//     background: black;
+//     border: 1px solid;
+//     border-color: aliceblue;
+// }
+// .bx--modal-header__heading{
+//     color:white;
+//     line-height: 1.925rem;
+// }
+// .bx--modal-container .bx--modal-header{
+//     color: white;
+//     border: 2px solid darkslategrey;
+// }
+// .bx--modal-container .bx--modal-content{
+//     color: white;
+//     border: 2px solid darkslategrey;
+// }
+// .bx--list--ordered:not(.bx--list--nested) > .bx--list__item {
+//     position: relative;
+//     color: white;
+//     margin-left: 40px;
+// }
+
+// .bx--modal-close {
+//     background-color: blue;
+// }
+// .bx--modal-close:hover {
+//      background-color:blue;
+// }
+b{
+    font-weight: bolder;
+}
+
+td svg{
+    height: 20px;
+}
+svg:hover{
+    cursor: pointer;
+}
+
+cls-inline{
+    display: inline;
+}
+
+
+// button :hover{
+// cursor: default !important;
+// }
+
+
+// .bx--progress-step--disabled svg {
+//     // fill: blue;
+//     cursor: not-allowed;
+// }
+
+// .bx--progress-step--disabled .bx--progress-label {
+//     color: black;
+// }
+
+
+.info-div{
+    background-color: var(--cds-field-01, #f4f4f4);
+    width: 95%;
+    padding-left: 32px;
+    border-bottom: 1px solid var(--cds-ui-04, #8d8d8d);
+  }
