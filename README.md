@@ -46,10 +46,13 @@ Enables one to use the values of the DataCap defined variables within a file nam
 6.	Tables :
 Enables one to extract table content. This feature can be used at file, document, page and field level.
 
+6.	Smart Export Template Builder UI :
+Enables one to build a template that is used by the Smart Export Custom action. For further details refer UI/README.md
 
 ## Technology
 C#
-
+Java
+ReactJS
 
 ## Dependencies
 Datacap.Globals.dll
